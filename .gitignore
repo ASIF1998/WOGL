@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+Build/
+SOIL2/
+Users/
+.vscode/
+WOGL.xcodeproj/
+
+*..xcodeproj
