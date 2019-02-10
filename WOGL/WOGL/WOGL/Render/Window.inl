@@ -27,11 +27,9 @@ namespace WOGL
         };
 
         /**
-         * @template width ширина окна
-         * @template height высота окна
-         * @template depthSize количесвто бит в буфере глубины
-         * @template stensilSize  количесвто бит в буфере трафарета
-         * @template multisamples количество семплеров(необходимо при включённом MSAA)
+         * @template DepthSize количесвто бит в буфере глубины
+         * @template StensilSize  количесвто бит в буфере трафарета
+         * @template Multisamples количество семплеров(необходимо при включённом MSAA)
         */
         template<int32_t DepthSize = 24, int32_t StensilSize = 8, int32_t Multisamples = 4>
         class Window

@@ -31,9 +31,22 @@ int main()
             make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Test/testing.fs.glsl")
         };
 
-//        auto texture {
-//            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Desktop/рабочий стол/foto/michael-rogers-1156531-unsplash.jpg")
-//        };
+        
+        auto texture {
+            (Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Desktop/рабочий стол/foto/oboi-osx-2880x1800-5k-4k-epl-vodopad-les-173.jpg"))
+        };
+        
+        for (size_t i{0}; i < texture.width(); i++) {
+            for (size_t j{0}; j < texture.height(); j++) {
+//                texture->at<Canal::RED>(i, j) = 1.0f;
+//                texture->at<Canal::BLUE>(i, j) = 1.0f;
+                texture.at<Canal::BLUE>(i, j) = 1.0f;
+            }
+        }
+
+        TextureRenderer<TexelFormat::RGB16_F> textureRenderer {
+            texture
+        };
 
         ShaderProgram shaderProgram;
 
@@ -56,6 +69,13 @@ int main()
             1.0f, 0.0f, 0.0f
         };
 
+        VertexBuffer<2> textureCoordsBuffer {
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f, 
+            1.0f, 0.0f
+        };
+
         IndexBuffer indexBuffer {
              0, 2, 1, 0, 2, 3
         };
@@ -64,12 +84,15 @@ int main()
 
         vao.add(positionBuffer, 0);
         vao.add(colorBuffer, 1);
+        vao.add(textureCoordsBuffer, 2);
+
+        shaderProgram.set_uniform("Texture", 0);
         
         vao.bind();
         indexBuffer.bind();
+        textureRenderer.bind(0);
 
         context.clearColor(1.0f, 1.0f, 0.0f, 1.0f);
-        context.chechError();
 
         bool stay = true;
         SDL_Event event;

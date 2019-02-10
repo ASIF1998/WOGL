@@ -29,7 +29,7 @@ namespace WOGL
              * Конструктор который создаёт дескриптор индексного буффера и помещает туда данные.
              *
              * @param data массив данных
-             * @template size размер массива
+             * @template Size размер массива
             */
             template<size_t Size>
             explicit IndexBuffer(const uint32_t(&data)[Size]) :
@@ -46,7 +46,7 @@ namespace WOGL
              * Конструктор который создаёт дескриптор индексного буффера и помещает туда данные.
              *
              * @param data объект типа std::array
-             * @template size размер массива внутри объекта std::array
+             * @template Size размер массива внутри объекта std::array
             */
             template<size_t Size>
             explicit IndexBuffer(const array<uint32_t, Size>& data) :

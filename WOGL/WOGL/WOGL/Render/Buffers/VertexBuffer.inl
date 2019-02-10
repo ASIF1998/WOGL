@@ -23,7 +23,7 @@ namespace WOGL
     inline namespace Render
     {
         /**
-         * @template numComponent количество компонентов в элементе(напрример в vec4 4-е компонента)
+         * @template NumComponent количество компонентов в элементе(напрример в vec4 4-е компонента)
         */
         template<int32_t NumComponent>
         class VertexBuffer
@@ -35,7 +35,7 @@ namespace WOGL
              * Конструктор который создаёт дескриптор вершинного буффера и помещает туда данные.
              *
              * @param data массив данных
-             * @template size размер массива
+             * @template Size размер массива
             */
             template<size_t Size>
             explicit VertexBuffer(const float(&data)[Size]) :
@@ -52,7 +52,7 @@ namespace WOGL
              * Конструктор который создаёт дескриптор вершинного буффера и помещает туда данные.
              *
              * @param data объект типа std::array
-             * @template size размер массива внутри объекта std::array
+             * @template Size размер массива внутри объекта std::array
             */
             template<size_t Size>
             explicit VertexBuffer(const array<float, Size>& data) :

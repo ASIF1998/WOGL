@@ -24,13 +24,13 @@ namespace WOGL
     inline namespace Data
     {
         /**
-         * @template dataType тип каждого из каналов текстуры(например float)
-         * @template tx тип текселя
+         * @template DataType тип каждого из каналов текстуры(например float)
+         * @template Tx тип текселя
         */
         template<typename DataType, TexelType Tx>
         class Texture
         {
-            friend class TextureRenderer;
+            friend class InitializeTextureRenderer;
 
         public:
             /**
@@ -174,13 +174,13 @@ namespace WOGL
             template<Canal canal>
             DataType at(size_t i, size_t j) const
             {
-                auto* ptr = &_data.at(i * _height + j);
+                auto* ptr = &_data._data.at((i * _height * _bpp) + (j * _bpp));
 
-                if constexpr (canal == Canal::GREEN && _bpp > 1) {
+                if (canal == Canal::GREEN && _bpp > 1) {
                     ptr++;
-                } else if constexpr (canal == Canal::BLUE && _bpp > 2) {
+                } else if (canal == Canal::BLUE && _bpp > 2) {
                     ptr += 2;
-                } else if constexpr (canal == Canal::ALPHA && _bpp > 3) {
+                } else if (canal == Canal::ALPHA && _bpp > 3) {
                     ptr += 3;
                 }
 
@@ -190,13 +190,13 @@ namespace WOGL
             template<Canal canal>
             DataType& at(size_t i, size_t j)
             {
-                auto* ptr = &_data.at(i * _height + j);
+                auto* ptr = &_data.at((i * _height * _bpp) + (j * _bpp));
 
-                if constexpr (canal == Canal::GREEN && _bpp > 1) {
+                if (canal == Canal::GREEN && _bpp > 1) {
                     ptr++;
-                } else if constexpr (canal == Canal::BLUE && _bpp > 2) {
+                } else if (canal == Canal::BLUE && _bpp > 2) {
                     ptr += 2;
-                } else if constexpr (canal == Canal::ALPHA && _bpp > 3) {
+                } else if (canal == Canal::ALPHA && _bpp > 3) {
                     ptr += 3;
                 }
 
@@ -206,13 +206,13 @@ namespace WOGL
             template<Canal canal>
             DataType atNoexcept(size_t i, size_t j) const
             {
-                auto* ptr = &_data[i * _height + j];
+                auto* ptr = &_data[(i * _height * _bpp) + (j * _bpp)];
 
-                if constexpr (canal == Canal::GREEN && _bpp > 1) {
+                if (canal == Canal::GREEN && _bpp > 1) {
                     ptr++;
-                } else if constexpr (canal == Canal::BLUE && _bpp > 2) {
+                } else if (canal == Canal::BLUE && _bpp > 2) {
                     ptr += 2;
-                } else if constexpr (canal == Canal::ALPHA && _bpp > 3) {
+                } else if (canal == Canal::ALPHA && _bpp > 3) {
                     ptr += 3;
                 }
 
@@ -222,13 +222,13 @@ namespace WOGL
             template<Canal canal>
             DataType& atNoexcept(size_t i, size_t j)
             {
-                auto* ptr = &_data[i * _height + j];
+                auto* ptr = &_data[(i * _height * _bpp) + (j * _bpp)];
 
-                if constexpr (canal == Canal::GREEN && _bpp > 1) {
+                if (canal == Canal::GREEN && _bpp > 1) {
                     ptr++;
-                } else if constexpr (canal == Canal::BLUE && _bpp > 2) {
+                } else if (canal == Canal::BLUE && _bpp > 2) {
                     ptr += 2;
-                } else if constexpr (canal == Canal::ALPHA && _bpp > 3) {
+                } else if (canal == Canal::ALPHA && _bpp > 3) {
                     ptr += 3;
                 }
 
@@ -240,8 +240,6 @@ namespace WOGL
              *
              * @param path путь до изображения
              * @throw invalid_argument в случае если не удалось загрузить изображение
-             * @template dataType тип каждого из каналов текстуры(настоятельно рекомендуется использовать 8 битные целые числа, float или  double)
-             * @template tx тип текселя
             */
             static auto loadTexture(const string_view path)
             {

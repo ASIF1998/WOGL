@@ -9,16 +9,18 @@
 #ifndef Texture_hpp
 #define Texture_hpp
 
+#include <GL/glew.h>
+
 namespace WOGL
 {
     inline namespace Data
     {
         enum class TexelType
         {
-            RED,
-            RG,
-            RGB,
-            RGBA
+            RED = GL_RED,
+            RG = GL_RG,
+            RGB = GL_RGB,
+            RGBA = GL_RGBA
         };
 
         enum class Canal
