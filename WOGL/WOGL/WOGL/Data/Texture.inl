@@ -265,7 +265,7 @@ namespace WOGL
                     tex._data[i] = static_cast<DataType>(imageData[i]) / 255.0;
                 }
             } else {
-                copy(tex._data.begin(), tex._data.end(), imageData);
+                copy(imageData, imageData + (width * height * tex._bpp), begin(tex._data));
             }
 
             delete [] imageData;

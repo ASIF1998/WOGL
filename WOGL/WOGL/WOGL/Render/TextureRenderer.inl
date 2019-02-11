@@ -31,6 +31,7 @@ namespace WOGL
             glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
             glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(texelFormat), _width, _height);
             update(texture);
+            glGenerateMipmap(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
