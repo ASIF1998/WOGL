@@ -13,24 +13,21 @@
 
 namespace WOGL
 {
-    inline namespace Data
+    enum class TexelType
     {
-        enum class TexelType
-        {
-            RED = GL_RED,
-            RG = GL_RG,
-            RGB = GL_RGB,
-            RGBA = GL_RGBA
-        };
+        RED = GL_RED,
+        RG = GL_RG,
+        RGB = GL_RGB,
+        RGBA = GL_RGBA
+    };
 
-        enum class Canal
-        {
-            RED,
-            GREEN,
-            BLUE,
-            ALPHA
-        };
-    }
+    enum class Canal
+    {
+        RED,
+        GREEN,
+        BLUE,
+        ALPHA
+    };
 }
 
 #include "Texture.inl"
