@@ -21,13 +21,13 @@ namespace WOGL
         UV
     };
 
-    struct VertexAttribut
+    struct Vertex
     {
         vec3 position;
         vec3 normal;
         vec2 uv;
 
-        VertexAttribut& operator=(const VertexAttribut& va)
+        Vertex& operator=(const Vertex& va)
         {
             position = va.position;
             normal = va.normal;
@@ -39,7 +39,7 @@ namespace WOGL
 
     class Mesh
     {
-        using VertexAttributs = vector<VertexAttribut>;
+        using Vertices = vector<Vertex>;
         using Indices = vector<uint32_t>;
 
     public:
@@ -50,7 +50,7 @@ namespace WOGL
          * @param indicesCount количество индексов
         */
         explicit Mesh(size_t vertexAttributsCount, size_t indicesCount) :
-            _vertexAttributs(vertexAttributsCount),
+            _vertices(vertexAttributsCount),
             _indices(indicesCount)
         {
         }
@@ -62,8 +62,8 @@ namespace WOGL
          * @param indices контейнер который хранит индексы
         */
         template<template<typename> typename Conteiner>
-        explicit Mesh(const Conteiner<VertexAttribut>& vertexAttributs, const Conteiner<uint32_t>& indices) :
-            _vertexAttributs{vertexAttributs},
+        explicit Mesh(const Conteiner<Vertices>& vertexAttributs, const Conteiner<uint32_t>& indices) :
+            _vertices{vertexAttributs},
             _indices{indices}
         {
         }
@@ -77,11 +77,11 @@ namespace WOGL
          * @param size_2 размер массива indices
         */
         template<template<typename> typename Ptr>
-        explicit Mesh(const Ptr<VertexAttribut[]>& vertexAttributs, size_t size_1, const Ptr<uint32_t[]>& indices, size_t size_2) :
-            _vertexAttributs(size_1),
+        explicit Mesh(const Ptr<Vertex[]>& vertexAttributs, size_t size_1, const Ptr<uint32_t[]>& indices, size_t size_2) :
+            _vertices(size_1),
             _indices(size_2)
         {
-            copy(vertexAttributs.get(), vertexAttributs.get() + size_1, begin(_vertexAttributs));
+            copy(vertexAttributs.get(), vertexAttributs.get() + size_1, begin(_vertices));
             copy(indices.get(), indices.get() + size_2, begin(_indices));
         }
 
@@ -93,22 +93,22 @@ namespace WOGL
          * @param indices указатель на массив с индексами
          * @param size_2 размер массива indices
         */
-        explicit Mesh(const unique_ptr<VertexAttribut[]>& vertexAttributs, size_t size_1, const unique_ptr<uint32_t[]>& indices, size_t size_2) :
-            _vertexAttributs(size_1),
+        explicit Mesh(const unique_ptr<Vertex[]>& vertexAttributs, size_t size_1, const unique_ptr<uint32_t[]>& indices, size_t size_2) :
+            _vertices(size_1),
             _indices(size_2)
         {
-            copy(vertexAttributs.get(), vertexAttributs.get() + size_1, begin(_vertexAttributs));
+            copy(vertexAttributs.get(), vertexAttributs.get() + size_1, begin(_vertices));
             copy(indices.get(), indices.get() + size_2, begin(_indices));
         }
 
         Mesh(const Mesh& mesh) :
-            _vertexAttributs{mesh._vertexAttributs},
+            _vertices{mesh._vertices},
             _indices{mesh._indices}
         {
         }
 
         Mesh(Mesh&& mesh) :
-            _vertexAttributs{move(mesh._vertexAttributs)},
+            _vertices{move(mesh._vertices)},
             _indices{move(mesh._indices)}
         {
         }
@@ -116,9 +116,9 @@ namespace WOGL
         Mesh& operator=(const Mesh&) = delete;
         Mesh& operator=(Mesh&&) = delete;
 
-        const VertexAttributs& vertexAttributs() const noexcept
+        const Vertices& vertices() const noexcept
         {
-            return _vertexAttributs;
+            return _vertices;
         }
 
         const Indices& indices() const noexcept
@@ -126,9 +126,9 @@ namespace WOGL
             return _indices;
         }
 
-        VertexAttributs& vertexAttributs() noexcept
+        Vertices& vertices() noexcept
         {
-            return _vertexAttributs;
+            return _vertices;
         }
 
         Indices& indices() noexcept
@@ -136,10 +136,20 @@ namespace WOGL
             return _indices;
         }
 
+        size_t vertexCount() const noexcept
+        {
+            return _vertices.size();
+        }
+
+        size_t indexCount() const noexcept
+        {
+            return _indices.size();
+        }
+
         template<typename T, Attribut attr>
         const T& at(size_t i) const
         {
-            VertexAttribut v = _vertexAttributs.at(i);
+            Vertex v = _vertices.at(i);
             T t;
 
             if constexpr (attr == Attribut::POSITION) {
@@ -156,7 +166,7 @@ namespace WOGL
         template<typename T, Attribut attr>
         T& at(size_t i)
         {
-            VertexAttribut v = _vertexAttributs.at(i);
+            Vertex v = _vertices.at(i);
             T t;
 
             if constexpr (attr == Attribut::POSITION) {
@@ -171,7 +181,7 @@ namespace WOGL
         }
 
     private:
-        VertexAttributs _vertexAttributs;
+        Vertices _vertices;
         Indices _indices;
     };
 }
