@@ -11,6 +11,8 @@
 #include "WOGL/Data/Texture.hpp"
 #include "WOGL/Render/TextureRenderer.hpp"
 
+#include "WOGL/Data/Mesh.hpp"
+
 using namespace std;
 using namespace WOGL;
 

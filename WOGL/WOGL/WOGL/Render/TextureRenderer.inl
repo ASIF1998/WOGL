@@ -1,5 +1,5 @@
 //
-//  TextureRenderer.cpp
+//  TextureRenderer.inl
 //  WOGL
 //
 //  Created by Асиф Мамедов on 09/02/2019.
