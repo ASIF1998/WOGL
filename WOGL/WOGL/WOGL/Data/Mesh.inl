@@ -41,6 +41,7 @@ namespace WOGL
     {
         using Vertices = vector<Vertex>;
         using Indices = vector<uint32_t>;
+        using Tangents = vector<vec3>;
 
     public:
         /**
@@ -49,9 +50,10 @@ namespace WOGL
          * @param vertexAttributsCount количество вершин
          * @param indicesCount количество индексов
         */
-        explicit Mesh(size_t vertexAttributsCount, size_t indicesCount) :
+        explicit Mesh(size_t vertexAttributsCount, size_t indicesCount, size_t tangentsCount) :
             _vertices(vertexAttributsCount),
-            _indices(indicesCount)
+            _indices(indicesCount),
+            _tangents(tangentsCount)
         {
         }
 
@@ -62,9 +64,10 @@ namespace WOGL
          * @param indices контейнер который хранит индексы
         */
         template<template<typename> typename Conteiner>
-        explicit Mesh(const Conteiner<Vertices>& vertexAttributs, const Conteiner<uint32_t>& indices) :
+        explicit Mesh(const Conteiner<Vertices>& vertexAttributs, const Conteiner<uint32_t>& indices, const Conteiner<vec3>& tangents) :
             _vertices{vertexAttributs},
-            _indices{indices}
+            _indices{indices},
+            _tangents(tangents)
         {
         }
 
@@ -77,12 +80,14 @@ namespace WOGL
          * @param size_2 размер массива indices
         */
         template<template<typename> typename Ptr>
-        explicit Mesh(const Ptr<Vertex[]>& vertexAttributs, size_t size_1, const Ptr<uint32_t[]>& indices, size_t size_2) :
+        explicit Mesh(const Ptr<Vertex[]>& vertexAttributs, size_t size_1, const Ptr<uint32_t[]>& indices, size_t size_2, const Ptr<vec4[]>& tangents, size_t size_3) :
             _vertices(size_1),
-            _indices(size_2)
+            _indices(size_2),
+            _tangents(size_3)
         {
             copy(vertexAttributs.get(), vertexAttributs.get() + size_1, begin(_vertices));
             copy(indices.get(), indices.get() + size_2, begin(_indices));
+            copy(tangents.get(), tangents.get() + size_3, begin(_tangents));
         }
 
         /**
@@ -93,23 +98,27 @@ namespace WOGL
          * @param indices указатель на массив с индексами
          * @param size_2 размер массива indices
         */
-        explicit Mesh(const unique_ptr<Vertex[]>& vertexAttributs, size_t size_1, const unique_ptr<uint32_t[]>& indices, size_t size_2) :
+        explicit Mesh(const unique_ptr<Vertex[]>& vertexAttributs, size_t size_1, const unique_ptr<uint32_t[]>& indices, size_t size_2, const unique_ptr<vec4[]>& tangents, size_t size_3) :
             _vertices(size_1),
-            _indices(size_2)
+            _indices(size_2),
+            _tangents(size_3)
         {
             copy(vertexAttributs.get(), vertexAttributs.get() + size_1, begin(_vertices));
             copy(indices.get(), indices.get() + size_2, begin(_indices));
+            copy(tangents.get(), tangents.get() + size_3, begin(_tangents));
         }
 
         Mesh(const Mesh& mesh) :
             _vertices{mesh._vertices},
-            _indices{mesh._indices}
+            _indices{mesh._indices},
+            _tangents{mesh._tangents}
         {
         }
 
         Mesh(Mesh&& mesh) :
             _vertices{move(mesh._vertices)},
-            _indices{move(mesh._indices)}
+            _indices{move(mesh._indices)},
+            _tangents{move(mesh._tangents)}
         {
         }
 
@@ -126,6 +135,11 @@ namespace WOGL
             return _indices;
         }
 
+        const Tangents& tangents() const noexcept
+        {
+            return _tangents;
+        }
+
         Vertices& vertices() noexcept
         {
             return _vertices;
@@ -135,6 +149,12 @@ namespace WOGL
         {
             return _indices;
         }
+
+        Tangents& tangents() noexcept
+        {
+            return _tangents;
+        }
+
 
         size_t vertexCount() const noexcept
         {
@@ -146,42 +166,38 @@ namespace WOGL
             return _indices.size();
         }
 
-        template<typename T, Attribut attr>
-        const T& at(size_t i) const
+        size_t tangentsCount() const noexcept
         {
-            Vertex v = _vertices.at(i);
-            T t;
-
-            if constexpr (attr == Attribut::POSITION) {
-                t = v.position;
-            } else if constexpr (attr == Attribut::NORMAL) {
-                t = v.normal;
-            } else {
-                t = v.uv;
-            }
-
-            return t;
+            return _tangents.size();
         }
 
-        template<typename T, Attribut attr>
-        T& at(size_t i)
+        template<Attribut attr>
+        const auto& at(size_t i) const
         {
-            Vertex v = _vertices.at(i);
-            T t;
-
             if constexpr (attr == Attribut::POSITION) {
-                t = v.position;
+                return _vertices.at(i).position;
             } else if constexpr (attr == Attribut::NORMAL) {
-                t = v.normal;
-            } else {
-                t = v.uv;
+                return _vertices.at(i).normal;
             }
 
-            return t;
+            return _vertices.at(i).uv;
+        }
+
+        template<Attribut attr>
+        auto& at(size_t i)
+        {
+            if constexpr (attr == Attribut::POSITION) {
+                return _vertices.at(i).position;
+            } else if constexpr (attr == Attribut::NORMAL) {
+                return _vertices.at(i).normal;
+            }
+
+            return _vertices.at(i).uv;
         }
 
     private:
         Vertices _vertices;
         Indices _indices;
+        Tangents _tangents;
     };
 }
