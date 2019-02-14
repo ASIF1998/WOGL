@@ -17,7 +17,6 @@
 #include "../../../SOIL2/SOIL2.h"
 
 using namespace std;
-using namespace glm;
 
 namespace WOGL
 {
@@ -28,6 +27,8 @@ namespace WOGL
     template<typename DataType, TexelType Tx>
     class Texture
     {
+        using Data = vector<DataType>;
+
         friend class InitializeTextureRenderer;
 
     public:
@@ -274,7 +275,7 @@ namespace WOGL
         }
 
     private:
-        vector<DataType> _data;
+        Data _data;
         size_t _width;
         size_t _height;
         size_t _bpp;

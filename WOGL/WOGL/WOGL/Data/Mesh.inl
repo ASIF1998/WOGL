@@ -43,6 +43,8 @@ namespace WOGL
         using Indices = vector<uint32_t>;
         using Tangents = vector<vec3>;
 
+        friend class InitializeModelMesh;
+
     public:
         /**
          * Конструткор.

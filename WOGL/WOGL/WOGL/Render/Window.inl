@@ -32,6 +32,8 @@ namespace WOGL
     template<int32_t DepthSize = 24, int32_t StensilSize = 8, int32_t Multisamples = 4>
     class Window
     {
+        using PtrWindow = unique_ptr<SDL_Window, decltype(windowDeleter)>;
+        
         friend class Context;
 
     public:
@@ -101,7 +103,7 @@ namespace WOGL
         }
 
     private:
-        unique_ptr<SDL_Window, decltype(windowDeleter)> _window;
+        PtrWindow _window;
     };
 
 }

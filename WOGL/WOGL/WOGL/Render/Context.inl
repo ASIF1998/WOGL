@@ -25,6 +25,8 @@ namespace WOGL
 
     class Context
     {
+        using PtrContext = unique_ptr<SDL_GLContext, decltype(contextDeleter)>;
+
     public:
         /**
          * Конструктор.
@@ -197,6 +199,6 @@ namespace WOGL
         }
 
     private:
-        unique_ptr<SDL_GLContext, decltype(contextDeleter)> _context;
+        PtrContext _context;
     };
 }

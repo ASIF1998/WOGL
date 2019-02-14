@@ -11,7 +11,7 @@
 #include "WOGL/Data/Texture.hpp"
 #include "WOGL/Render/TextureRenderer.hpp"
 
-#include "WOGL/Data/Mesh.hpp"
+#include "WOGL/Data/Model.hpp"
 
 using namespace std;
 using namespace WOGL;
@@ -38,6 +38,10 @@ int main()
 
         TextureRenderer<TexelFormat::RGB16_F> textureRenderer {
             texture
+        };
+        
+        Model<float, TexelType::RGB> model {
+            "/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx"
         };
 
         ShaderProgram shaderProgram;

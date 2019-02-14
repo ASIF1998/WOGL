@@ -12,7 +12,7 @@ namespace WOGL
 {
     class InitializeTextureRenderer
     {
-    public:
+    protected:
         /**
          * Конструктор.
          *
