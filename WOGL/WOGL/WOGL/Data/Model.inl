@@ -32,8 +32,8 @@ namespace WOGL
         */
         explicit InitializeModelMesh(const string_view path)
         {
-             Importer import;
-             auto* scene = import.ReadFile(path.data(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+            Importer import;
+            auto* scene = import.ReadFile(path.data(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
             if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
                 throw invalid_argument(import.GetErrorString());
