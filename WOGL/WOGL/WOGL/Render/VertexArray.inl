@@ -47,6 +47,13 @@ namespace WOGL
             glBindVertexArray(0);
         }
 
+        /**
+         * Метод позволяющий добавлять вершинный буфер.
+         * 
+         * @param vertexBuffer вершинный буффер
+         * @param vboIndx индекс атрибута 
+         * @template NumComponent количество компонентов в атрибуте (напрример в vec4 4-е компонента)
+        */
         template<int32_t NumComponent, template<int32_t> typename VertexBufferType>
         void add(const VertexBufferType<NumComponent>& vertexBuffer, int32_t vboIndx) const noexcept
         {

@@ -44,6 +44,7 @@ namespace WOGL
         using Tangents = vector<vec3>;
 
         friend class InitializeModelMesh;
+        friend class MeshRenderer;
 
     public:
         /**

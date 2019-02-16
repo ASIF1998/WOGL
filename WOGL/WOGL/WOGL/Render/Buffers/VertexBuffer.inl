@@ -20,13 +20,27 @@ using namespace std;
 
 namespace WOGL
 {
+    class IVertexBuffer
+    {
+    public:
+        virtual ~IVertexBuffer()
+        {
+        }
+
+        virtual inline void bind() const noexcept = 0;
+        virtual void attributeDivisor(int32_t indx, uint32_t divisor) const noexcept = 0;
+        virtual int32_t size() const noexcept = 0;
+    };
+
     /**
-     * @template NumComponent количество компонентов в элементе(напрример в vec4 4-е компонента)
+     * @template NumComponent количество компонентов в атрибуте (напрример в vec4 4-е компонента)
     */
     template<int32_t NumComponent>
-    class VertexBuffer
+    class VertexBuffer :
+        public IVertexBuffer
     {
         friend class VertexArray;
+        friend class MeshRenderer;
 
     public:
         /**
@@ -121,11 +135,25 @@ namespace WOGL
             swap(_vertexBufferHandle, buffer._vertexBufferHandle);
         }
 
-        VertexBuffer(const VertexBuffer&) = delete;
+        VertexBuffer(const VertexBuffer& buffer) :
+            _size{buffer._size}
+        {
+            _createHandle();
+
+            if (_size) {
+                bind();
+                glBufferData(GL_ARRAY_BUFFER, _size * sizeof(float), nullptr, GL_STATIC_DRAW);
+                glBindBuffer(GL_COPY_WRITE_BUFFER, buffer._vertexBufferHandle);
+                glCopyBufferSubData(GL_ARRAY_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, _size);
+                glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+                unbind();
+            }
+        }
+
         VertexBuffer& operator=(const VertexBuffer&) = delete;
         VertexBuffer& operator=(VertexBuffer&&) = delete;
 
-        ~VertexBuffer()
+        virtual ~VertexBuffer()
         {
             if (_vertexBufferHandle) {
                 glDeleteBuffers(1, &_vertexBufferHandle);
@@ -135,7 +163,7 @@ namespace WOGL
         /**
          * Метод делающий буффер текущим.
         */
-        inline void bind() const noexcept
+        virtual inline void bind() const noexcept override
         {
             glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferHandle);
         }
@@ -157,13 +185,13 @@ namespace WOGL
          * @param indx индекс атрибута
          * @param divisor разделитель атрибута
         */
-        void attributeDivisor(int32_t indx, uint32_t divisor) const noexcept
+        virtual void attributeDivisor(int32_t indx, uint32_t divisor) const noexcept override
         {
             bind();
             glVertexAttribDivisor(indx, divisor);
         }
 
-        constexpr int32_t size() const noexcept
+        virtual int32_t size() const noexcept override
         {
             return _size;
         }
