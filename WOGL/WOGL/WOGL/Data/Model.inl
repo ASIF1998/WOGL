@@ -111,6 +111,8 @@ namespace WOGL
         using PtrTexture = unique_ptr<TextureType>;
         using Meshes = vector<Mesh>;
 
+        friend class InitializeModelRenderer;
+
     public:
         /**
          * Конструктор который загружает меши модели, располагающегося по пути path.

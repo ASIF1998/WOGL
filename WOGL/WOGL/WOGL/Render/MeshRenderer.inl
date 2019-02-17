@@ -37,7 +37,7 @@ namespace WOGL
          * @param normalAttribIndx индекс атрибута текстурной координаты
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
-        explicit MeshRenderer(const Mesh& mesh, uint32_t posAttribIndex, uint32_t normalAttribIndx, uint32_t texCoordAttribIndx) :
+        explicit MeshRenderer(const Mesh& mesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2) :
             _ebo{mesh._indices},
             _buffers(0)
         {
@@ -69,7 +69,7 @@ namespace WOGL
          * @param normalAttribIndx индекс атрибута текстурной координаты
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
-        explicit MeshRenderer(const unique_ptr<Mesh>& ptrMesh, uint32_t posAttribIndex, uint32_t normalAttribIndx, uint32_t texCoordAttribIndx) :
+        explicit MeshRenderer(const unique_ptr<Mesh>& ptrMesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2) :
             MeshRenderer(*ptrMesh, posAttribIndex, normalAttribIndx, texCoordAttribIndx)
         {
         }
@@ -84,7 +84,7 @@ namespace WOGL
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
         template<template<typename> typename PtrMesh> 
-        explicit MeshRenderer(const PtrMesh<Mesh>& ptrMesh, uint32_t posAttribIndex, uint32_t normalAttribIndx, uint32_t texCoordAttribIndx) :
+        explicit MeshRenderer(const PtrMesh<Mesh>& ptrMesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2) :
             MeshRenderer(*ptrMesh, posAttribIndex, normalAttribIndx, texCoordAttribIndx)
         {
         }
@@ -168,6 +168,7 @@ namespace WOGL
             size_t i = _buffers.size();
 
             _buffers.push_back(unique_ptr<IVertexBuffer>(new VertexBuffer<NumComponent>(buffer)));
+            _buffers.shrink_to_fit();
 
             _vao.bind();
             _buffers[i]->bind();
@@ -192,6 +193,7 @@ namespace WOGL
             size_t i = _buffers.size();
 
             _buffers.push_back(unique_ptr<IVertexBuffer>(new VertexBuffer<NumComponent>(move(buffer))));
+            _buffers.shrink_to_fit();
 
             _vao.bind();
             _buffers[i]->bind();

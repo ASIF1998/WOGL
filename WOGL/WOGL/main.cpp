@@ -12,6 +12,7 @@
 #include "WOGL/Render/TextureRenderer.hpp"
 
 #include "WOGL/Data/Model.hpp"
+#include "WOGL/Render/ModelRenderer.hpp"
 
 using namespace std;
 using namespace WOGL;
@@ -42,6 +43,10 @@ int main()
         
         Model<float, TexelType::RGB> model {
             "/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx"
+        };
+        
+        ModelRenderer<TexelFormat::RG16_F> modelRenderer {
+            model
         };
 
         ShaderProgram shaderProgram;

@@ -170,6 +170,11 @@ namespace WOGL
         {
         }
 
+        TextureRenderer(TextureRenderer&& tr) :
+            InitializeTextureRenderer(tr)
+        {
+        }
+
         /**
          * Метод делающий текстуру текущей.
         */
