@@ -16,12 +16,15 @@
 #include <assimp/postprocess.h>
 
 using namespace Assimp;
+using namespace std;
 
 namespace WOGL
 {
     class InitializeModelMesh
     {
         using Meshes = vector<Mesh>;
+        
+        friend class InitializeModelRenderer;
 
     protected:
         /**
@@ -51,50 +54,54 @@ namespace WOGL
     private:
         void _nodeProcessing(aiNode* node, const aiScene* scene)
         {
-            for (uint32_t i{0}; i < node->mNumMeshes; i++) {
+            Vertex vertex;
+
+            vector<Vertex> vertecis;
+            vector<uint32_t> indices;
+            vector<vec2> tangets;
+
+            for (size_t i{0}; i < node->mNumMeshes; i++) {
                 aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
-                auto numVertexcis = mesh->mNumVertices;
-                auto numIndecis = mesh->mNumFaces;
-
-                Vertex vert;
-                vec3 tangets;
-
-                Mesh subMesh(numVertexcis, numIndecis, numVertexcis);
-
                 bool stayTexture = (mesh->mTextureCoords[0] ? true : false);
 
-                for (uint32_t j{0}; j < numVertexcis; j++) {
-                    vert.position.x = mesh->mVertices[j].x;
-                    vert.position.y = mesh->mVertices[j].y;
-                    vert.position.z = mesh->mVertices[j].z;
+                for (size_t j{0}; j < mesh->mNumVertices; j++) {
+                    vertex.position = {
+                        mesh->mVertices[j].x,
+                        mesh->mVertices[j].y,
+                        mesh->mVertices[j].z
+                    };
 
-                    vert.normal.x = mesh->mNormals[j].x;
-                    vert.normal.y = mesh->mNormals[j].y;
-                    vert.normal.z = mesh->mNormals[j].z;
-
-                    tangets.x = mesh->mTangents[j].x;
-                    tangets.y = mesh->mTangents[j].y;
+                    vertex.normal = {
+                        mesh->mNormals[j].x,
+                        mesh->mNormals[j].y,
+                        mesh->mNormals[j].z
+                    };
 
                     if (stayTexture) {
-                        vert.uv.x = mesh->mTextureCoords[0][j].x;
-                        vert.uv.y = mesh->mTextureCoords[0][j].y;
+                        vertex.uv = {
+                            mesh->mTextureCoords[0][j].x,
+                            mesh->mTextureCoords[0][j].y
+                        };
                     }
 
-                    subMesh._vertices.push_back(vert);
-                    subMesh._tangents.push_back(tangets);
+                    vertecis.push_back(Vertex{vertex});
+                    tangets.push_back(vec2{mesh->mTangents[j].x, mesh->mTangents[j].y});
                 }
 
                 for (uint32_t j{0}; j < mesh->mNumFaces; j++) {
                     for (uint32_t k{0}; k < mesh->mFaces[j].mNumIndices; k++) {
-                        subMesh._indices.push_back(mesh->mFaces[j].mIndices[k]);
+                        indices.push_back(mesh->mFaces[j].mIndices[k]);
                     }
                 }
 
-                _meshes.push_back(move(subMesh));
+                vertecis.shrink_to_fit();
+                tangets.shrink_to_fit();
+                indices.shrink_to_fit();
+
+                _meshes.push_back(Mesh(move(vertecis), move(indices), move(tangets)));
             }
 
-            for (size_t i{0}; i < node->mNumChildren; i++) {
+            for (size_t i{0}, size = node->mNumChildren; i < size; i++) {
                 _nodeProcessing(node->mChildren[i], scene);
             }
         }

@@ -117,6 +117,18 @@ namespace WOGL
             glDrawElementsInstanced(static_cast<GLenum>(primitive), size, GL_UNSIGNED_INT, nullptr, numberRepetitions);
         }
 
+        template<typename MR>
+        static void draw(const MR& modelRenderer, int32_t numberRepetitions = 1)
+        {
+            if (modelRenderer._textureRenderer) {
+                modelRenderer._textureRenderer->bind(0);
+            }
+
+            for (size_t i{0}; i < modelRenderer._meshRenderers.size(); i++) {
+                modelRenderer._meshRenderers[i].draw(numberRepetitions);
+            }
+        }
+
         /**
          * Функция предназначенная для выявления ошибок OpenGL.
          *
@@ -173,6 +185,10 @@ namespace WOGL
             glEnable(static_cast<GLenum>(e));
         }
 
+        void disable(Enable d) {
+            glDisable(static_cast<GLenum>(d));
+        }
+
         void stensil(StensilFunc s1, StensilFunc s2, StensilFunc s3) noexcept
         {
             glStencilFunc(static_cast<GLenum>(s1), static_cast<GLenum>(s2), static_cast<GLenum>(s3));
@@ -197,6 +213,15 @@ namespace WOGL
         {
             glFrontFace(static_cast<GLenum>(fv));
         }
+
+        static void frameBufferSRGB(bool turnOn) noexcept
+        {
+            if (turnOn) {
+                glEnable(GL_FRAMEBUFFER_SRGB);
+            } else {
+                glDisable(GL_FRAMEBUFFER_SRGB);
+            }
+        } 
 
     private:
         PtrContext _context;

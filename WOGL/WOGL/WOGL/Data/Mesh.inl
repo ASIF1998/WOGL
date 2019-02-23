@@ -41,7 +41,7 @@ namespace WOGL
     {
         using Vertices = vector<Vertex>;
         using Indices = vector<uint32_t>;
-        using Tangents = vector<vec3>;
+        using Tangents = vector<vec2>;
 
         friend class InitializeModelMesh;
         friend class MeshRenderer;
@@ -52,6 +52,7 @@ namespace WOGL
          * 
          * @param vertexAttributsCount количество вершин
          * @param indicesCount количество индексов
+         * @param tangentsCount количество касательных
         */
         explicit Mesh(size_t vertexAttributsCount, size_t indicesCount, size_t tangentsCount) :
             _vertices(vertexAttributsCount),
@@ -63,14 +64,58 @@ namespace WOGL
         /**
          * Конструктор.
          * 
-         * @param vertexAttributs контейнер который хранит вершины
-         * @param indices контейнер который хранит индексы
+         * @param vertexAttributs вершины
+         * @param indices индексы
+         * @param tangents касательыне
         */
-        template<template<typename> typename Conteiner>
-        explicit Mesh(const Conteiner<Vertices>& vertexAttributs, const Conteiner<uint32_t>& indices, const Conteiner<vec3>& tangents) :
+        explicit Mesh(const Vertices& vertexAttributs, const Indices& indices, const Tangents& tangents) :
             _vertices{vertexAttributs},
             _indices{indices},
             _tangents(tangents)
+        {
+        }
+
+        /**
+         * Конструктор.
+         * 
+         * @param vertexAttributs вершины
+         * @param indices индексы
+         * @param tangents касательыне
+        */
+        explicit Mesh(Vertices&& vertexAttributs, Indices&& indices, Tangents&& tangents) :
+            _vertices{forward<Vertices>(vertexAttributs)},
+            _indices{forward<Indices>(indices)},
+            _tangents(forward<Tangents>(tangents))
+        {
+        }
+
+        /**
+         * Конструктор.
+         * 
+         * @param vertexAttributs контейнер который хранит вершины
+         * @param indices контейнер который хранит индексы
+         * @param tangents контейнер который хранит касательные
+        */
+        template<template<typename> typename Conteiner>
+        explicit Mesh(const Conteiner<Vertices>& vertexAttributs, const Conteiner<uint32_t>& indices, const Conteiner<vec2>& tangents) :
+            _vertices{vertexAttributs},
+            _indices{indices},
+            _tangents(tangents)
+        {
+        }
+        
+        /**
+         * Конструктор.
+         *
+         * @param vertexAttributs контейнер который хранит вершины
+         * @param indices контейнер который хранит индексы
+         * @param tangents контейнер который хранит касательные
+         */
+        template<template<typename> typename Conteiner>
+        explicit Mesh(Conteiner<Vertices>&& vertexAttributs, Conteiner<uint32_t>&& indices, Conteiner<vec2>&& tangents) :
+            _vertices{forward<Conteiner<Vertices>>(vertexAttributs)},
+            _indices{forward<Conteiner<uint32_t>>(indices)},
+            _tangents(forward<Conteiner<vec2>>(tangents))
         {
         }
 

@@ -9,10 +9,6 @@
 #include "MeshRenderer.hpp"
 #include "TextureRenderer.hpp"
 
-#include <vector>
-
-using namespace std;
-
 namespace WOGL
 {
     class InitializeModelRenderer 
@@ -28,8 +24,6 @@ namespace WOGL
             for (size_t i{0}; i < model._meshes.size(); i++) {
                 _meshRenderers.push_back(MeshRenderer(model._meshes[i]));
             }
-
-            _meshRenderers.shrink_to_fit();
 
             if (model._texture) {
                 textureRenderer.reset(new TextureRenderer<TextureTexelFormat>(model._texture));

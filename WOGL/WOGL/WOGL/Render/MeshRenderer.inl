@@ -45,6 +45,7 @@ namespace WOGL
 
             _vao.bind();
             glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+            _ebo.bind();
 
             glBufferData(GL_ARRAY_BUFFER, mesh._vertices.size() * sizeof(Vertex), &mesh._vertices[0], GL_STATIC_DRAW);
 
@@ -56,6 +57,7 @@ namespace WOGL
             glVertexAttribPointer(normalAttribIndx, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
             glVertexAttribPointer(texCoordAttribIndx, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 
+            _ebo.unbind();
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             _vao.bind();
         }
@@ -213,6 +215,15 @@ namespace WOGL
         const IVertexBuffer& additionalVertexBuffer(size_t i) const 
         {
             return *_buffers.at(i);
+        }
+
+        void draw(int32_t numberRepetitions) const noexcept
+        {
+            _vao.bind();
+            _ebo.bind();
+            glDrawElementsInstanced(GL_TRIANGLES, _ebo.size(), GL_UNSIGNED_INT, nullptr, numberRepetitions);
+            _ebo.unbind();
+            _vao.unbind();
         }
 
     private:

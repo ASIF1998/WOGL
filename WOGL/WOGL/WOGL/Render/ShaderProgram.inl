@@ -185,80 +185,13 @@ namespace WOGL
         }
 
         /**
-         *  Методы для установки значений uniform-переменным в текущей шейдерной программе по имени.
+         *  Метод для установки значений uniform-переменным в текущей шейдерной программе по имени.
+         * 
+         * @param name имя uniform-переменной
+         * @param v то что нужно передать uniform-переменной
         */
-
-        void set_uniform(string_view name, int32 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, float v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, vec2 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, ivec2 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, vec3 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, ivec3 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, vec4 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, ivec4 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, mat2 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, mat3 v) const noexcept
-        {
-            if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
-            }
-        }
-
-        void set_uniform(string_view name, mat4 v) const noexcept
+        template<typename T>
+        void set_uniform(string_view name, T v) const noexcept
         {
             if(auto local = uniformLocation(name); local) {
                 set_uniform(*local, v);

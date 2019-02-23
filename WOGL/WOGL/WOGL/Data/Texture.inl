@@ -6,14 +6,6 @@
 //  Copyright © 2019 Asif Mamedov. All rights reserved.
 //
 
-#include <vector>
-
-#include <memory>
-
-#include <stdexcept>
-
-#include <string_view>
-
 #include "../../../SOIL2/SOIL2.h"
 
 using namespace std;
