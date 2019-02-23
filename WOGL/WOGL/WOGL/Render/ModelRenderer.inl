@@ -52,6 +52,7 @@ namespace WOGL
         explicit ModelRenderer(const ModelType& model) :
            InitializeModelRenderer(model, _textureRenderer)
         {
+            _textureRenderer.reset(new TextureRenderer<TextureTexelFormat>(model.texture()));
         }
 
         const MeshRenderer& at(size_t i) const 

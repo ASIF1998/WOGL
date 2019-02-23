@@ -117,11 +117,19 @@ namespace WOGL
             glDrawElementsInstanced(static_cast<GLenum>(primitive), size, GL_UNSIGNED_INT, nullptr, numberRepetitions);
         }
 
+        /**
+         * Статический метод необходимый для отрисовки элемента столько раз, сколько будет находится
+         * в numberRepetitions.
+         * 
+         * @param modelRenderer модель 
+         * @param slot текстурный слот
+         * @param numberRepetitions хранит информацию о количестве проходов рендера
+        */
         template<typename MR>
-        static void draw(const MR& modelRenderer, int32_t numberRepetitions = 1)
+        static void draw(const MR& modelRenderer, int32_t slot, int32_t numberRepetitions = 1)
         {
             if (modelRenderer._textureRenderer) {
-                modelRenderer._textureRenderer->bind(0);
+                modelRenderer._textureRenderer->bind(slot);
             }
 
             for (size_t i{0}; i < modelRenderer._meshRenderers.size(); i++) {

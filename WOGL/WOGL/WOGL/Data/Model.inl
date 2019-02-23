@@ -56,7 +56,7 @@ namespace WOGL
         {
             Vertex vertex;
 
-            vector<Vertex> vertecis;
+            vector<Vertex> vertices;
             vector<uint32_t> indices;
             vector<vec2> tangets;
 
@@ -84,7 +84,7 @@ namespace WOGL
                         };
                     }
 
-                    vertecis.push_back(Vertex{vertex});
+                    vertices.push_back(Vertex{vertex});
                     tangets.push_back(vec2{mesh->mTangents[j].x, mesh->mTangents[j].y});
                 }
 
@@ -94,11 +94,11 @@ namespace WOGL
                     }
                 }
 
-                vertecis.shrink_to_fit();
+                vertices.shrink_to_fit();
                 tangets.shrink_to_fit();
                 indices.shrink_to_fit();
 
-                _meshes.push_back(Mesh(move(vertecis), move(indices), move(tangets)));
+                _meshes.push_back(Mesh(move(vertices), move(indices), move(tangets)));
             }
 
             for (size_t i{0}, size = node->mNumChildren; i < size; i++) {
@@ -170,12 +170,12 @@ namespace WOGL
 
         TextureType& texture() noexcept
         {
-            return _texture.get();
+            return *_texture.get();
         }
 
         const TextureType& texture() const noexcept
         {
-            return _texture.get();
+            return *_texture.get();
         }
         
         inline void texture(const Texture<TextureDataType, Tx>& texture)  noexcept

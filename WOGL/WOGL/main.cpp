@@ -79,13 +79,15 @@ int main()
         shaderProgram.set_uniform("F", f);
         shaderProgram.set_uniform("LightIntensive", LightIntensive);
         
-//        auto texture {
-//            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Bump_Col2.jpg")
-//        };
+        auto texture {
+            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Bump_Col2.jpg")
+        };
         
         Model<float, TexelType::RGB> model {
             "/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx"
         };
+        
+        model.texture(texture);
 
         ModelRenderer<TexelFormat::RGB16_F> modelRenderer {
             model
@@ -133,7 +135,7 @@ int main()
                 context.clearDepthBuffer();
                 context.clearStencilBuffer();
                 
-                Context::draw(modelRenderer);
+                Context::draw(modelRenderer, 0);
                 context.chechError();
                 window.present();
             }

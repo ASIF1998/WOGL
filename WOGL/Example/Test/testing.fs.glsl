@@ -44,9 +44,9 @@ void main()
 //    vec3 I = Ia + Id + Is;
 //    I *= LightIntensive;
     
-//    FragColor = texture(modelTexture, TexCoords) * vec4(I, 1.0);
+    FragColor = texture(modelTexture, TexCoords);
     
 //    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    FragColor = vec4(Normal, 1.0);
+//    FragColor = vec4(Normal, 1.0);
 }
 
