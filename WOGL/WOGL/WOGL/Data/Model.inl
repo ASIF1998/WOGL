@@ -130,7 +130,8 @@ namespace WOGL
         Model(const string_view path) :
             InitializeModelMesh(path)
         {
-            _texture = nullptr;
+            _baseColorTexture = nullptr;
+            _normalMap = nullptr;
         }
 
         size_t amountMesh() const noexcept
@@ -170,25 +171,88 @@ namespace WOGL
 
         TextureType& texture() noexcept
         {
-            return *_texture.get();
+            return *_baseColorTexture.get();
         }
 
         const TextureType& texture() const noexcept
         {
-            return *_texture.get();
+            return *_baseColorTexture.get();
+        }
+
+        TextureType& normalMap() noexcept
+        {
+            return *_normalMap.get();
+        }
+
+        const TextureType& normalMap() const noexcept
+        {
+            return *_normalMap.get();
+        }
+
+        inline void setBaseColorTexture(const Texture<TextureDataType, Tx>& baseColorTexture)  noexcept
+        {
+            _baseColorTexture.reset(new Texture<TextureDataType, Tx>(baseColorTexture));
         }
         
-        inline void texture(const Texture<TextureDataType, Tx>& texture)  noexcept
+        inline void setBaseColorTexture(Texture<TextureDataType, Tx>&& baseColorTexture) noexcept
         {
-            _texture.reset(new Texture<TextureDataType, Tx>(texture));
+            _baseColorTexture.reset(new Texture<TextureDataType, Tx>(move(baseColorTexture)));
+        }
+
+        template<template<typename> typename Ptr>
+        inline void setBaseColorTexture(const Ptr<Texture<TextureDataType, Tx>>& baseColorTexture)
+        {
+            _baseColorTexture.reset(new Texture<TextureDataType, Tx>(*baseColorTexture));
+        } 
+
+        inline void setBaseColorTexture(const string_view path) 
+        {
+            setBaseColorTexture(Texture<TextureDataType, Tx>::loadTexture(path));
+        }
+
+        inline void setNormalMap(const Texture<TextureDataType, Tx>& normalMap)  noexcept
+        {
+            _normalMap.reset(new Texture<TextureDataType, Tx>(normalMap));
         }
         
-        inline void texture(Texture<TextureDataType, Tx>&& texture) noexcept
+        inline void setNormalMap(Texture<TextureDataType, Tx>&& normalMap) noexcept
         {
-            _texture.reset(new Texture<TextureDataType, Tx>(move(texture)));
+            _normalMap.reset(new Texture<TextureDataType, Tx>(move(normalMap)));
+        }
+
+        template<template<typename> typename Ptr>
+        inline void setNormalMap(const Ptr<Texture<TextureDataType, Tx>>& normalMap)
+        {
+            _normalMap.reset(new Texture<TextureDataType, Tx>(*normalMap));
+        }
+
+        inline void setNormalMap(const string_view path) 
+        {
+            setNormalMap(Texture<TextureDataType, Tx>::loadTexture(path));
+        } 
+
+        /**
+         * Метод сообщающий о наличии текстуры с базовыми цветами.
+         * 
+         * @return true в случае если имеется текстура, иначе false
+        */
+        bool hasBaseColorTexture() const noexcept
+        {
+            return static_cast<bool>(_baseColorTexture);
+        }
+
+        /**
+         * Метод сообщающий о наличии карты нормалей.
+         * 
+         * @return true в случае если имеется карта нормалей, иначе false
+        */
+        bool hasNormalMap() const noexcept
+        {
+            return static_cast<bool>(_normalMap);
         }
 
     private:
-        PtrTexture _texture;
+        PtrTexture _baseColorTexture;
+        PtrTexture _normalMap;
     };
 }

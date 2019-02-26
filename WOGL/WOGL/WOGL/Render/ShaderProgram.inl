@@ -129,57 +129,57 @@ namespace WOGL
          *  Методы для установки значений uniform-переменным в текущей шейдерной программе по локации.
         */
         
-        void set_uniform(int32_t location, int32 v) const noexcept
+        void setUniform(int32_t location, int32 v) const noexcept
         {
             glUniform1i(location, v);
         }
 
-        void set_uniform(int32_t location, float v) const noexcept
+        void setUniform(int32_t location, float v) const noexcept
         {
             glUniform1f(location, v);
         }
 
-        void set_uniform(int32_t location, vec2 v) const noexcept
+        void setUniform(int32_t location, vec2 v) const noexcept
         {
             glUniform2fv(location, 1, &v[0]);
         }
 
-        void set_uniform(int32_t location, ivec2 v) const noexcept
+        void setUniform(int32_t location, ivec2 v) const noexcept
         {
             glUniform2iv(location, 1, &v[0]);
         }
 
-        void set_uniform(int32_t location, vec3 v) const noexcept
+        void setUniform(int32_t location, vec3 v) const noexcept
         {
             glUniform3fv(location, 1, &v[0]);
         }
 
-        void set_uniform(int32_t location, ivec3 v) const noexcept
+        void setUniform(int32_t location, ivec3 v) const noexcept
         {
             glUniform3iv(location, 1, &v[0]);
         }
 
-        void set_uniform(int32_t location, vec4 v) const noexcept
+        void setUniform(int32_t location, vec4 v) const noexcept
         {
             glUniform4fv(location, 1, &v[0]);
         }
 
-        void set_uniform(int32_t location, ivec4 v) const noexcept
+        void setUniform(int32_t location, ivec4 v) const noexcept
         {
             glUniform4iv(location, 1, &v[0]);
         }
 
-        void set_uniform(int32_t location, mat2 v) const noexcept
+        void setUniform(int32_t location, mat2 v) const noexcept
         {
             glUniformMatrix2fv(location, 1, GL_FALSE, &v[0][0]);
         }
 
-        void set_uniform(int32_t location, mat3 v) const noexcept
+        void setUniform(int32_t location, mat3 v) const noexcept
         {
             glUniformMatrix3fv(location, 1, GL_FALSE, &v[0][0]);
         }
         
-        void set_uniform(int32_t location, mat4 v) const noexcept
+        void setUniform(int32_t location, mat4 v) const noexcept
         {
             glUniformMatrix4fv(location, 1, GL_FALSE, &v[0][0]);
         }
@@ -191,10 +191,10 @@ namespace WOGL
          * @param v то что нужно передать uniform-переменной
         */
         template<typename T>
-        void set_uniform(string_view name, T v) const noexcept
+        void setUniform(string_view name, T v) const noexcept
         {
             if(auto local = uniformLocation(name); local) {
-                set_uniform(*local, v);
+                setUniform(*local, v);
             }
         }
 

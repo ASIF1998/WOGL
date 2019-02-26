@@ -12,13 +12,26 @@ uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 
+uniform float scaleX;
+uniform float scaleY;
+uniform float scaleZ;
+
+mat3 scaling()
+{
+    return mat3 (
+        scaleX, 0.0, 0.0,
+        0.0, scaleY, 0.0,
+        0.0, 0.0, scaleZ
+    );
+}
+
 void main()
 {
     TexCoords = texCoord;
     Position = ViewMatrix * ModelMatrix * vec4(pos, 1.0);
     Normal = normal;
     
-    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(pos, 1.0);
+    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(scaling() * pos, 1.0);
 //    gl_Position = vec4(pos, 1.0);
 }
 

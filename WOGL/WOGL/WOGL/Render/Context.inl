@@ -122,14 +122,19 @@ namespace WOGL
          * в numberRepetitions.
          * 
          * @param modelRenderer модель 
-         * @param slot текстурный слот
+         * @param baseColorTextureSlot текстурный слот для тексуры с базовыми цветами
+         * @param normalMapTextureSlot текстурный слот для карты нормалей
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
         template<typename MR>
-        static void draw(const MR& modelRenderer, int32_t slot, int32_t numberRepetitions = 1)
+        static void draw(const MR& modelRenderer, int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
         {
-            if (modelRenderer._textureRenderer) {
-                modelRenderer._textureRenderer->bind(slot);
+            if (baseColorTextureSlot > -1) {
+                modelRenderer._textureRenderer->bind(baseColorTextureSlot);
+            }
+
+            if (normalMapTextureSlot > -1) {
+                modelRenderer._normalMapRenderer->bind(baseColorTextureSlot);
             }
 
             for (size_t i{0}; i < modelRenderer._meshRenderers.size(); i++) {

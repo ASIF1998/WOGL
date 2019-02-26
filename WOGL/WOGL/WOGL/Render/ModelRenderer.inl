@@ -16,17 +16,13 @@ namespace WOGL
         using MeshRenderers = vector<MeshRenderer>;
 
     public:
-        template<typename ModelType, TexelFormat TextureTexelFormat>
-        explicit InitializeModelRenderer(const ModelType& model, unique_ptr<TextureRenderer<TextureTexelFormat>>& textureRenderer)
+        template<typename ModelType>
+        explicit InitializeModelRenderer(const ModelType& model)
         {
             _meshRenderers.reserve(model._meshes.size());
 
             for (size_t i{0}; i < model._meshes.size(); i++) {
                 _meshRenderers.push_back(MeshRenderer(model._meshes[i]));
-            }
-
-            if (model._texture) {
-                textureRenderer.reset(new TextureRenderer<TextureTexelFormat>(model._texture));
             }
         }
 
@@ -50,9 +46,15 @@ namespace WOGL
         */
         template<typename ModelType>
         explicit ModelRenderer(const ModelType& model) :
-           InitializeModelRenderer(model, _textureRenderer)
+           InitializeModelRenderer(model)
         {
-            _textureRenderer.reset(new TextureRenderer<TextureTexelFormat>(model.texture()));
+            if (model.hasBaseColorTexture()) {
+                _textureRenderer.reset(new TextureRenderer<TextureTexelFormat>(model.texture()));
+            }
+
+            if (model.hasNormalMap()) {
+                _normalMapRenderer.reset(new TextureRenderer<TextureTexelFormat>(model.normalMap()));
+            }
         }
 
         const MeshRenderer& at(size_t i) const 
@@ -77,5 +79,6 @@ namespace WOGL
 
     private:
         PtrTexRenderer _textureRenderer;
+        PtrTexRenderer _normalMapRenderer;
     };
 }
