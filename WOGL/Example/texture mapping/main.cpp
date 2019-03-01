@@ -68,7 +68,7 @@ int main()
         vao.add(positionBuffer, 0);
         vao.add(textureCoordsBuffer, 1);
         
-        shaderProgram.set_uniform("Texture", 0);
+        shaderProgram.setUniform("Texture", 0);
         
         vao.bind();
         indexBuffer.bind();

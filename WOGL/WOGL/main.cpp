@@ -36,7 +36,7 @@ vec3 Ks (0.7f, 0.7f, 0.7f);
 float F = 5.0f;
 
 mat4 ProjectionMatrix = perspective(radians(90.0f), 800.0f /  600.0f, 0.1f, 100.0f);
-mat4 ViewMatrix = lookAt(vec3(35, 35, 50), vec3(0, -10.0, 0), vec3(0,1,0));
+mat4 ViewMatrix = lookAt(vec3(35.0f, 35.0f, 55.0f), vec3(-10.0f, -15.0f, 0.0f), vec3(0.0f, 1.0f , 0.0f));
 
 /**
  * Топор викинга.
@@ -44,19 +44,15 @@ mat4 ViewMatrix = lookAt(vec3(35, 35, 50), vec3(0, -10.0, 0), vec3(0,1,0));
 mat4 VikingAxeModelMatrix(1.0f);
 mat3 VikingAxeNormalMatrix(1.0f);
 
-float ScaleVikingAxeX = 0.25f;
-float ScaleVikingAxeY = 0.25f;
-float ScaleVikingAxeZ = 0.25f;
-
 /**
- * Крупный уголь.
+ * Крупная галька.
 */
-mat4 CobblestonesModelMatrix(1.0f);
-mat3 CobblestonesNormalMatrix(1.0f);
+mat4 PebbelsModelMatrix(1.0f);
+mat3 PebbelsNormalMatrix(1.0f);
 
-float ScaleCobblestonesX = 4.0f;
-float ScaleCobblestonesY = 1.0f;
-float ScaleCobblestonesZ = 4.0f;
+float ScaleVikingAxeX = 0.5f;
+float ScaleVikingAxeY = 0.5f;
+float ScaleVikingAxeZ = 0.5f;
 
 int main()
 {
@@ -82,11 +78,11 @@ int main()
         shaderProgram.use();
         
         VikingAxeModelMatrix = rotate(VikingAxeModelMatrix, 280.7f, vec3(1.0f, 0.0f, 0.0f));
-//        CobblestonesModelMatrix = rotate(CobblestonesModelMatrix, 0.5f, vec3(0.0f, 1.0f, 0.0f));
-//        CobblestonesModelMatrix = translate(CobblestonesModelMatrix, vec3(69.0f, 0.0, 25.0));
-        
-        shaderProgram.setUniform("ViewMatrix", ViewMatrix);
-        
+        VikingAxeModelMatrix = translate(VikingAxeModelMatrix, vec3(-15.0f, 15.0f, 0.0f));
+
+        PebbelsModelMatrix = rotate(PebbelsModelMatrix, 1.28f, vec3(1.0f, 0.0f, 0.0f));
+        PebbelsModelMatrix = rotate(PebbelsModelMatrix, 0.80f, vec3(0.0f, 0.0f, 1.0f));
+
         shaderProgram.setUniform("LightColor", LightColor);
         
         shaderProgram.setUniform("Ka", Ka);
@@ -95,25 +91,49 @@ int main()
         
         shaderProgram.setUniform("F", F);
         shaderProgram.setUniform("LightIntensive", LightIntensive);
-        
-        shaderProgram.setUniform("scaleX", ScaleVikingAxeX);
-        shaderProgram.setUniform("scaleY", ScaleVikingAxeY);
-        shaderProgram.setUniform("scaleZ", ScaleVikingAxeZ);
-        
-//        shaderProgram.setUniform("scaleX", ScaleCobblestonesX);
-//        shaderProgram.setUniform("scaleY", ScaleCobblestonesY);
-//        shaderProgram.setUniform("scaleZ", ScaleCobblestonesZ);
-        
+
+        VertexBuffer<3> pebblesPositions {
+            -110.0f, -110.0f, 0.0f,
+            -110.0f, 110.0f, 0.0,
+            110.0f, 110.0f, 0.0f,
+            110.0f, -110.0f, 0.0f
+        };
+
+        VertexBuffer<3> pebblesNormals {
+            0.0f, -1.0f, 0.0f,
+            0.0f, -1.0f, 0.0f,
+            0.0f, -1.0f, 0.0f,
+            0.0f, -1.0f, 0.0f
+        };
+
+        VertexBuffer<2> pebblesPositionsTextureCoords {
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f
+        };
+
+        IndexBuffer pebbelsIndexBuffer {
+            0, 2, 1, 0, 2, 3
+        };
+
+        VertexArray pebblesVAO;
+
+        pebblesVAO.add(pebblesPositions, 0);
+        pebblesVAO.add(pebblesNormals, 1);
+        pebblesVAO.add(pebblesPositionsTextureCoords, 2);
+
+        auto pebbelsTexure {
+            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Demo Scene/Source/Pebbles/Pebbles_006_COLOR.jpg")
+        };
+
+        TextureRenderer<TexelFormat::RGB16_F> pebblesTextureRenderer {
+            pebbelsTexure
+        };
 
         Model<float, TexelType::RGB> model {
             "/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Demo Scene/Source/hie_viking_axe_d180212/scene.gltf"
         };
-
-//        Model<float, TexelType::RGB> model {
-//            "/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Demo Scene/Source/cobblestones/scene.gltf"
-//        };
-        
-//        model.setBaseColorTexture("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Demo Scene/Source/cobblestones/textures/blinn1_baseColor.png");
 
         model.setBaseColorTexture("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Demo Scene/Source/hie_viking_axe_d180212/textures/VikingAxe_D180212_baseColor.png");
 
@@ -122,14 +142,6 @@ int main()
         };
 
         context.enable(Enable::DEPTH_TEST);
-        context.enable(Enable::BLEAND);
-        context.enable(Enable::CULL_FACE);
-        
-        context.blend(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_DST_ALPHA);
-        context.depth(DethFunc::LEQUAL);
-
-        context.faceTraversal(FaceTraversal::CLOCKWISE);
-        context.cullFace(Face::FRONT);
 
         context.clearColor(1, 1, 1, 1);
 
@@ -139,11 +151,34 @@ int main()
         SDL_Event event;
         bool stay = true;
         float speed = 0.02f;
+        float globalScale = 1.0f;
+
+        context.enable(Enable::DEPTH_TEST);
+        context.depth(DethFunc::NOTEQUAL);
+
+        pebblesVAO.bind();
+        pebbelsIndexBuffer.bind();
+        pebblesTextureRenderer.bind();
 
         while(stay) {
             while(SDL_PollEvent(&event)) {
-                if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-                    stay = false;
+                switch(event.type) {
+                    case SDL_QUIT: {
+                        stay = false;
+                        break;
+                    }
+                        
+                    case SDL_KEYUP: {
+                        if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                            stay = false;
+                        } else if (event.key.keysym.scancode == SDL_SCANCODE_1) {
+                            globalScale += 0.1f;
+                        } else if (event.key.keysym.scancode == SDL_SCANCODE_2) {
+                            globalScale -= 0.1f;
+                        }
+                        
+                        break;
+                    }
                 }
             }
 
@@ -154,26 +189,39 @@ int main()
             if (t2 - t1 > 50) {
                 t1 = t2;
 
-                ProjectionMatrix = perspective(radians(65.0f), (float)get<0>(size) /  (float)get<1>(size), 10.0f, 100.0f);
-                VikingAxeModelMatrix = rotate(VikingAxeModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
-                VikingAxeNormalMatrix = transpose(ViewMatrix * VikingAxeModelMatrix);
-
-                shaderProgram.setUniform("ModelMatrix", VikingAxeModelMatrix);
-                shaderProgram.setUniform("ProjectionMatrix", ProjectionMatrix);
-                shaderProgram.setUniform("NormalMatrix", VikingAxeNormalMatrix);
-                
-//                ProjectionMatrix = perspective(radians(65.0f), (float)get<0>(size) /  (float)get<1>(size), 10.0f, 100.0f);
-//                CobblestonesNormalMatrix = transpose(CobblestonesModelMatrix * VikingAxeModelMatrix);
-//
-//                shaderProgram.setUniform("ModelMatrix", CobblestonesModelMatrix);
-//                shaderProgram.setUniform("ProjectionMatrix", ProjectionMatrix);
-//                shaderProgram.setUniform("NormalMatrix", CobblestonesNormalMatrix);
-                
                 context.clearColorBuffer();
                 context.clearDepthBuffer();
                 context.clearStencilBuffer();
+
+                ProjectionMatrix = perspective(radians(65.0f), (float)get<0>(size) / (float)get<1>(size), 0.01f, 500.0f);
+
+                // Рендерим крупные гальки
+                pebblesVAO.bind();
+                pebbelsIndexBuffer.bind();
+                pebblesTextureRenderer.bind();
+
+                shaderProgram.setUniform("MV", ViewMatrix * PebbelsModelMatrix);
+                shaderProgram.setUniform("MVP", ProjectionMatrix * ViewMatrix * PebbelsModelMatrix);
                 
+                shaderProgram.setUniform("ScaleX", 2.0f * globalScale);
+                shaderProgram.setUniform("ScaleY", 2.0f * globalScale);
+                shaderProgram.setUniform("ScaleZ", 2.0f * globalScale);
+                
+                Context::draw(DrawPrimitive::TRIANGLES, pebbelsIndexBuffer.size());
+
+                // Рендерим топор.
+                VikingAxeModelMatrix = rotate(VikingAxeModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
+                VikingAxeNormalMatrix = transpose(ViewMatrix * VikingAxeModelMatrix);
+
+                shaderProgram.setUniform("MV", ViewMatrix * VikingAxeModelMatrix);
+                shaderProgram.setUniform("MVP", ProjectionMatrix * ViewMatrix * VikingAxeModelMatrix);
+
+                shaderProgram.setUniform("ScaleX", ScaleVikingAxeX * globalScale);
+                shaderProgram.setUniform("ScaleY", ScaleVikingAxeY * globalScale);
+                shaderProgram.setUniform("ScaleZ", ScaleVikingAxeZ * globalScale);
+
                 Context::draw(modelRenderer, 0);
+
                 context.chechError();
                 window.present();
             }
