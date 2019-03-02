@@ -15,6 +15,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <queue>
+
 using namespace Assimp;
 using namespace std;
 
@@ -23,7 +25,7 @@ namespace WOGL
     class InitializeModelMesh
     {
         using Meshes = vector<Mesh>;
-        
+
         friend class InitializeModelRenderer;
 
     protected:
@@ -42,27 +44,53 @@ namespace WOGL
                 throw invalid_argument(import.GetErrorString());
             }
 
-            _nodeProcessing(scene->mRootNode, scene);
+            queue<aiNode*> s;
+            aiNode* node;
+
+            s.push(scene->mRootNode);
+
+            while(!s.empty()) {
+                node = s.front();
+                s.pop();
+
+                if(node->mNumMeshes) {
+                    _addMeshes(node, scene);
+                }
+
+                for (size_t i{0}, size = node->mNumChildren; i < size; i++) {
+                    s.push(node->mChildren[i]);
+                }
+            }
 
             import.FreeScene();
+        }
+
+        InitializeModelMesh(Meshes&& meshes) :
+            _meshes{move(meshes)}
+        {
         }
 
         InitializeModelMesh(const InitializeModelMesh&) = delete;
         InitializeModelMesh& operator=(const InitializeModelMesh&) = delete;
         InitializeModelMesh& operator=(InitializeModelMesh&&) = delete;
 
-    private:
-        void _nodeProcessing(aiNode* node, const aiScene* scene)
+        InitializeModelMesh(aiNode* node, const aiScene* scene)
+        {
+            _addMeshes(node, scene);
+        }
+
+        void _addMeshes(aiNode* node, const aiScene* scene)
         {
             Vertex vertex;
-
+            aiMesh* mesh;
+            bool stayTexture;
             vector<Vertex> vertices;
             vector<uint32_t> indices;
             vector<vec2> tangets;
 
             for (size_t i{0}; i < node->mNumMeshes; i++) {
-                aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-                bool stayTexture = (mesh->mTextureCoords[0] ? true : false);
+                mesh = scene->mMeshes[node->mMeshes[i]];
+                stayTexture = (mesh->mTextureCoords[0] ? true : false);
 
                 for (size_t j{0}; j < mesh->mNumVertices; j++) {
                     vertex.position = {
@@ -88,25 +116,20 @@ namespace WOGL
                     tangets.push_back(vec2{mesh->mTangents[j].x, mesh->mTangents[j].y});
                 }
 
-                for (uint32_t j{0}; j < mesh->mNumFaces; j++) {
-                    for (uint32_t k{0}; k < mesh->mFaces[j].mNumIndices; k++) {
-                        indices.push_back(mesh->mFaces[j].mIndices[k]);
-                    }
-                }
-
                 vertices.shrink_to_fit();
                 tangets.shrink_to_fit();
                 indices.shrink_to_fit();
 
-                _meshes.push_back(Mesh(move(vertices), move(indices), move(tangets)));
-            }
+                for (uint32_t j{0}; j < mesh->mNumFaces; j++) {
+                    indices.push_back(mesh->mFaces[j].mIndices[0]);
+                    indices.push_back(mesh->mFaces[j].mIndices[1]);
+                    indices.push_back(mesh->mFaces[j].mIndices[2]);
+                }
 
-            for (size_t i{0}, size = node->mNumChildren; i < size; i++) {
-                _nodeProcessing(node->mChildren[i], scene);
+                _meshes.push_back(Mesh(move(vertices), move(indices), move(tangets)));
             }
         }
 
-    protected:
         Meshes _meshes;
     };
 
@@ -117,6 +140,7 @@ namespace WOGL
         using TextureType = Texture<TextureDataType, Tx>;
         using PtrTexture = unique_ptr<TextureType>;
         using Meshes = vector<Mesh>;
+        using Models = vector<Model>;
 
         friend class InitializeModelRenderer;
 
@@ -134,6 +158,25 @@ namespace WOGL
             _normalMap = nullptr;
         }
 
+        Model(Model&& model) :
+            InitializeModelMesh(move(model._meshes))
+        {
+            swap(_baseColorTexture, model._baseColorTexture);
+            swap(_normalMap, model._normalMap);
+        }
+
+        Model(const Model&) = delete;
+        Model& operator=(const Model&) = delete;
+
+    private:
+        Model(aiNode* node, const aiScene* scene) :
+            InitializeModelMesh(node, scene)
+        {
+            _baseColorTexture = nullptr;
+            _normalMap = nullptr;
+        }
+
+    public:
         size_t amountMesh() const noexcept
         {
             return _meshes.size();
@@ -249,6 +292,50 @@ namespace WOGL
         bool hasNormalMap() const noexcept
         {
             return static_cast<bool>(_normalMap);
+        }
+
+        /**
+         * Статический метод необходимый для загрузки модели в виде нескольких моделей.
+         * Данный статический метод будет удобен в случае если в одной модели спользуется сразу
+         * несколько текстур (например несколько текстур с базовым цветом).
+         * 
+         * При загрузке модели текстуры не устанавливаются !!!
+         * 
+         * @param path путь до модели
+         * @return вектор моделей
+        */
+        static Models makeModels(const string_view path)
+        {
+            Importer import;
+            auto* scene = import.ReadFile(path.data(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
+            if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+                throw invalid_argument(import.GetErrorString());
+            }
+
+            queue<aiNode*> s;
+            aiNode* node;
+            Models models;
+
+            s.push(scene->mRootNode);
+            
+            while(!s.empty()) {
+                node = s.front();
+                s.pop();
+
+                if (node->mNumMeshes) {
+                    models.push_back(Model{node, scene});
+                }
+
+                for (size_t i{0}, size = node->mNumChildren; i < size; i++) {
+                    s.push(node->mChildren[i]);
+                }
+            }
+
+            import.FreeScene();
+            models.shrink_to_fit();
+
+            return models;
         }
 
     private:

@@ -27,7 +27,7 @@ namespace WOGL
         RGBA32_S = GL_RGBA32I,
         RGBA16_S = GL_RGBA16I,
         RGBA8_S = GL_RGBA8I,
-        
+
         RGB32_F = GL_RGB32F,
         RGB16_F = GL_RGB16F,
         RGB32_S = GL_RGB32I,
@@ -36,8 +36,7 @@ namespace WOGL
         RGB32_U = GL_RGB32UI,
         RGB16_U = GL_RGB16UI,
         RGB8_U = GL_RGB8UI,
-        
-        
+
         RG32_F = GL_RG32F,
         RG16_F = GL_RG16F,
         RG32_U = GL_RG32UI,
@@ -46,7 +45,7 @@ namespace WOGL
         RG32_S = GL_RG32I,
         RG16_S = GL_RG16I,
         RG8_S = GL_RG8I,
-        
+
         RED32_F = GL_R32F,
         RED16_F = GL_R16F,
         RED32_U = GL_R32UI,

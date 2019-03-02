@@ -61,7 +61,7 @@ namespace WOGL
             vertexBuffer.bind();
             glEnableVertexAttribArray(vboIndx);
             glVertexAttribPointer(vboIndx, NumComponent, GL_FLOAT, GL_FALSE, 0, nullptr);
-            
+
             unbind();
         }
 

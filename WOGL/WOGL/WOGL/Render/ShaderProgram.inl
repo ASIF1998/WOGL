@@ -121,7 +121,7 @@ namespace WOGL
             if (int32_t location = glGetUniformLocation(_shaderProgramHandle, name.data()); location != INT32_MAX) {
                 return location;
             }
-            
+
             return nullopt;
         }
 
@@ -178,7 +178,7 @@ namespace WOGL
         {
             glUniformMatrix3fv(location, 1, GL_FALSE, &v[0][0]);
         }
-        
+
         void setUniform(int32_t location, mat4 v) const noexcept
         {
             glUniformMatrix4fv(location, 1, GL_FALSE, &v[0][0]);

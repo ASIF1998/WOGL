@@ -22,9 +22,6 @@ using namespace std;
 using namespace WOGL;
 using namespace glm;
 
-/**
- * Общие данные.
-*/
 vec4 LightPosition  (1.2f, 1.0f, 2.0f, 1.0f);
 vec3 LightColor (1.0f, 1.0f, 1.0f);
 float LightIntensive = 1.0f;
@@ -36,23 +33,9 @@ vec3 Ks (0.7f, 0.7f, 0.7f);
 float F = 5.0f;
 
 mat4 ProjectionMatrix = perspective(radians(90.0f), 800.0f /  600.0f, 0.1f, 100.0f);
-mat4 ViewMatrix = lookAt(vec3(35.0f, 35.0f, 55.0f), vec3(-10.0f, -15.0f, 0.0f), vec3(0.0f, 1.0f , 0.0f));
-
-/**
- * Топор викинга.
-*/
-mat4 VikingAxeModelMatrix(1.0f);
-mat3 VikingAxeNormalMatrix(1.0f);
-
-/**
- * Крупная галька.
-*/
-mat4 PebbelsModelMatrix(1.0f);
-mat3 PebbelsNormalMatrix(1.0f);
-
-float ScaleVikingAxeX = 0.5f;
-float ScaleVikingAxeY = 0.5f;
-float ScaleVikingAxeZ = 0.5f;
+mat4 ViewMatrix = glm::lookAt(glm::vec3(35, 35, 4), glm::vec3(0, 0, 0), glm::vec3(0,1,0));
+mat4 ModelMatrix(1.0f);
+mat3 NormalMatrix(1.0f);
 
 int main()
 {
@@ -65,26 +48,22 @@ int main()
         auto vertexShader {
             make_unique<Shader<ShaderTypes::VERTEX>>("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Test/testing.vs.glsl")
         };
-        
+
         auto fragmentShader {
             make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Test/testing.fs.glsl")
         };
-        
+
         ShaderProgram shaderProgram;
-        
+
         shaderProgram.add(vertexShader);
         shaderProgram.add(fragmentShader);
         shaderProgram.link();
         shaderProgram.use();
-        
-        VikingAxeModelMatrix = rotate(VikingAxeModelMatrix, 280.7f, vec3(1.0f, 0.0f, 0.0f));
-        VikingAxeModelMatrix = translate(VikingAxeModelMatrix, vec3(-15.0f, 15.0f, 0.0f));
 
-        PebbelsModelMatrix = rotate(PebbelsModelMatrix, 1.28f, vec3(1.0f, 0.0f, 0.0f));
-        PebbelsModelMatrix = rotate(PebbelsModelMatrix, 0.80f, vec3(0.0f, 0.0f, 1.0f));
+        ModelMatrix = glm::rotate(ModelMatrix, 280.7f, vec3(1.0f, 0.0f, 0.0f));
 
         shaderProgram.setUniform("LightColor", LightColor);
-        
+
         shaderProgram.setUniform("Ka", Ka);
         shaderProgram.setUniform("Kd", Kd);
         shaderProgram.setUniform("Ks", Ks);
@@ -92,53 +71,15 @@ int main()
         shaderProgram.setUniform("F", F);
         shaderProgram.setUniform("LightIntensive", LightIntensive);
 
-        VertexBuffer<3> pebblesPositions {
-            -110.0f, -110.0f, 0.0f,
-            -110.0f, 110.0f, 0.0,
-            110.0f, 110.0f, 0.0f,
-            110.0f, -110.0f, 0.0f
+        auto models {
+            Model<float, TexelType::RGB>::makeModels("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx")
         };
+        
+        models[0].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_S.jpg");
+        models[1].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Bump_Col2.jpg");
 
-        VertexBuffer<3> pebblesNormals {
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f
-        };
-
-        VertexBuffer<2> pebblesPositionsTextureCoords {
-            0.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.0f
-        };
-
-        IndexBuffer pebbelsIndexBuffer {
-            0, 2, 1, 0, 2, 3
-        };
-
-        VertexArray pebblesVAO;
-
-        pebblesVAO.add(pebblesPositions, 0);
-        pebblesVAO.add(pebblesNormals, 1);
-        pebblesVAO.add(pebblesPositionsTextureCoords, 2);
-
-        auto pebbelsTexure {
-            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Demo Scene/Source/Pebbles/Pebbles_006_COLOR.jpg")
-        };
-
-        TextureRenderer<TexelFormat::RGB16_F> pebblesTextureRenderer {
-            pebbelsTexure
-        };
-
-        Model<float, TexelType::RGB> model {
-            "/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Demo Scene/Source/hie_viking_axe_d180212/scene.gltf"
-        };
-
-        model.setBaseColorTexture("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Demo Scene/Source/hie_viking_axe_d180212/textures/VikingAxe_D180212_baseColor.png");
-
-        ModelRenderer<TexelFormat::RGB16_F> modelRenderer {
-            model
+        auto modelsRenderer {
+            ModelRenderer<TexelFormat::RGB16_F>::makeModelsRenderer(models)
         };
 
         context.enable(Enable::DEPTH_TEST);
@@ -154,11 +95,7 @@ int main()
         float globalScale = 1.0f;
 
         context.enable(Enable::DEPTH_TEST);
-        context.depth(DethFunc::NOTEQUAL);
-
-        pebblesVAO.bind();
-        pebbelsIndexBuffer.bind();
-        pebblesTextureRenderer.bind();
+        context.depth(DethFunc::LEQUAL);
 
         while(stay) {
             while(SDL_PollEvent(&event)) {
@@ -171,12 +108,18 @@ int main()
                     case SDL_KEYUP: {
                         if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                             stay = false;
-                        } else if (event.key.keysym.scancode == SDL_SCANCODE_1) {
-                            globalScale += 0.1f;
-                        } else if (event.key.keysym.scancode == SDL_SCANCODE_2) {
-                            globalScale -= 0.1f;
                         }
+
+                        break;
+                    }
                         
+                    case SDL_KEYDOWN: {
+                        if (event.key.keysym.scancode == SDL_SCANCODE_EQUALS) {
+                            globalScale += 0.015f;
+                        } else if (event.key.keysym.scancode == SDL_SCANCODE_MINUS) {
+                            globalScale -= 0.015f;
+                        }
+
                         break;
                     }
                 }
@@ -194,33 +137,17 @@ int main()
                 context.clearStencilBuffer();
 
                 ProjectionMatrix = perspective(radians(65.0f), (float)get<0>(size) / (float)get<1>(size), 0.01f, 500.0f);
-
-                // Рендерим крупные гальки
-                pebblesVAO.bind();
-                pebbelsIndexBuffer.bind();
-                pebblesTextureRenderer.bind();
-
-                shaderProgram.setUniform("MV", ViewMatrix * PebbelsModelMatrix);
-                shaderProgram.setUniform("MVP", ProjectionMatrix * ViewMatrix * PebbelsModelMatrix);
                 
-                shaderProgram.setUniform("ScaleX", 2.0f * globalScale);
-                shaderProgram.setUniform("ScaleY", 2.0f * globalScale);
-                shaderProgram.setUniform("ScaleZ", 2.0f * globalScale);
+                ModelMatrix = rotate(ModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
+
+                shaderProgram.setUniform("MV", ViewMatrix * ModelMatrix);
+                shaderProgram.setUniform("MVP", ProjectionMatrix * ViewMatrix * ModelMatrix);
                 
-                Context::draw(DrawPrimitive::TRIANGLES, pebbelsIndexBuffer.size());
+                shaderProgram.setUniform("ScaleX", globalScale);
+                shaderProgram.setUniform("ScaleY", globalScale);
+                shaderProgram.setUniform("ScaleZ", globalScale);
 
-                // Рендерим топор.
-                VikingAxeModelMatrix = rotate(VikingAxeModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
-                VikingAxeNormalMatrix = transpose(ViewMatrix * VikingAxeModelMatrix);
-
-                shaderProgram.setUniform("MV", ViewMatrix * VikingAxeModelMatrix);
-                shaderProgram.setUniform("MVP", ProjectionMatrix * ViewMatrix * VikingAxeModelMatrix);
-
-                shaderProgram.setUniform("ScaleX", ScaleVikingAxeX * globalScale);
-                shaderProgram.setUniform("ScaleY", ScaleVikingAxeY * globalScale);
-                shaderProgram.setUniform("ScaleZ", ScaleVikingAxeZ * globalScale);
-
-                Context::draw(modelRenderer, 0);
+                Context::draw(modelsRenderer, 0);
 
                 context.chechError();
                 window.present();

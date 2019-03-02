@@ -14,6 +14,8 @@
 
 #include <stdexcept>
 
+#include "ModelRenderer.hpp"
+
 using namespace std;
 
 namespace WOGL
@@ -126,19 +128,36 @@ namespace WOGL
          * @param normalMapTextureSlot текстурный слот для карты нормалей
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
-        template<typename MR>
-        static void draw(const MR& modelRenderer, int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
+        template<TexelFormat Tf, template<TexelFormat> typename T>
+        static void draw(const T<Tf>& modelRenderer, int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
         {
             if (baseColorTextureSlot > -1) {
                 modelRenderer._textureRenderer->bind(baseColorTextureSlot);
             }
-
+            
             if (normalMapTextureSlot > -1) {
                 modelRenderer._normalMapRenderer->bind(baseColorTextureSlot);
             }
-
+            
             for (size_t i{0}; i < modelRenderer._meshRenderers.size(); i++) {
                 modelRenderer._meshRenderers[i].draw(numberRepetitions);
+            }
+        }
+
+        /**
+         * Статичесикй метод необходимый для отрисовки сразу нескольких моделей столько раз, сколько будет находится,
+         * в numberRepetitions.
+         * 
+         * @param modelsRenderer модели 
+         * @param baseColorTextureSlot текстурный слот для тексуры с базовыми цветами
+         * @param normalMapTextureSlot текстурный слот для карты нормалей
+         * @param numberRepetitions хранит информацию о количестве проходов рендера
+        */
+        template<typename ContainerWithModelsRenderer>
+        static void draw(const ContainerWithModelsRenderer& modelsRenderer, int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
+        {
+            for (size_t i{0}; i < modelsRenderer.size(); i++) {
+                draw(modelsRenderer[i], baseColorTextureSlot, normalMapTextureSlot, numberRepetitions);
             }
         }
 

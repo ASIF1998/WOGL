@@ -44,8 +44,8 @@ namespace WOGL
          * 
          * @param model модель
         */
-        template<typename ModelType>
-        explicit ModelRenderer(const ModelType& model) :
+        template<typename Model>
+        explicit ModelRenderer(const Model& model) :
            InitializeModelRenderer(model)
         {
             if (model.hasBaseColorTexture()) {
@@ -75,7 +75,21 @@ namespace WOGL
         MeshRenderer& operator[](size_t i) noexcept
         {
             return _meshRenderers[i];
-        } 
+        }
+
+        template<typename Models>
+        static auto makeModelsRenderer(const Models& models)
+        {
+            vector<ModelRenderer<TextureTexelFormat>> modelsRenderer;
+            modelsRenderer.reserve(models.size());
+
+            for (size_t i{0}; i < models.size(); i++) {
+                modelsRenderer.push_back(ModelRenderer(models[i]));
+            }
+
+
+            return modelsRenderer;
+        }
 
     private:
         PtrTexRenderer _textureRenderer;
