@@ -327,7 +327,7 @@ namespace WOGL
                     models.push_back(Model{node, scene});
                 }
 
-                for (size_t i{0}, size = node->mNumChildren; i < size; i++) {
+                for (size_t i{0}, size{node->mNumChildren}; i < size; i++) {
                     s.push(node->mChildren[i]);
                 }
             }

@@ -23,13 +23,13 @@ namespace WOGL
         */
         template<typename TextureType>
         explicit InitializeTextureRenderer(const TextureType& texture, TexelFormat texelFormat) :
-            _width{static_cast<int32_t>(texture._width)},
-            _height{static_cast<int32_t>(texture._height)}
+            _height{static_cast<int32_t>(texture._height)},
+            _width{static_cast<int32_t>(texture._height)}
         {
             _createHandle();
 
             glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
-            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(texelFormat), _width, _height);
+            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(texelFormat), _height, _width);
             update(texture);
             glGenerateMipmap(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -64,8 +64,8 @@ namespace WOGL
         }
 
         InitializeTextureRenderer(InitializeTextureRenderer&& initTexRenderer) :
-            _width{initTexRenderer._width},
             _height{initTexRenderer._height},
+            _width{initTexRenderer._width},
             _textureRendererHandle{0}
         {
             swap(_textureRendererHandle, initTexRenderer._textureRendererHandle);
@@ -90,7 +90,7 @@ namespace WOGL
         template<typename DataType, TexelType Tx>
         void update(const Texture<DataType, Tx>& texture)
         {
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, static_cast<GLenum>(Tx), _type<DataType>(), &texture._data[0]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture._data[0]);
         }
 
         /**
@@ -101,7 +101,7 @@ namespace WOGL
         template<typename DataType, TexelType Tx>
         void update(const unique_ptr<Texture<DataType, Tx>>& texture)
         {
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
         }
 
         /**
@@ -112,7 +112,7 @@ namespace WOGL
         template<typename DataType, TexelType Tx>
         void update(const weak_ptr<Texture<DataType, Tx>>& texture)
         {
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
         }
 
     protected:
@@ -148,8 +148,8 @@ namespace WOGL
         }
 
         uint32_t _textureRendererHandle;
-        int32_t _width;
         int32_t _height;
+        int32_t _width;
     };
 
     template<TexelFormat Tf>

@@ -8,6 +8,10 @@
 
 #include "../../../SOIL2/SOIL2.h"
 
+#include "Conteiners/ArrayView.hpp"
+#include "Conteiners/MatrixView.hpp"
+#include "Conteiners//GearMatrixView.hpp"
+
 using namespace std;
 
 namespace WOGL
@@ -32,8 +36,8 @@ namespace WOGL
          * @param height высота текстуры
         */
         explicit Texture(size_t width, size_t height) :
-            _width{width},
-            _height{height}
+            _height{height},
+            _width{width}
         {
             if constexpr (Tx == TexelType::RED) {
                 _bpp = 1;
@@ -45,7 +49,7 @@ namespace WOGL
                 _bpp = 4;
             }
 
-            _data.resize(_width * _height * _bpp);
+            _data.resize(_height * _width * _bpp);
         }
 
         /**
@@ -74,16 +78,16 @@ namespace WOGL
 
         Texture(const Texture& texture) :
             _data{texture._data},
-            _width{texture._width},
             _height{texture._height},
+            _width{texture._width},
             _bpp{texture._bpp}
         {
         }
 
         Texture(Texture&& texture)  :
             _data{move(texture._data)},
-            _width{texture._width},
             _height{texture._height},
+            _width{texture._width},
             _bpp{texture._bpp}
         {
         }
@@ -135,37 +139,37 @@ namespace WOGL
                 copy(data.get(), data.get() + _data.size(), begin(_data));
             }
 
-            _width = width;
             _height = height;
+            _width = width;
         }
 
         /**
          * Метод предназначенный для обновления отдельных частей текстуры.
          * 
          * param texture текстурв
-         * @param x смещение по строке
-         * @param y смещение по столбцу
+         * @param x смещение по столбцу
+         * @param y смещение по строке
          * @throw invalid_argument в случае если переданное смещение и размер текстуры не вписываеются в обновляемую текстуру
         */
         void subSet(const Texture& texture, size_t x, size_t y)
         {
             auto& subTex = texture._data;
-            size_t subTexWidth = texture._width;
             size_t subTexHeight = texture._height;
+            size_t subTexWidth = texture._width;
 
-            if ((x + subTexHeight) >= _height || (y + subTexWidth) >= _width) {
+            if ((y + subTexHeight) >= _height || (x + subTexWidth) >= _width) {
                 throw invalid_argument("The arguments passed do not fit in the original texture");
             }
 
-            for (DataType* ptr {&_data[(x * _height * _bpp) + (y * _bpp)]}; x < subTexHeight; x++, ptr = &_data[(x * _height * _bpp) + (y * _bpp)]) {
-                copy(&subTex[x * subTexHeight * _bpp], &subTex[(x * subTexHeight * _bpp) + (y * _bpp)], ptr);
+            for (DataType* ptr {&_data[(y * _width * _bpp) + (x * _bpp)]}; y < subTexHeight; y++, ptr = &_data[(y * _width * _bpp) + (x * _bpp)]) {
+                copy(&subTex[y * subTexHeight * _bpp], &subTex[(y * subTexHeight * _bpp) + (x * _bpp)], ptr);
             }
         }
 
         template<Canal canal>
         DataType at(size_t i, size_t j) const
         {
-            auto* ptr = &_data._data.at((i * _height * _bpp) + (j * _bpp));
+            auto* ptr = &_data._data.at((i * _width * _bpp) + (j * _bpp));
 
             if (canal == Canal::GREEN && _bpp > 1) {
                 ptr++;
@@ -181,7 +185,7 @@ namespace WOGL
         template<Canal canal>
         DataType& at(size_t i, size_t j)
         {
-            auto* ptr = &_data.at((i * _height * _bpp) + (j * _bpp));
+            auto* ptr = &_data.at((i * _width * _bpp) + (j * _bpp));
 
             if (canal == Canal::GREEN && _bpp > 1) {
                 ptr++;
@@ -197,7 +201,7 @@ namespace WOGL
         template<Canal canal>
         DataType atNoexcept(size_t i, size_t j) const
         {
-            auto* ptr = &_data[(i * _height * _bpp) + (j * _bpp)];
+            auto* ptr = &_data[(i * _width * _bpp) + (j * _bpp)];
 
             if (canal == Canal::GREEN && _bpp > 1) {
                 ptr++;
@@ -213,7 +217,7 @@ namespace WOGL
         template<Canal canal>
         DataType& atNoexcept(size_t i, size_t j)
         {
-            auto* ptr = &_data[(i * _height * _bpp) + (j * _bpp)];
+            auto* ptr = &_data[(i * _width * _bpp) + (j * _bpp)];
 
             if (canal == Canal::GREEN && _bpp > 1) {
                 ptr++;
@@ -266,10 +270,91 @@ namespace WOGL
             return tex;
         }
 
+        /**
+         * Метод возвращающий строку у текстуры.
+         * 
+         * @param i индекс строки
+         * @throw invalid_argument в случае если i больше количества строк 
+        */
+        auto line(size_t i)
+        {
+            if (i >= _height) {
+                throw invalid_argument("Out of range");
+            }
+
+            return ArrayView<DataType>(&_data.at((i * _width * _bpp)), _width);
+        }
+        
+        /**
+         * Метод возвращающий строку у текстуры.
+         * 
+         * @param i индекс строки
+         * @return ArrayView<DataType> обёртка над строкой
+         * @throw invalid_argument в случае если i больше количества строк 
+        */
+        const auto line(size_t i) const
+        {
+            if (i >= _height) {
+                throw invalid_argument("Out of range");
+            }
+
+            return ArrayView<const DataType>(&_data.at((i * _width * _bpp)), _width);
+        }
+
+        /**
+         * Метод возвращающий значения текстуры в обёрте MatrixView,
+         * которая позволяет работать с текстурой как с 2-мерным массивом.
+         * 
+         * @return  MatrixView<DataType> обёртка над массивом данных текстуры
+        */
+        auto textureMatrix() 
+        {
+            return MatrixView<DataType>(_data, _width * _bpp, _height);
+        }
+
+        /**
+         * Метод возвращающий значения текстуры в обёрте MatrixView,
+         * которая позволяет работать с текстурой как с 2-мерным массивом.
+         * 
+         * @return  MatrixView<DataType> обёртка над массивом данных текстуры
+        */
+        const auto textureMatrix() const 
+        {
+            return MatrixView<const DataType>(_data, _width * _bpp, _height);
+        }
+
+        /**
+         * Метод позволяющий получить кусок текстуры от исходной текстуры.
+         * 
+         * @param offsetX смещение по столбцам
+         * @param offsetY смещение по строкам
+         * @param width ширина подтекстуры (так же ширина ещё зависит от Tx)
+         * @param height высота подтекстуры 
+         * @return GearMatrixView<DataType> обёртка над подтекстурой
+        */
+        auto subTexture(size_t offsetX, size_t offsetY, size_t width, size_t height)
+        {
+            return GearMatrixView<DataType>(_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height);
+        }
+
+        /**
+         * Метод позволяющий получить кусок текстуры от исходной текстуры.
+         * 
+         * @param offsetX смещение по столбцам
+         * @param offsetY смещение по строкам
+         * @param width ширина подтекстуры (так же ширина ещё зависит от Tx)
+         * @param height высота подтекстуры 
+         * @return GearMatrixView<DataType> обёртка над подтекстурой
+        */
+        const auto subTexture(size_t offsetX, size_t offsetY, size_t width, size_t height) const
+        {
+            return GearMatrixView<const DataType>(_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height);
+        }
+
     private:
         Data _data;
-        size_t _width;
         size_t _height;
+        size_t _width;
         size_t _bpp;
     };
 }

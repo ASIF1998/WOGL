@@ -14,6 +14,9 @@
 #include "WOGL/Data/Model.hpp"
 #include "WOGL/Render/ModelRenderer.hpp"
 
+#include "WOGL/Data/Conteiners/ArrayView.hpp"
+#include "WOGL/Data/Conteiners/MatrixView.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
@@ -75,8 +78,13 @@ int main()
             Model<float, TexelType::RGB>::makeModels("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx")
         };
         
-        models[0].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_S.jpg");
+        auto texture {
+            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_S.jpg")
+        };
+
+        models[0].setBaseColorTexture(texture);
         models[1].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Bump_Col2.jpg");
+    
 
         auto modelsRenderer {
             ModelRenderer<TexelFormat::RGB16_F>::makeModelsRenderer(models)
