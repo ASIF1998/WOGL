@@ -91,8 +91,8 @@ namespace WOGL
 		}
 
 		/**
-         * Метод делающий кадровый буффер не текущим. По сути он деалет текущую цель привязки нулевой.
-        */
+		 * Метод делающий кадровый буффер не текущим. По сути он деалет текущую цель привязки нулевой.
+		*/
 		virtual inline void unbind() const noexcept override
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);	
