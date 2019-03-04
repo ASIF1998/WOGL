@@ -282,7 +282,7 @@ namespace WOGL
                 throw invalid_argument("Out of range");
             }
 
-            return ArrayView<DataType>(&_data.at((i * _width * _bpp)), _width);
+            return ArrayView<DataType>{&_data.at((i * _width * _bpp)), _width};
         }
         
         /**
@@ -298,7 +298,7 @@ namespace WOGL
                 throw invalid_argument("Out of range");
             }
 
-            return ArrayView<const DataType>(&_data.at((i * _width * _bpp)), _width);
+            return ArrayView<const DataType>{&_data.at((i * _width * _bpp)), _width};
         }
 
         /**
@@ -309,7 +309,7 @@ namespace WOGL
         */
         auto textureMatrix() 
         {
-            return MatrixView<DataType>(_data, _width * _bpp, _height);
+            return MatrixView<DataType>{_data, _width * _bpp, _height};
         }
 
         /**
@@ -320,7 +320,7 @@ namespace WOGL
         */
         const auto textureMatrix() const 
         {
-            return MatrixView<const DataType>(_data, _width * _bpp, _height);
+            return MatrixView<const DataType>{_data, _width * _bpp, _height};
         }
 
         /**
@@ -334,7 +334,7 @@ namespace WOGL
         */
         auto subTexture(size_t offsetX, size_t offsetY, size_t width, size_t height)
         {
-            return GearMatrixView<DataType>(_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height);
+            return GearMatrixView<DataType>{_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
         }
 
         /**
@@ -348,7 +348,7 @@ namespace WOGL
         */
         const auto subTexture(size_t offsetX, size_t offsetY, size_t width, size_t height) const
         {
-            return GearMatrixView<const DataType>(_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height);
+            return GearMatrixView<const DataType>{_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
         }
 
     private:

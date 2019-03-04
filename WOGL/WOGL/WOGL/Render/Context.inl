@@ -166,7 +166,7 @@ namespace WOGL
          *
          * @throw runtime_error в случае если произошла ошибка
         */
-        void chechError()
+        static void checkError()
         {
             string err = "";
             

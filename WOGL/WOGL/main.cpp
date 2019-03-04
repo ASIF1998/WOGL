@@ -17,6 +17,8 @@
 #include "WOGL/Data/Conteiners/ArrayView.hpp"
 #include "WOGL/Data/Conteiners/MatrixView.hpp"
 
+#include "WOGL/Render/Buffers/Framebuffer.hpp"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
@@ -94,7 +96,7 @@ int main()
 
         context.clearColor(1, 1, 1, 1);
 
-        context.chechError();
+//        context.checkError();
 
         int32_t t1 = SDL_GetTicks(), t2 = 0;
         SDL_Event event;
@@ -104,6 +106,8 @@ int main()
 
         context.enable(Enable::DEPTH_TEST);
         context.depth(DethFunc::LEQUAL);
+        
+        Framebuffer<TexelFormat::RG8_U, WritePixels::NoWrite, WritePixels::NoWrite> g(window);
 
         while(stay) {
             while(SDL_PollEvent(&event)) {
@@ -157,7 +161,7 @@ int main()
 
                 Context::draw(modelsRenderer, 0);
 
-                context.chechError();
+                context.checkError();
                 window.present();
             }
         } 

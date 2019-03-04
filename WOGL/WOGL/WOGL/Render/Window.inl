@@ -19,6 +19,12 @@ using namespace std;
 
 namespace WOGL
 {
+    enum WindowSize
+    {
+        WINDOW_WIDTH = 0,
+        WINDOW_HEIGHT
+    };
+
     auto windowDeleter = [](SDL_Window* window)
     {
         SDL_DestroyWindow(window);

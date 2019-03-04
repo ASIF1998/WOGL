@@ -10,6 +10,9 @@
 
 namespace WOGL
 {
+    template<TexelFormat>
+    class BaseFramebuffer;
+    
     class InitializeTextureRenderer
     {
     protected:
@@ -61,6 +64,21 @@ namespace WOGL
         explicit InitializeTextureRenderer(const PtrTexture<TextureType>& texture, TexelFormat texelFormat) :
                 InitializeTextureRenderer(*texture, texelFormat)
         {
+        }
+
+        explicit InitializeTextureRenderer(int32_t width, int32_t height, TexelFormat texelFormat) :
+            _height{height},
+            _width{width}
+        {
+            if (_width == 0 || _height == 0) {
+                throw invalid_argument("Transferred size is zero");
+            }
+
+            _createHandle();
+
+            glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
+            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(texelFormat), _height, _width);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
         InitializeTextureRenderer(InitializeTextureRenderer&& initTexRenderer) :
@@ -156,6 +174,14 @@ namespace WOGL
     class TextureRenderer : 
         public InitializeTextureRenderer
     {
+        friend class BaseFramebuffer<Tf>;
+
+    private:
+        void priv() const 
+        {
+
+        }
+
     public:
         /**
          * Конструктор.
@@ -170,8 +196,13 @@ namespace WOGL
         {
         }
 
+        explicit TextureRenderer(int32_t width, int32_t height) :
+            InitializeTextureRenderer(width, height, Tf)
+        {
+        }
+
         TextureRenderer(TextureRenderer&& tr) :
-            InitializeTextureRenderer(tr)
+            InitializeTextureRenderer(forward<InitializeTextureRenderer>(tr))
         {
         }
 
