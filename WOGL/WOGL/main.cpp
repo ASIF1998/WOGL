@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "WOGL/WOGL.hpp"
+#include "WOGL/Core/WOGL.hpp"
 
 #include "WOGL/Render/Shader.hpp"
 #include "WOGL/Render/ShaderProgram.hpp"
@@ -51,11 +51,11 @@ int main()
         Context context(window);
 
         auto vertexShader {
-            make_unique<Shader<ShaderTypes::VERTEX>>("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Test/testing.vs.glsl")
+            make_unique<Shader<ShaderTypes::VERTEX>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/testing.vs.glsl")
         };
 
         auto fragmentShader {
-            make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/Test/testing.fs.glsl")
+            make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/testing.fs.glsl")
         };
 
         ShaderProgram shaderProgram;
@@ -105,10 +105,12 @@ int main()
         float globalScale = 1.0f;
 
         context.enable(Enable::DEPTH_TEST);
+        context.enable(Enable::STENCIL_TEST);
         context.depth(DethFunc::LEQUAL);
         
-        Framebuffer<TexelFormat::RG8_U, WritePixels::NoWrite, WritePixels::NoWrite> g(window);
-
+//        Framebuffer<TexelFormat::RGB32_F,WritePixels::RenderBuffer, WritePixels::RenderBuffer> g(window);
+//        g.bind();
+    
         while(stay) {
             while(SDL_PollEvent(&event)) {
                 switch(event.type) {
@@ -116,7 +118,7 @@ int main()
                         stay = false;
                         break;
                     }
-                        
+
                     case SDL_KEYUP: {
                         if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                             stay = false;
@@ -124,7 +126,7 @@ int main()
 
                         break;
                     }
-                        
+
                     case SDL_KEYDOWN: {
                         if (event.key.keysym.scancode == SDL_SCANCODE_EQUALS) {
                             globalScale += 0.015f;
@@ -140,7 +142,7 @@ int main()
             auto size = window.size();
 
             t2 = SDL_GetTicks();
-            
+
             if (t2 - t1 > 50) {
                 t1 = t2;
 
@@ -149,12 +151,12 @@ int main()
                 context.clearStencilBuffer();
 
                 ProjectionMatrix = perspective(radians(65.0f), (float)get<0>(size) / (float)get<1>(size), 0.01f, 500.0f);
-                
+
                 ModelMatrix = rotate(ModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
 
                 shaderProgram.setUniform("MV", ViewMatrix * ModelMatrix);
                 shaderProgram.setUniform("MVP", ProjectionMatrix * ViewMatrix * ModelMatrix);
-                
+
                 shaderProgram.setUniform("ScaleX", globalScale);
                 shaderProgram.setUniform("ScaleY", globalScale);
                 shaderProgram.setUniform("ScaleZ", globalScale);
@@ -164,7 +166,7 @@ int main()
                 context.checkError();
                 window.present();
             }
-        } 
+        }
 
         quit();
     } catch (const exception& ex) {

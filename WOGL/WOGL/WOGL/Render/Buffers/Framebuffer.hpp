@@ -9,6 +9,16 @@
 #ifndef FrameBuffer_hpp
 #define FrameBuffer_hpp
 
+namespace WOGL
+{
+	enum class WritePixels
+	{
+		NoWrite,
+		Texture,
+		RenderBuffer
+	};
+}
+
 #include "Framebuffer.inl"
 
 #endif /* FrameBuffer_hpp */

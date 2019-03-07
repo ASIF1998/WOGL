@@ -176,12 +176,6 @@ namespace WOGL
     {
         friend class BaseFramebuffer<Tf>;
 
-    private:
-        void priv() const 
-        {
-
-        }
-
     public:
         /**
          * Конструктор.
@@ -246,7 +240,7 @@ namespace WOGL
          *
          * @param f способа минимизации текстуры
         */
-        void minFilter(TextureFilter f) const noexcept
+        static void minFilter(TextureFilter f) noexcept
         {
             glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLenum>(f));
         }
@@ -256,7 +250,7 @@ namespace WOGL
          *
          * @param f способа увелечения текстуры
         */
-        void magFilter(TextureFilter f) const noexcept
+        static void magFilter(TextureFilter f) noexcept
         {
             glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(f));
         }
@@ -266,7 +260,7 @@ namespace WOGL
          *
          * @param s определяет способ оптекания по оси S(определение TextureWrapping находится выше)
         */
-        void textureWrappingS(TextureWrapping s) const noexcept
+        static void textureWrappingS(TextureWrapping s) noexcept
         {
             glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLenum>(s));
         }
@@ -276,7 +270,7 @@ namespace WOGL
          *
          * @param t определяет способ оптекания по оси T(определение TextureWrapping находится выше)
         */
-        void textureWrappingT(TextureWrapping t) const noexcept
+        static void textureWrappingT(TextureWrapping t) noexcept
         {
             glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLenum>(t));
         }

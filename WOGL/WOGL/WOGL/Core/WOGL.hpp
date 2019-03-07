@@ -9,8 +9,8 @@
 #ifndef WOGL_hpp
 #define WOGL_hpp
 
-#include "Render/Window.hpp"
-#include "Render/Context.hpp"
+#include "Window.hpp"
+#include "Context.hpp"
 
 namespace WOGL
 {
