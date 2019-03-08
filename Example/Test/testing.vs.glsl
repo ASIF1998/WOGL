@@ -27,7 +27,7 @@ mat3 scaling()
 void main()
 {
     TexCoord = VertexTextureCoord;
-    Position = MV * vec4(VertexPosition, 1.0);
+    Position = normalize(MV * vec4(VertexPosition, 1.0));
     Normal = VertexNormal;
 
     gl_Position = MVP * vec4(scaling() * VertexPosition, 1.0);

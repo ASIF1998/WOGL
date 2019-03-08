@@ -35,9 +35,9 @@ float LightIntensive = 1.0f;
 
 vec3 Ka (0.3f, 0.3f, 0.3f);
 vec3 Kd (0.7f, 0.7f, 0.7f);
-vec3 Ks (0.7f, 0.7f, 0.7f);
+vec3 Ks (0.6f, 0.6f, 0.6f);
 
-float F = 5.0f;
+float F = 50.0f;
 
 mat4 ProjectionMatrix = perspective(radians(90.0f), 800.0f /  600.0f, 0.1f, 100.0f);
 mat4 ViewMatrix = glm::lookAt(glm::vec3(35, 35, 4), glm::vec3(0, 0, 0), glm::vec3(0,1,0));
@@ -116,6 +116,7 @@ int main()
         
         shaderProgram.setUniform("F", F);
         shaderProgram.setUniform("LightIntensive", LightIntensive);
+        shaderProgram.setUniform("LightPosition", LightPosition);
 
         auto models {
             Model<float, TexelType::RGB>::makeModels("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx")
@@ -125,7 +126,7 @@ int main()
             Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Downloads/hw_mystic/mystic_lf.tga")
         };
 
-        models[0].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_S.jpg");
+        models[0].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_C.jpg");
         models[1].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Bump_Col2.jpg");
     
 
@@ -143,7 +144,7 @@ int main()
         float globalScale = 1.0f;
 
         glViewport(0, 0, 1000, 1000);
-        Framebuffer<TexelFormat::RED16_F,WritePixels::Texture, WritePixels::NoWrite> resultFrameBuffer(1000, 1000);
+        Framebuffer<TexelFormat::RGB16_F,WritePixels::Texture, WritePixels::NoWrite> resultFrameBuffer(1000, 1000);
         
         while(stay) {
             while(SDL_PollEvent(&event)) {
@@ -194,9 +195,12 @@ int main()
                 ProjectionMatrix = perspective(radians(65.0f), (float)get<WINDOW_WIDTH>(size) / (float)get<WINDOW_HEIGHT>(size), 0.01f, 500.0f);
 
                 ModelMatrix = rotate(ModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
+                
+                auto MV = ViewMatrix * ModelMatrix;
 
-                shaderProgram.setUniform("MV", ViewMatrix * ModelMatrix);
-                shaderProgram.setUniform("MVP", ProjectionMatrix * ViewMatrix * ModelMatrix);
+                shaderProgram.setUniform("MV", MV);
+                shaderProgram.setUniform("MVP", ProjectionMatrix * MV);
+                shaderProgram.setUniform("NormalMatrix", mat3(transpose(MV)));
 
                 shaderProgram.setUniform("ScaleX", globalScale);
                 shaderProgram.setUniform("ScaleY", globalScale);
@@ -214,8 +218,7 @@ int main()
                 outputTextureShaderProgram.use();
                 textureVAO.bind();
                 textureIndexBuffer.bind();
-//                resultFrameBuffer.colorBuffer(0).bind(2);
-                resultFrameBuffer.bindDepthTexture(2);
+                resultFrameBuffer.colorBuffer(0).bind(2);
                 context.draw(DrawPrimitive::TRIANGLES, textureIndexBuffer.size());
 
                 context.checkError();
