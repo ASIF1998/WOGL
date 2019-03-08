@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include "../TextureRenderer.hpp"
+#include "../Texture/TextureRenderer.hpp"
 
 #include <memory>
 
@@ -30,6 +30,14 @@ namespace WOGL
 		using TextureRenderers = vector<TextureRenderer<Tf>>;
 
 	public: 
+		/**
+		 * Конструктор.
+		 *
+		 * @param width ширина 
+		 * @param height высота 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		*/
 		explicit BaseFramebuffer(int32_t width, int32_t height, int32_t numColorBuffers)
 		{
 			glGenFramebuffers(1, &_framebufferHandle);
@@ -40,6 +48,40 @@ namespace WOGL
 
 			for (int32_t i{0}; i < numColorBuffers; i++) {
 				_colorBuffer.push_back(TextureRenderer<Tf>{width, height});
+			}
+
+			_colorBuffer.shrink_to_fit();
+
+			glBindFramebuffer(GL_FRAMEBUFFER, _framebufferHandle);
+
+			for (int32_t i{0}, size = static_cast<int32_t>(_colorBuffer.size()); i < size; i++) {
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, _colorBuffer[i]._textureRendererHandle, 0);
+			}
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		/**
+		 * Конструктор.
+		 * Ширина и воста будут браться из объекта window.
+		 *
+		 * @param window окно 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		*/
+		template<typename Window>
+		explicit BaseFramebuffer(const Window& window, int32_t numColorBuffers) 
+		{
+			glGenFramebuffers(1, &_framebufferHandle);
+
+			if (!_framebufferHandle) {
+				throw runtime_error("Error create handle for framebuffer");
+			}
+
+			auto windowSize = window.size();
+
+			for (int32_t i{0}; i < numColorBuffers; i++) {
+				_colorBuffer.push_back(TextureRenderer<Tf>{get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize)});
 			}
 
 			_colorBuffer.shrink_to_fit();
@@ -176,7 +218,7 @@ namespace WOGL
 		*/
 		template<typename Window>
 		explicit Framebuffer(const Window& window, int32_t numColorBuffers = 1) :
-			BaseFramebuffer<Tf>(get<WINDOW_WIDTH>(window.size()), get<WINDOW_HEIGHT>(window.size()), numColorBuffers)
+			BaseFramebuffer<Tf>(window, numColorBuffers)
 		{
 		}
 
@@ -202,6 +244,7 @@ namespace WOGL
 		 * @param height высота 
 		 * @param numColorBuffers количество буфферов цвета 
 		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для текстуры в которой будут хранится значения глубины фрагмента
 		*/
 		explicit Framebuffer(int32_t width, int32_t height, int32_t numColorBuffers = 1) :
 			BaseFramebuffer<Tf>(width, height, numColorBuffers)
@@ -229,10 +272,11 @@ namespace WOGL
 		 * @param window окно 
 		 * @param numColorBuffers количество буфферов цвета 
 		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для текстуры в которой будут хранится значения глубины фрагмента
 		*/
 		template<typename Window>
 		explicit Framebuffer(const Window& window, int32_t numColorBuffers = 1) :
-			BaseFramebuffer<Tf>(get<WINDOW_WIDTH>(window.size()), get<WINDOW_HEIGHT>(window.size()), numColorBuffers)
+			BaseFramebuffer<Tf>(window, numColorBuffers)
 		{
 			glGenTextures(1, &_depthTextureHandle);
 
@@ -290,6 +334,15 @@ namespace WOGL
 		public BaseFramebuffer<Tf>
 	{
 	public:
+		/**
+		 * Конструктор.
+		 *
+		 * @param width ширина 
+		 * @param height высота 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для renderbuffer'а в которой будут хранится значения трафарета
+		*/
 		explicit Framebuffer(int32_t width, int32_t height, int32_t numColorBuffers = 1) :
 			BaseFramebuffer<Tf>(width, height, numColorBuffers)
 		{
@@ -309,9 +362,18 @@ namespace WOGL
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
+		/**
+		 * Конструктор.
+		 * Ширина и воста будут браться из объекта window.
+		 *
+		 * @param window окно 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для renderbuffer'а в которой будут хранится значения трафарета
+		*/
 		template<typename Window>
 		explicit Framebuffer(const Window& window, int32_t numColorBuffers = 1) :
-			BaseFramebuffer<Tf>(get<WINDOW_WIDTH>(window.size()), get<WINDOW_HEIGHT>(window.size()), numColorBuffers)
+			BaseFramebuffer<Tf>(window, numColorBuffers)
 		{
 			glGenRenderbuffers(1, &_stencilBufferHandle);
 
@@ -363,11 +425,25 @@ namespace WOGL
 		uint32_t _stencilBufferHandle;
 	};
 
+	/**
+	 * Данная реализация класса Framebuffer хранит значения глубины и трафарета в текстуре,
+	 * где для каждого фрагмета выделена 4-х байтная ячейка. Значения глубины занимает 
+	 * 24 бита, а значение трафарета 8 бит.
+	*/
 	template<TexelFormat Tf>
 	class Framebuffer<Tf, WritePixels::Texture, WritePixels::Texture> :
 		public BaseFramebuffer<Tf>
 	{
 	public:
+		/**
+		 * Конструктор.
+		 *
+		 * @param width ширина 
+		 * @param height высота 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для текстуры в которой будут хранится значения глубины и трафарета 
+		*/
 		explicit Framebuffer(int32_t width, int32_t height, int32_t numColorBuffers = 1) :
 			BaseFramebuffer<Tf>(width, height, numColorBuffers) 
 		{
@@ -387,9 +463,18 @@ namespace WOGL
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
+		/**
+		 * Конструктор.
+		 * Ширина и воста будут браться из объекта window.
+		 *
+		 * @param window окно 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для текстуры в которой будут хранится значения глубины и трафарета 
+		*/
 		template<typename Window>
 		explicit Framebuffer(const Window& window, int32_t numColorBuffers = 1) :
-			BaseFramebuffer<Tf>(get<WINDOW_WIDTH>(window.size()), get<WINDOW_HEIGHT>(window.size()), numColorBuffers)
+			BaseFramebuffer<Tf>(window, numColorBuffers)
 		{
 			glGenTextures(1, &_depthAndStencilTextureHandle);
 
@@ -446,6 +531,15 @@ namespace WOGL
 		public BaseFramebuffer<Tf>
 	{
 	public:
+		/**
+		 * Конструктор.
+		 *
+		 * @param width ширина 
+		 * @param height высота 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для renderbuffer'а в которой будут хранится значения глубины
+		*/
 		explicit Framebuffer(int32_t width, int32_t height, int32_t numColorBuffers = 1) :
 			BaseFramebuffer<Tf>(width, height, numColorBuffers) 
 		{
@@ -465,9 +559,18 @@ namespace WOGL
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
+		/**
+		 * Конструктор.
+		 * Ширина и воста будут браться из объекта window.
+		 *
+		 * @param window окно 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для renderbuffer'а в которой будут хранится значения глубины
+		*/
 		template<typename Window>
 		explicit Framebuffer(const Window& window, int32_t numColorBuffers = 1) :
-			BaseFramebuffer<Tf>(get<WINDOW_WIDTH>(window.size()), get<WINDOW_HEIGHT>(window.size()), numColorBuffers)
+			BaseFramebuffer<Tf>(window, numColorBuffers)
 		{
 			glGenRenderbuffers(1, &_depthBufferHandle);
 
@@ -519,11 +622,25 @@ namespace WOGL
 		uint32_t _depthBufferHandle;
 	};
 
+	/**
+	 * Данная реализация класса Framebuffer хранит значения глубины и трафарета в renderbuffer'е,
+	 * где для каждого фрагмета выделена 4-х байтная ячейка. Значения глубины занимает 
+	 * 24 бита, а значение трафарета 8 бит.
+	*/
 	template<TexelFormat Tf>
 	class Framebuffer<Tf, WritePixels::RenderBuffer, WritePixels::RenderBuffer> :
 		public BaseFramebuffer<Tf>
 	{
 	public:
+		/**
+		 * Конструктор.
+		 *
+		 * @param width ширина 
+		 * @param height высота 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для renderbuffer'а в которой будут хранится значения глубины и трафарета
+		*/
 		explicit Framebuffer(int32_t width, int32_t height, int32_t numColorBuffers = 1) :
 			BaseFramebuffer<Tf>(width, height, numColorBuffers)
 		{
@@ -543,9 +660,18 @@ namespace WOGL
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
+		/**
+		 * Конструктор.
+		 * Ширина и воста будут браться из объекта window.
+		 *
+		 * @param window окно 
+		 * @param numColorBuffers количество буфферов цвета 
+		 * @throw runtime_error в случае если не удалось создать дескриптор для кадрового буффера
+		 * @throw runtime_error в случае если не удалось создать дескриптор для renderbuffer'а в которой будут хранится значения глубины и трафарета
+		*/
 		template<typename Window>
 		explicit Framebuffer(const Window& window, int32_t numColorBuffers = 1) :
-			BaseFramebuffer<Tf>(get<WINDOW_WIDTH>(window.size()), get<WINDOW_HEIGHT>(window.size()), numColorBuffers)
+			BaseFramebuffer<Tf>(window, numColorBuffers)
 		{
 			glGenRenderbuffers(1, &_depthAndStencilBufferHandle);
 

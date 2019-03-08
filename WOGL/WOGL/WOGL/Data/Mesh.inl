@@ -14,13 +14,6 @@ using namespace glm;
 
 namespace WOGL
 {
-    enum Attribut
-    {
-        POSITION,
-        NORMAL,
-        UV
-    };
-
     struct Vertex
     {
         vec3 position;

@@ -7,7 +7,7 @@
 //
 
 #include "MeshRenderer.hpp"
-#include "TextureRenderer.hpp"
+#include "Texture/TextureRenderer.hpp"
 
 namespace WOGL
 {
@@ -86,7 +86,6 @@ namespace WOGL
             for (size_t i{0}; i < models.size(); i++) {
                 modelsRenderer.push_back(ModelRenderer(models[i]));
             }
-
 
             return modelsRenderer;
         }

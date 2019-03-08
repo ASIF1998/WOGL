@@ -6,7 +6,7 @@
 //  Copyright © 2019 Asif Mamedov. All rights reserved.
 //
 
-#include "../Data/Texture.hpp"
+#include "../../Data/Texture.hpp"
 
 namespace WOGL
 {
@@ -15,6 +15,8 @@ namespace WOGL
     
     class InitializeTextureRenderer
     {
+        friend class InitializeCubeMapTextureRenderer;
+        
     protected:
         /**
          * Конструктор.
@@ -100,6 +102,7 @@ namespace WOGL
             }
         }
 
+    public:
         /**
          * Метод предназначенный для обновления данных объекта.
          *
@@ -144,7 +147,7 @@ namespace WOGL
         }
 
         template<typename T>
-        GLenum _type() const noexcept 
+        static GLenum _type() noexcept
         {
             GLenum type = GL_FLOAT;
 

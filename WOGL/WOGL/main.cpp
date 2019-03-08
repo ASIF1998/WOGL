@@ -9,7 +9,9 @@
 #include "WOGL/Render/VertexArray.hpp"
 
 #include "WOGL/Data/Texture.hpp"
-#include "WOGL/Render/TextureRenderer.hpp"
+#include "WOGL/Render/Texture/TextureRenderer.hpp"
+#include "WOGL/Render/Texture/CubeMapTextureRenderer.hpp"
+#include "WOGL/Render/Texture/SkyBox.hpp"
 
 #include "WOGL/Data/Model.hpp"
 #include "WOGL/Render/ModelRenderer.hpp"
@@ -81,10 +83,10 @@ int main()
         };
         
         auto texture {
-            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_S.jpg")
+            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Downloads/hw_mystic/mystic_lf.tga")
         };
 
-        models[0].setBaseColorTexture(texture);
+        models[0].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_S.jpg");
         models[1].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Bump_Col2.jpg");
     
 
@@ -95,9 +97,7 @@ int main()
         context.enable(Enable::DEPTH_TEST);
 
         context.clearColor(1, 1, 1, 1);
-
-//        context.checkError();
-
+        
         int32_t t1 = SDL_GetTicks(), t2 = 0;
         SDL_Event event;
         bool stay = true;
@@ -108,9 +108,11 @@ int main()
         context.enable(Enable::STENCIL_TEST);
         context.depth(DethFunc::LEQUAL);
         
-//        Framebuffer<TexelFormat::RGB32_F,WritePixels::RenderBuffer, WritePixels::RenderBuffer> g(window);
+        Framebuffer<TexelFormat::RGB32_F,WritePixels::RenderBuffer, WritePixels::RenderBuffer> g(window);
 //        g.bind();
-    
+        
+        SkyBox<TexelFormat::RGB16_F> skyBox(512, 0);
+        
         while(stay) {
             while(SDL_PollEvent(&event)) {
                 switch(event.type) {

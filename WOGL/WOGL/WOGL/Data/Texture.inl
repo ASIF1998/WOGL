@@ -26,6 +26,7 @@ namespace WOGL
         using Data = vector<DataType>;
 
         friend class InitializeTextureRenderer;
+        friend class InitializeCubeMapTextureRenderer;
 
     public:
         /**
