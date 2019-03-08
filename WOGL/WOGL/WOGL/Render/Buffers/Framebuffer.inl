@@ -258,7 +258,7 @@ namespace WOGL
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthTextureHandle);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTextureHandle, 0);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -289,7 +289,7 @@ namespace WOGL
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthTextureHandle);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTextureHandle, 0);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -482,7 +482,7 @@ namespace WOGL
 				throw runtime_error("Error create descriptor for depth and stencil texture");
 			}
             
-            auto windowSize = window.size();
+			auto windowSize = window.size();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthAndStencilTextureHandle);
@@ -720,6 +720,6 @@ namespace WOGL
 		}
 
 	private:
-        uint32_t _depthAndStencilBufferHandle;
+		uint32_t _depthAndStencilBufferHandle;
 	};
 }

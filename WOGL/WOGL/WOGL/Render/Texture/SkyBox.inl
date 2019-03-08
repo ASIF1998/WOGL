@@ -22,7 +22,7 @@ namespace WOGL
 	{
 	public:
 		explicit SkyBox(int32_t widthAndHeight, int32_t positionBufferIndx) :
-            CubeMapTextureRenderer<Tf>{widthAndHeight},
+			CubeMapTextureRenderer<Tf>{widthAndHeight},
 			_positionsBuffer {
 				1.0f, 1.0f, -1.0f,
 				-1.0f, 1.0f, -1.0f,
