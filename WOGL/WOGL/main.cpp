@@ -49,8 +49,39 @@ int main()
     try {
         init();
 
-        Window window("Demo", 800, 600);
+        Window window("Demo", 1000, 1000);
         Context context(window);
+
+        VertexBuffer<3> texturePosition {
+            -1.0f, -1.0f, 0.0f, 
+            -1.0f, 1.0f, 0.0f, 
+            1.0f, 1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f
+        };
+
+        VertexBuffer<2> textureCoord {
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f
+        };
+
+        IndexBuffer textureIndexBuffer {
+            0, 2, 1, 0, 2, 3
+        };
+
+        VertexArray textureVAO;
+
+        textureVAO.add(texturePosition, 0);
+        textureVAO.add(textureCoord, 1);
+
+         auto outputTextureVertexShader {
+            make_unique<Shader<ShaderTypes::VERTEX>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/outputTexture.vs.glsl")
+        };
+
+        auto outputTextureFragmentShader {
+            make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/outputTexture.fs.glsl")
+        };
 
         auto vertexShader {
             make_unique<Shader<ShaderTypes::VERTEX>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/testing.vs.glsl")
@@ -60,7 +91,15 @@ int main()
             make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/testing.fs.glsl")
         };
 
+        ShaderProgram outputTextureShaderProgram;
         ShaderProgram shaderProgram;
+
+        outputTextureShaderProgram.add(outputTextureVertexShader);
+        outputTextureShaderProgram.add(outputTextureFragmentShader);
+        outputTextureShaderProgram.link();
+        outputTextureShaderProgram.use();
+
+        outputTextureShaderProgram.setUniform("Texture", 2);
 
         shaderProgram.add(vertexShader);
         shaderProgram.add(fragmentShader);
@@ -94,7 +133,6 @@ int main()
             ModelRenderer<TexelFormat::RGB16_F>::makeModelsRenderer(models)
         };
 
-        context.enable(Enable::DEPTH_TEST);
 
         context.clearColor(1, 1, 1, 1);
         
@@ -104,14 +142,8 @@ int main()
         float speed = 0.02f;
         float globalScale = 1.0f;
 
-        context.enable(Enable::DEPTH_TEST);
-        context.enable(Enable::STENCIL_TEST);
-        context.depth(DethFunc::LEQUAL);
-        
-        Framebuffer<TexelFormat::RGB32_F,WritePixels::RenderBuffer, WritePixels::RenderBuffer> g(window);
-//        g.bind();
-        
-        SkyBox<TexelFormat::RGB16_F> skyBox(512, 0);
+        glViewport(0, 0, 1000, 1000);
+        Framebuffer<TexelFormat::RED16_F,WritePixels::Texture, WritePixels::NoWrite> resultFrameBuffer(1000, 1000);
         
         while(stay) {
             while(SDL_PollEvent(&event)) {
@@ -147,12 +179,19 @@ int main()
 
             if (t2 - t1 > 50) {
                 t1 = t2;
+                
+                context.enable(Enable::DEPTH_TEST);
+                context.enable(Enable::STENCIL_TEST);
+                context.depth(DethFunc::LEQUAL);
+            
+                resultFrameBuffer.bind();
+                shaderProgram.use();
 
                 context.clearColorBuffer();
                 context.clearDepthBuffer();
                 context.clearStencilBuffer();
 
-                ProjectionMatrix = perspective(radians(65.0f), (float)get<0>(size) / (float)get<1>(size), 0.01f, 500.0f);
+                ProjectionMatrix = perspective(radians(65.0f), (float)get<WINDOW_WIDTH>(size) / (float)get<WINDOW_HEIGHT>(size), 0.01f, 500.0f);
 
                 ModelMatrix = rotate(ModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
 
@@ -164,6 +203,20 @@ int main()
                 shaderProgram.setUniform("ScaleZ", globalScale);
 
                 Context::draw(modelsRenderer, 0);
+                
+                context.disable(Enable::DEPTH_TEST);
+                context.disable(Enable::STENCIL_TEST);
+
+                resultFrameBuffer.unbind();
+
+                context.clearColorBuffer();
+
+                outputTextureShaderProgram.use();
+                textureVAO.bind();
+                textureIndexBuffer.bind();
+//                resultFrameBuffer.colorBuffer(0).bind(2);
+                resultFrameBuffer.bindDepthTexture(2);
+                context.draw(DrawPrimitive::TRIANGLES, textureIndexBuffer.size());
 
                 context.checkError();
                 window.present();

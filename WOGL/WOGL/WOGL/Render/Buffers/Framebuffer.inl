@@ -162,12 +162,12 @@ namespace WOGL
 			return data;
 		}
 
-		TextureRenderers& colorBuffer(size_t i) 
+		TextureRenderer<Tf>& colorBuffer(size_t i)
 		{
 			return _colorBuffer.at(i);
 		}
 
-		const TextureRenderers& colorBuffer(size_t i) const 
+		const TextureRenderer<Tf>& colorBuffer(size_t i) const 
 		{
 			return _colorBuffer.at(i);
 		}

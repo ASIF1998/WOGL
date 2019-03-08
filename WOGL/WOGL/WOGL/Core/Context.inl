@@ -125,7 +125,7 @@ namespace WOGL
          * 
          * @param modelRenderer модель 
          * @param baseColorTextureSlot текстурный слот для тексуры с базовыми цветами
-         * @param normalMapTextureSlot текстурный слот для карты нормалей
+         * @param normalMapTextureSlot текстуный слот для карты нормалей
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
         template<TexelFormat Tf, template<TexelFormat> typename T>
