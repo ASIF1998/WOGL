@@ -6,10 +6,12 @@ layout (location = 2) in vec2 VertexTextureCoord;
 
 out vec2 TexCoord;
 out vec4 Position;
+out vec4 PositionInLightSpace;
 out vec3 Normal;
 
 uniform mat4 MV;
 uniform mat4 MVP;
+uniform mat4 LightSpaceMatrix;
 
 uniform float ScaleX;
 uniform float ScaleY;
@@ -29,6 +31,7 @@ void main()
     TexCoord = VertexTextureCoord;
     Position = normalize(MV * vec4(VertexPosition, 1.0));
     Normal = VertexNormal;
+    PositionInLightSpace = normalize(LightSpaceMatrix * vec4(VertexPosition, 1.0));
 
     gl_Position = MVP * vec4(scaling() * VertexPosition, 1.0);
 }

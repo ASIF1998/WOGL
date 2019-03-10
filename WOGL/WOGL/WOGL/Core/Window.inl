@@ -19,12 +19,6 @@ using namespace std;
 
 namespace WOGL
 {
-    enum WindowSize
-    {
-        WINDOW_WIDTH = 0,
-        WINDOW_HEIGHT
-    };
-
     auto windowDeleter = [](SDL_Window* window)
     {
         SDL_DestroyWindow(window);
@@ -35,7 +29,7 @@ namespace WOGL
      * @template StensilSize  количесвто бит в буфере трафарета
      * @template Multisamples количество семплеров(необходимо при включённом MSAA)
     */
-    template<int32_t DepthSize = 24, int32_t StensilSize = 8, int32_t Multisamples = 4>
+    template<bool Resizable = false, int32_t DepthSize = 24, int32_t StensilSize = 8, int32_t Multisamples = 4>
     class Window
     {
         using PtrWindow = unique_ptr<SDL_Window, decltype(windowDeleter)>;
@@ -50,9 +44,14 @@ namespace WOGL
          * @throw runtime_error в случае если не удалось создать окна
         */
         explicit Window(const string_view title, int32_t width, int32_t height) :
-            _window{SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-                                        SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN), windowDeleter}
+            _window{nullptr, windowDeleter}
         {
+            if constexpr (Resizable) {
+                _window.reset(SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN));
+            } else {
+                _window.reset(SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN));
+            }
+
             if (!_window) {
                 string msg(SDL_GetError());
                 SDL_ClearError();

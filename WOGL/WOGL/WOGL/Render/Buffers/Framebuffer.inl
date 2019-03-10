@@ -255,10 +255,10 @@ namespace WOGL
 				throw runtime_error("Error create descriptor for depth texture");
 			}
 
-			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthTextureHandle);
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, width, height);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTextureHandle, 0);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -289,7 +289,7 @@ namespace WOGL
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthTextureHandle);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize));
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTextureHandle, 0);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -456,7 +456,7 @@ namespace WOGL
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthAndStencilTextureHandle);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, width, height);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, _depthAndStencilTextureHandle, 0);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -481,13 +481,13 @@ namespace WOGL
 			if (!_depthAndStencilTextureHandle) {
 				throw runtime_error("Error create descriptor for depth and stencil texture");
 			}
-            
+
 			auto windowSize = window.size();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthAndStencilTextureHandle);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize));
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, _depthAndStencilTextureHandle, 0);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -721,5 +721,123 @@ namespace WOGL
 
 	private:
 		uint32_t _depthAndStencilBufferHandle;
+	};
+
+	/**
+	 * Данный класс представляет из себя кадровый буффер к оторому подключён 
+	 * только текстура, в которой хранятся значения глубины каждого фрагмента.
+	 * С этого класса можно создавать карты теней.
+	*/
+	template<uint8_t NumberOfBitsPerFragment, int32_t Width, int32_t Height>
+	class ShadowMapRenderer :
+		public IFramebuffer
+	{
+	public:
+		explicit ShadowMapRenderer()
+		{
+			glGenFramebuffers(1, &_framebufferHandle);
+			glGenTextures(1, &_depthTextureHandle);
+
+			if (!_depthTextureHandle || !_framebufferHandle) {
+				throw runtime_error("Error create descriptor for depth texture and framebuffer");
+			}
+
+			glBindFramebuffer(GL_FRAMEBUFFER, _framebufferHandle);
+			glBindTexture(GL_TEXTURE_2D, _depthTextureHandle);
+
+			if constexpr(NumberOfBitsPerFragment >= 32) {
+				glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32, Width, Height);
+			} else if constexpr (NumberOfBitsPerFragment >= 24)  {
+				glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, Width, Height);
+			} else {
+				glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT16, Width, Height);
+			}
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTextureHandle, 0);
+
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		ShadowMapRenderer(ShadowMapRenderer&& smr) :
+			_framebufferHandle{0},
+			_depthTextureHandle{0}
+		{
+			swap(_framebufferHandle, smr._framebufferHandle);
+			swap(_depthTextureHandle, smr._depthTextureHandle);
+		}
+
+		ShadowMapRenderer(const ShadowMapRenderer&) = delete;
+		ShadowMapRenderer operator=(const ShadowMapRenderer&&) = delete;
+		ShadowMapRenderer operator=(ShadowMapRenderer&&) = delete;
+
+		virtual ~ShadowMapRenderer() 
+		{
+			if (_framebufferHandle) {
+				glDeleteTextures(1, &_depthTextureHandle);
+				glDeleteFramebuffers(1, &_framebufferHandle);
+			}
+		}
+
+		virtual inline void bind() const noexcept override
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, _framebufferHandle);
+		}
+
+		virtual inline void unbind() const noexcept override
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		inline void bindDepthTexture(int32_t slot) const noexcept
+		{
+			glActiveTexture(GL_TEXTURE0 + slot);
+			glBindTexture(GL_TEXTURE_2D, _depthTextureHandle);
+		}
+
+		inline void unbindDepthTexture(int32_t slot) const noexcept
+		{
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		/**
+		 * Методы необходимые для считывания значений пикселя из кадрового буфера.
+		 *
+		 * @param data массив куда будут записаны значения пикселей
+		 * (т. к. на каждый пиксель выделяется по три канала то размер массива должен быть width * height * 3)
+		 * @param width ширна
+		 * @param height высота
+		 * @param x координата по оси X (необходима для выявления того, откуда нужно начинать считывать по оси X)
+		 * @param y координата по оси Y (необходима для выявления того, откуда нужно начинать считывать по оси Y)
+		*/
+
+		virtual void readPixels(float* data, int32_t width, int32_t height, int32_t x, int32_t y) const noexcept override
+		{
+			glReadPixels(x, y, width, height, GL_RGB, GL_FLOAT, data);
+		}
+
+		/**
+		 * Методы необходимые для считывания значений пикселя из кадрового буфера.
+		 *
+		 * @param width ширна
+		 * @param height высота
+		 * @param x координата по оси X (необходима для выявления того, откуда нужно начинать считывать по оси X)
+		 * @param y координата по оси Y (необходима для выявления того, откуда нужно начинать считывать по оси Y)
+		 * @return вектор пикслелей (т. к. на каждый пикснль выделяется по три канала то размер возвращаемого вектора
+		 * будет равен width * height * 3)
+		*/
+		virtual vector<float> readPixels(int32_t width, int32_t height, int32_t x, int32_t y) const noexcept override
+		{
+			vector<float> data(width * height * 3);
+			glReadPixels(x, y, width, height, GL_RGB, GL_FLOAT, &data[0]);
+			return data;
+		}
+
+	private:
+		uint32_t _framebufferHandle;
+		uint32_t _depthTextureHandle;
 	};
 }
