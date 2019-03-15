@@ -9,6 +9,7 @@
 #ifndef CubeMapTextureRenderer_hpp
 #define CubeMapTextureRenderer_hpp
 
+#include "TextureMappingSetting.hpp"
 #include "CubeMapTextureRenderer.inl"
 
 #endif /* CubeMapTextureRenderer_hpp */

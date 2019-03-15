@@ -9,12 +9,12 @@ in vec3 Normal;
 
 uniform sampler2D ModelTexture;
 uniform sampler2D NormalMap;
-uniform sampler2D ShadowMap;
+uniform sampler2DShadow ShadowMap;
 
 uniform mat3 NormalMatrix;
+uniform mat4 LightSpaceMatrix;
 
 uniform vec4 LightPosition;
-
 uniform vec3 LightColor;
 
 uniform vec3 Ka;
@@ -26,17 +26,15 @@ uniform float LightIntensive;
 
 float shadowCalculation()
 {
-    /// Так позиция источника света возвращается не в gl_Positiion^ то необходимо
-    /// его нармализовать путём деления первых 3-х компанентов ветора на 4-ый.
-    vec3 projCoords = PositionInLightSpace.xyz / PositionInLightSpace.w;
-    
     /// Приводим коорлинаты из диапозона [-1, 1] к диопозону [0, 1]
-    projCoords = projCoords * vec3(0.5) + vec3(0.5);
+    vec4 projCoords = PositionInLightSpace * vec4(0.5) + vec4(0.5);
     
-    float colsestDepth = texture(ShadowMap, projCoords.xy).r;
-    float currentDepth = projCoords.z - 0.05;
+    float sum = textureProjOffset(ShadowMap, vec4(projCoords.xyz, 1.0), ivec2(1, 1));
+    sum += textureProjOffset(ShadowMap, vec4(projCoords.xyz, 1.0), ivec2(-1, 1));
+    sum += textureProjOffset(ShadowMap, vec4(projCoords.xyz, 1.0), ivec2(1, -1));
+    sum += textureProjOffset(ShadowMap, vec4(projCoords.xyz, 1.0), ivec2(-1, -1));
     
-    return currentDepth > colsestDepth ? 0.0 : 1.0;
+    return sum * 0.25;
 }
 
 /**
@@ -53,7 +51,7 @@ vec3 calculateLighting()
     vec3 diffuse = LightColor * Kd * max(dot(n, s), 0.0);
     vec3 specular = LightColor * Ks * max(dot(h, v), 0.0);
 
-    return (ambinent + shadowCalculation () * (diffuse + specular)) * pow(LightIntensive, F);
+    return (ambinent + shadowCalculation() * (diffuse + specular)) * pow(LightIntensive, F);
 }
 
 void main()

@@ -129,5 +129,61 @@ namespace WOGL
 		{
 			return _widthAndHeight;
 		}
+
+		/**
+		 * Метод необходимый для определения способа увелечения текстуры.
+		 *
+		 * @param mf способа минимизации текстуры
+		*/
+		static inline void magFilter(const TextureFilter mf) noexcept
+        {
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(mf));
+		}
+
+		/**
+		 * Метод необходимый для определения способа минимизации текстуры.
+		 *
+		 * @param mf способа увелечения текстуры
+		*/
+		void minFilter(const TextureFilter mf) noexcept
+		{
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, static_cast<GLenum>(mf));
+		}
+
+		/**
+		 * Метод отвечающий за определение способа оптекания текстуры по оси S(т. е. X).
+		 *
+		 * @param ws определяет способ оптекания по оси S(определение TextureWrapping находится выше)
+		*/
+		void textureWrappingS(const TextureWrapping ws) noexcept
+		{
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, static_cast<GLenum>(ws));
+		}
+
+		/**
+		 * Метод отвечающий за определение способа оптекания текстуры по оси T(т. е. Y).
+		 *
+		 * @param wt определяет способ оптекания по оси T(определение TextureWrapping находится выше)
+		*/
+		void textureWrappingT(const TextureWrapping wt) noexcept
+		{
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, static_cast<GLenum>(wt));
+		}
+
+		/**
+		 * Устанавливает режим сравнения текстур для текущих привязанных текстур глубины.
+		*/
+		void textureCompareMode(const TextureCompareMode cm) noexcept
+		{
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, static_cast<GLenum>(cm));
+		}
+
+		/**
+		 * Устанавливает оператор сравнения, используемый, когда для TextureCompareMode установлено значение COMPARE_REF_TO_TEXTURE.
+		*/
+		void textureCompareFunc(const TextureCompareFunc cf) noexcept
+		{
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, static_cast<GLenum>(cf));
+		}
 	};
 }

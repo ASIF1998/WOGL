@@ -103,7 +103,7 @@ namespace WOGL
         MeshRenderer& operator=(const MeshRenderer&) = delete;
         MeshRenderer& operator=(MeshRenderer&&) = delete;
 
-        ~MeshRenderer()
+        virtual ~MeshRenderer()
         {
             if (_vbo) {
                 glDeleteBuffers(1, &_vbo);

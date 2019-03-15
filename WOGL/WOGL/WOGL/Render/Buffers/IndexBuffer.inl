@@ -22,6 +22,8 @@ namespace WOGL
 {
     class IndexBuffer
     {
+        friend class Context;
+
     public:
         /**
          * Конструктор который создаёт дескриптор индексного буффера и помещает туда данные.
@@ -119,7 +121,7 @@ namespace WOGL
         IndexBuffer& operator=(const IndexBuffer&) = delete;
         IndexBuffer& operator=(IndexBuffer&&) = delete;
 
-        ~IndexBuffer()
+        virtual ~IndexBuffer()
         {
             if (_indexBufferHandle) {
                 glDeleteBuffers(1, &_indexBufferHandle);

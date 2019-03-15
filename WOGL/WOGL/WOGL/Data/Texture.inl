@@ -260,7 +260,7 @@ namespace WOGL
             
             if constexpr (is_same_v<DataType, float> || is_same_v<DataType, double>) {
                 for (size_t i{0}; i < tex._data.size(); i++) {
-                    tex._data[i] = static_cast<DataType>(imageData[i]) / 255.0;
+                    tex._data[i] = static_cast<DataType>(imageData[i]) * 0.0039215;
                 }
             } else {
                 copy(imageData, imageData + (width * height * tex._bpp), begin(tex._data));

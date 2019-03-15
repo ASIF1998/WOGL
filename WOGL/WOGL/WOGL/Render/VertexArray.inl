@@ -30,7 +30,7 @@ namespace WOGL
         VertexArray& operator=(const VertexArray&) = delete;
         VertexArray& operator=(VertexArray&&) = delete;
 
-        ~VertexArray()
+        virtual ~VertexArray()
         {
             if (_vertexArrayHandle) {
                 glDeleteVertexArrays(1, &_vertexArrayHandle);

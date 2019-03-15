@@ -95,7 +95,7 @@ namespace WOGL
         InitializeTextureRenderer& operator=(const InitializeTextureRenderer&) = delete;
         InitializeTextureRenderer& operator=(InitializeTextureRenderer&&) = delete;
 
-        ~InitializeTextureRenderer()
+        virtual ~InitializeTextureRenderer()
         {
             if (_textureRendererHandle) {
                 glDeleteTextures(1, &_textureRendererHandle);
@@ -237,45 +237,61 @@ namespace WOGL
         {
             return Tf;
         }
-
-        /**
-         * Метод необходимый для определения способа минимизации текстуры.
-         *
-         * @param f способа минимизации текстуры
-        */
-        static void minFilter(TextureFilter f) noexcept
-        {
-            glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLenum>(f));
-        }
-
+        
         /**
          * Метод необходимый для определения способа увелечения текстуры.
          *
-         * @param f способа увелечения текстуры
+         * @param mf способа минимизации текстуры
         */
-        static void magFilter(TextureFilter f) noexcept
+        static inline void magFilter(const TextureFilter mf) noexcept
         {
-            glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(f));
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(mf));
         }
-
+        
+        /**
+         * Метод необходимый для определения способа минимизации текстуры.
+         *
+         * @param mf способа увелечения текстуры
+        */
+        static inline void minFilter(const TextureFilter mf) noexcept
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLenum>(mf));
+        }
+        
         /**
          * Метод отвечающий за определение способа оптекания текстуры по оси S(т. е. X).
          *
-         * @param s определяет способ оптекания по оси S(определение TextureWrapping находится выше)
+         * @param ws определяет способ оптекания по оси S(определение TextureWrapping находится выше)
         */
-        static void textureWrappingS(TextureWrapping s) noexcept
+        static inline void textureWrappingS(const TextureWrapping ws) noexcept
         {
-            glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLenum>(s));
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLenum>(ws));
         }
-
+        
         /**
          * Метод отвечающий за определение способа оптекания текстуры по оси T(т. е. Y).
          *
-         * @param t определяет способ оптекания по оси T(определение TextureWrapping находится выше)
+         * @param wt определяет способ оптекания по оси T(определение TextureWrapping находится выше)
         */
-        static void textureWrappingT(TextureWrapping t) noexcept
+        static inline void textureWrappingT(const TextureWrapping wt) noexcept
         {
-            glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLenum>(t));
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLenum>(wt));
+        }
+        
+        /**
+         * Устанавливает режим сравнения текстур для текущих привязанных текстур глубины.
+        */
+        static inline void textureCompareMode(const TextureCompareMode cm) noexcept
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, static_cast<GLenum>(cm));
+        }
+        
+        /**
+         * Устанавливает оператор сравнения, используемый, когда для TextureCompareMode установлено значение COMPARE_REF_TO_TEXTURE.
+        */
+        static inline void textureCompareFunc(const TextureCompareFunc cf) noexcept
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, static_cast<GLenum>(cf));
         }
     };
 }

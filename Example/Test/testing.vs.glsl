@@ -31,7 +31,7 @@ void main()
     TexCoord = VertexTextureCoord;
     Position = normalize(MV * vec4(VertexPosition, 1.0));
     Normal = VertexNormal;
-    PositionInLightSpace = normalize(LightSpaceMatrix * vec4(VertexPosition, 1.0));
+    PositionInLightSpace = LightSpaceMatrix * vec4(VertexPosition, 1.0);
 
     gl_Position = MVP * vec4(scaling() * VertexPosition, 1.0);
 }

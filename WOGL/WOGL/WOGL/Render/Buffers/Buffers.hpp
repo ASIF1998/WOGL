@@ -11,5 +11,6 @@
 
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
+#include "Framebuffer.hpp"
 
 #endif /* Buffers_hpp */

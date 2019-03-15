@@ -44,7 +44,7 @@ namespace WOGL
         ShaderProgram& operator=(const ShaderProgram&) = delete;
         ShaderProgram& operator=(ShaderProgram&& shaderProgram) = delete;
         
-        ~ShaderProgram()
+        virtual ~ShaderProgram()
         {
             if (_shaderProgramHandle) {
                 glDeleteProgram(_shaderProgramHandle);

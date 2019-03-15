@@ -81,7 +81,7 @@ namespace WOGL
         Shader(const Shader&) = delete;
         Shader& operator=(const Shader&) = delete;
 
-        ~Shader()
+        virtual ~Shader()
         {
             if (_shaderHandle) {
                 glDeleteShader(_shaderHandle);

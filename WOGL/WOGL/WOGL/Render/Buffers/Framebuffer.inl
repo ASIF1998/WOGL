@@ -29,6 +29,7 @@ namespace WOGL
 	{
 		using TextureRenderers = vector<TextureRenderer<Tf>>;
 
+		friend class Context;
 	public: 
 		/**
 		 * Конструктор.
