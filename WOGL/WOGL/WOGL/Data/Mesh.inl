@@ -46,7 +46,6 @@ namespace WOGL
          * 
          * @param vertexAttributsCount количество вершин
          * @param indicesCount количество индексов
-         * @param tangentsCount количество касательных
         */
         explicit Mesh(size_t vertexAttributsCount, size_t indicesCount) :
             _vertices(vertexAttributsCount),
@@ -59,7 +58,6 @@ namespace WOGL
          * 
          * @param vertexAttributs вершины
          * @param indices индексы
-         * @param tangents касательыне
         */
         explicit Mesh(const Vertices& vertexAttributs, const Indices& indices) :
             _vertices{vertexAttributs},
@@ -72,7 +70,6 @@ namespace WOGL
          * 
          * @param vertexAttributs вершины
          * @param indices индексы
-         * @param tangents касательыне
         */
         explicit Mesh(Vertices&& vertexAttributs, Indices&& indices) :
             _vertices{forward<Vertices>(vertexAttributs)},
@@ -85,7 +82,6 @@ namespace WOGL
          * 
          * @param vertexAttributs контейнер который хранит вершины
          * @param indices контейнер который хранит индексы
-         * @param tangents контейнер который хранит касательные
         */
         template<template<typename> typename Conteiner>
         explicit Mesh(const Conteiner<Vertices>& vertexAttributs, const Conteiner<uint32_t>& indices) :
@@ -99,7 +95,6 @@ namespace WOGL
          *
          * @param vertexAttributs контейнер который хранит вершины
          * @param indices контейнер который хранит индексы
-         * @param tangents контейнер который хранит касательные
          */
         template<template<typename> typename Conteiner>
         explicit Mesh(Conteiner<Vertices>&& vertexAttributs, Conteiner<uint32_t>&& indices) :
@@ -117,7 +112,7 @@ namespace WOGL
          * @param size_2 размер массива indices
         */
         template<template<typename> typename Ptr>
-        explicit Mesh(const Ptr<Vertex[]>& vertexAttributs, size_t size_1, const Ptr<uint32_t[]>& indices, size_t size_2, size_t size_3) :
+        explicit Mesh(const Ptr<Vertex[]>& vertexAttributs, size_t size_1, const Ptr<uint32_t[]>& indices, size_t size_2) :
             _vertices(size_1),
             _indices(size_2)
         {
@@ -133,7 +128,7 @@ namespace WOGL
          * @param indices указатель на массив с индексами
          * @param size_2 размер массива indices
         */
-        explicit Mesh(const unique_ptr<Vertex[]>& vertexAttributs, size_t size_1, const unique_ptr<uint32_t[]>& indices, size_t size_2, size_t size_3) :
+        explicit Mesh(const unique_ptr<Vertex[]>& vertexAttributs, size_t size_1, const unique_ptr<uint32_t[]>& indices, size_t size_2) :
             _vertices(size_1),
             _indices(size_2)
         {

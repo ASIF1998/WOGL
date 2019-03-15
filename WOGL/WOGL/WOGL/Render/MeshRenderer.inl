@@ -34,7 +34,8 @@ namespace WOGL
          * @param mesh меш
          * @param posAttribIndex индекс атрибута позиции
          * @param normalAttribIndx индекс атрибута нормал
-         * @param normalAttribIndx индекс атрибута текстурной координаты
+         * @param texCoordAttribIndx индекс атрибута текстурной координаты
+         * @param tangAttribIndx индекс атрибута касательной
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
         explicit MeshRenderer(const Mesh& mesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3) :
@@ -70,7 +71,8 @@ namespace WOGL
          * @param ptrMesh указатель на меш
          * @param posAttribIndex индекс атрибута позиции
          * @param normalAttribIndx индекс атрибута нормал
-         * @param normalAttribIndx индекс атрибута текстурной координаты
+         * @param texCoordAttribIndx индекс атрибута текстурной координаты
+         * @param tangAttribIndx индекс атрибута касательной
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
         explicit MeshRenderer(const unique_ptr<Mesh>& ptrMesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3) :
@@ -84,7 +86,8 @@ namespace WOGL
          * @param ptrMesh указатель на меш
          * @param posAttribIndex индекс атрибута позиции
          * @param normalAttribIndx индекс атрибута нормал
-         * @param normalAttribIndx индекс атрибута текстурной координаты
+         * @param texCoordAttribIndx индекс атрибута текстурной координаты
+         * @param tangAttribIndx индекс атрибута касательной
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
         template<template<typename> typename PtrMesh> 
