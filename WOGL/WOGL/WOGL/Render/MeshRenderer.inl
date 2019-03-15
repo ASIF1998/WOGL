@@ -37,7 +37,7 @@ namespace WOGL
          * @param normalAttribIndx индекс атрибута текстурной координаты
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
-        explicit MeshRenderer(const Mesh& mesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2) :
+        explicit MeshRenderer(const Mesh& mesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3) :
             _ebo{mesh._indices},
             _buffers(0)
         {
@@ -52,10 +52,12 @@ namespace WOGL
             glEnableVertexAttribArray(posAttribIndex);
             glEnableVertexAttribArray(normalAttribIndx);
             glEnableVertexAttribArray(texCoordAttribIndx);
+            glEnableVertexAttribArray(tangAttribIndx);
 
             glVertexAttribPointer(posAttribIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
             glVertexAttribPointer(normalAttribIndx, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
             glVertexAttribPointer(texCoordAttribIndx, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+            glVertexAttribPointer(tangAttribIndx, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tang));
 
             _ebo.unbind();
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -71,8 +73,8 @@ namespace WOGL
          * @param normalAttribIndx индекс атрибута текстурной координаты
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
-        explicit MeshRenderer(const unique_ptr<Mesh>& ptrMesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2) :
-            MeshRenderer(*ptrMesh, posAttribIndex, normalAttribIndx, texCoordAttribIndx)
+        explicit MeshRenderer(const unique_ptr<Mesh>& ptrMesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3) :
+            MeshRenderer(*ptrMesh, posAttribIndex, normalAttribIndx, texCoordAttribIndx, tangAttribIndx)
         {
         }
 
@@ -86,8 +88,8 @@ namespace WOGL
          * @throw runtime_error в случае если не удалось создать дескриптор основного вершинного буфера
         */
         template<template<typename> typename PtrMesh> 
-        explicit MeshRenderer(const PtrMesh<Mesh>& ptrMesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2) :
-            MeshRenderer(*ptrMesh, posAttribIndex, normalAttribIndx, texCoordAttribIndx)
+        explicit MeshRenderer(const PtrMesh<Mesh>& ptrMesh, uint32_t posAttribIndex = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3) :
+            MeshRenderer(*ptrMesh, posAttribIndex, normalAttribIndx, texCoordAttribIndx, tangAttribIndx)
         {
         }
 

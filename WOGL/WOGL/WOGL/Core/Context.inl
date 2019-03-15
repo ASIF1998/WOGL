@@ -196,7 +196,7 @@ namespace WOGL
             }
 
             if (normalMapTextureSlot > -1) {
-                modelRenderer._normalMapRenderer->bind(baseColorTextureSlot);
+                modelRenderer._normalMapRenderer->bind(normalMapTextureSlot);
             }
 
             for (size_t i{0}; i < modelRenderer._meshRenderers.size(); i++) {
@@ -222,7 +222,7 @@ namespace WOGL
             }
 
             if (normalMapTextureSlot > -1) {
-                modelRenderer._normalMapRenderer->bind(baseColorTextureSlot);
+                modelRenderer._normalMapRenderer->bind(normalMapTextureSlot);
             }
 
             for (size_t i{0}; i < N; i++) {

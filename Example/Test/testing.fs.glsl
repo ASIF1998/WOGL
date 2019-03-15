@@ -6,6 +6,7 @@ in vec2 TexCoord;
 in vec4 Position;
 in vec4 PositionInLightSpace;
 in vec3 Normal;
+in mat3 TBN;
 
 uniform sampler2D ModelTexture;
 uniform sampler2D NormalMap;
@@ -39,18 +40,20 @@ float shadowCalculation()
 
 /**
  * Вычисление света по Фонгу с помощью вектора полупути
-*/
+ */
 vec3 calculateLighting()
 {
-    vec3 n = normalize(NormalMatrix * Normal);
+    vec3 n = max(texture(NormalMap, TexCoord).xyz * vec3(2.0) - vec3(1.0), vec3(0.0));
+    n = normalize(TBN * n);
+    
     vec3 s = normalize(LightPosition.xyz - Position.xyz);
     vec3 v = -Position.xyz;
     vec3 h = normalize(v + s);
-
+    
     vec3 ambinent = LightColor * Ka;
     vec3 diffuse = LightColor * Kd * max(dot(n, s), 0.0);
     vec3 specular = LightColor * Ks * max(dot(h, v), 0.0);
-
+    
     return (ambinent + shadowCalculation() * (diffuse + specular)) * pow(LightIntensive, F);
 }
 
@@ -58,4 +61,3 @@ void main()
 {
     FragColor =  texture(ModelTexture, TexCoord) * vec4(calculateLighting(), 1.0);
 }
-

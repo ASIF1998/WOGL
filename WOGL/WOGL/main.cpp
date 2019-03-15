@@ -151,11 +151,14 @@ int main()
         };
         
         models[0].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_C.jpg");
+        models[0].setNormalMap("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_N.jpg");
+        
         models[1].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Bump_Col2.jpg");
+        models[1].setNormalMap("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Nor_mirror2.jpg");
         
         
         auto modelsRenderer {
-            ModelRenderer<TexelFormat::RGB16_F>::makeModelsRenderer(models)
+            ModelRenderer<TexelFormat::RGB16_F>::makeModelsRenderer(models, 0, 1, 2, 3)
         };
         
         context.clearColor(1, 1, 1, 1);
@@ -236,7 +239,7 @@ int main()
                     
                     createShadowMapShaderProgram.setUniform("LightSpaceMatrix", lightSpaceMatrix);
                     
-                    Context::draw(modelsRenderer, 0);
+                    Context::draw(modelsRenderer, 0, 1);
                     
                     /*
                      * Рисуем саму модель.
@@ -246,14 +249,14 @@ int main()
                     
                     depthFrameBuffer.bindDepthTexture(2);
                     
+                    ModelMatrix = rotate(ModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
                     auto MV = ViewModelMatrix * ModelMatrix;
                     
                     context.clearColorBuffer();
                     context.clearDepthBuffer();
                     context.clearStencilBuffer();
                     
-                    ModelMatrix = rotate(ModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
-                    
+                    shaderProgram.setUniform("M", ModelMatrix);
                     shaderProgram.setUniform("MV", MV);
                     shaderProgram.setUniform("MVP", PerspectiveProjectionMatrix * MV);
                     shaderProgram.setUniform("NormalMatrix", mat3(transpose(MV)));
@@ -263,7 +266,7 @@ int main()
                     shaderProgram.setUniform("ScaleY", globalScale);
                     shaderProgram.setUniform("ScaleZ", globalScale);
                     
-                    Context::draw(modelsRenderer, 0);
+                    Context::draw(modelsRenderer, 0, 1);
                     
                     resultFrameBuffer.unbind();
                     

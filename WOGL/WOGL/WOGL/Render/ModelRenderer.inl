@@ -9,6 +9,8 @@
 #include "MeshRenderer.hpp"
 #include "Texture/TextureRenderer.hpp"
 
+#include <optional>
+
 namespace WOGL
 {
     class InitializeModelRenderer 
@@ -17,12 +19,12 @@ namespace WOGL
 
     public:
         template<typename ModelType>
-        explicit InitializeModelRenderer(const ModelType& model)
+        explicit InitializeModelRenderer(const ModelType& model, uint32_t posAttibIndx = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3)
         {
             _meshRenderers.reserve(model._meshes.size());
 
             for (size_t i{0}; i < model._meshes.size(); i++) {
-                _meshRenderers.push_back(MeshRenderer(model._meshes[i]));
+                _meshRenderers.push_back(MeshRenderer{model._meshes[i], posAttibIndx, normalAttribIndx, texCoordAttribIndx, tangAttribIndx});
             }
         }
 
@@ -45,8 +47,8 @@ namespace WOGL
          * @param model модель
         */
         template<typename Model>
-        explicit ModelRenderer(const Model& model) :
-           InitializeModelRenderer(model)
+        explicit ModelRenderer(const Model& model, uint32_t posAttibIndx = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3) :
+           InitializeModelRenderer(model, posAttibIndx, normalAttribIndx, texCoordAttribIndx, tangAttribIndx)
         {
             if (model.hasBaseColorTexture()) {
                 _textureRenderer.reset(new TextureRenderer<TextureTexelFormat>(model.texture()));
@@ -78,13 +80,13 @@ namespace WOGL
         }
 
         template<typename Models>
-        static auto makeModelsRenderer(const Models& models)
+        static auto makeModelsRenderer(const Models& models, uint32_t posAttibIndx = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3)
         {
             vector<ModelRenderer<TextureTexelFormat>> modelsRenderer;
             modelsRenderer.reserve(models.size());
 
             for (size_t i{0}; i < models.size(); i++) {
-                modelsRenderer.push_back(ModelRenderer(models[i]));
+                modelsRenderer.push_back(ModelRenderer{models[i], posAttibIndx, normalAttribIndx, texCoordAttribIndx, tangAttribIndx});
             }
 
             return modelsRenderer;

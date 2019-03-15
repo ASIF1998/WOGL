@@ -86,7 +86,6 @@ namespace WOGL
             bool stayTexture;
             vector<Vertex> vertices;
             vector<uint32_t> indices;
-            vector<vec2> tangets;
 
             for (size_t i{0}; i < node->mNumMeshes; i++) {
                 mesh = scene->mMeshes[node->mMeshes[i]];
@@ -111,13 +110,17 @@ namespace WOGL
                             mesh->mTextureCoords[0][j].y
                         };
                     }
+                    
+                    vertex.tang = {
+                        mesh->mTangents[j].x,
+                        mesh->mTangents[j].y,
+                        mesh->mTangents[j].z
+                    };
 
                     vertices.push_back(Vertex{vertex});
-                    tangets.push_back(vec2{mesh->mTangents[j].x, mesh->mTangents[j].y});
                 }
 
                 vertices.shrink_to_fit();
-                tangets.shrink_to_fit();
                 indices.shrink_to_fit();
 
                 for (uint32_t j{0}; j < mesh->mNumFaces; j++) {
@@ -126,7 +129,7 @@ namespace WOGL
                     indices.push_back(mesh->mFaces[j].mIndices[2]);
                 }
 
-                _meshes.push_back(Mesh(move(vertices), move(indices), move(tangets)));
+                _meshes.push_back(Mesh(move(vertices), move(indices)));
             }
         }
 
