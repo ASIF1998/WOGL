@@ -129,7 +129,7 @@ namespace WOGL
          *  Методы для установки значений uniform-переменным в текущей шейдерной программе по локации.
         */
         
-        void setUniform(int32_t location, int32 v) const noexcept
+        void setUniform(int32_t location, int32_t v) const noexcept
         {
             glUniform1i(location, v);
         }
@@ -184,6 +184,138 @@ namespace WOGL
             glUniformMatrix4fv(location, 1, GL_FALSE, &v[0][0]);
         }
 
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<int32_t>& v) const noexcept
+        {
+            glUniform1iv(location, v.size(), &v[0]);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<float>& v) const noexcept
+        {
+            glUniform1fv(location, v.size(), &v[0]);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<vec2>& v) const noexcept
+        {
+            glUniform2fv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<ivec2>& v) const noexcept
+        {
+            glUniform2iv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<vec3>& v) const noexcept
+        {
+            glUniform3fv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<ivec3>& v) const noexcept
+        {
+            glUniform3iv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<vec4>& v) const noexcept
+        {
+            glUniform4fv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<ivec4>& v) const noexcept
+        {
+            glUniform4iv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<mat2>& v) const noexcept
+        {
+            glUniformMatrix2fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<mat3>& v) const noexcept
+        {
+            glUniformMatrix3fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+        }
+
+        template<template<typename> typename Conteiner>
+        void setUniform(int32_t location, const Conteiner<mat4>& v) const noexcept
+        {
+            glUniformMatrix4fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<int32_t, T>& v) const noexcept
+        {
+            glUniform1iv(location, v.size(), &v[0]);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<float, T>& v) const noexcept
+        {
+            glUniform1fv(location, v.size(), &v[0]);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<vec2, T>& v) const noexcept
+        {
+            glUniform2fv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<ivec2, T>& v) const noexcept
+        {
+            glUniform2iv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<vec3, T>& v) const noexcept
+        {
+            glUniform3fv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<ivec3, T>& v) const noexcept
+        {
+            glUniform3iv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<vec4, T>& v) const noexcept
+        {
+            glUniform4fv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<ivec4, T>& v) const noexcept
+        {
+            glUniform4iv(location, v.size(), &v[0].x);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<mat2, T>& v) const noexcept
+        {
+            glUniformMatrix2fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<mat3, T>& v) const noexcept
+        {
+            glUniformMatrix3fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+        }
+
+        template<template<typename, typename> typename Conteiner, typename T>
+        void setUniform(int32_t location, const Conteiner<mat4, T>& v) const noexcept
+        {
+            glUniformMatrix4fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+        }
+
         /**
          *  Метод для установки значений uniform-переменным в текущей шейдерной программе по имени.
          * 
@@ -191,7 +323,7 @@ namespace WOGL
          * @param v то что нужно передать uniform-переменной
         */
         template<typename T>
-        void setUniform(string_view name, T v) const noexcept
+        void setUniform(string_view name, const T& v) const noexcept
         {
             if(auto local = uniformLocation(name); local) {
                 setUniform(*local, v);

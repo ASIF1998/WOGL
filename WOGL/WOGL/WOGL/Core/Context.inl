@@ -23,7 +23,6 @@ using namespace std;
 
 namespace WOGL
 {
-    using ColorAttachment = GLenum;
 
     auto contextDeleter = [](SDL_GLContext* context)
     {
@@ -328,36 +327,36 @@ namespace WOGL
             }
         }
 
-        void enable(Enable e) noexcept
+        static void enable(Enable e) noexcept
         {
             glEnable(static_cast<GLenum>(e));
         }
 
-        void disable(Enable d) {
+        static void disable(Enable d) {
             glDisable(static_cast<GLenum>(d));
         }
 
-        void stensil(StensilFunc s1, StensilFunc s2, StensilFunc s3) noexcept
+        static void stensil(StensilFunc s1, StensilFunc s2, StensilFunc s3) noexcept
         {
             glStencilFunc(static_cast<GLenum>(s1), static_cast<GLenum>(s2), static_cast<GLenum>(s3));
         }
 
-        void depth(DethFunc d) noexcept
+        static void depth(DethFunc d) noexcept
         {
             glDepthFunc(static_cast<GLenum>(d));
         }
 
-        void blend(BlendFunc b1, BlendFunc b2) noexcept
+        static void blend(BlendFunc b1, BlendFunc b2) noexcept
         {
             glBlendFunc(static_cast<GLenum>(b1), static_cast<GLenum>(b2));
         }
 
-        void cullFace(Face f) noexcept
+        static void cullFace(Face f) noexcept
         {
             glCullFace(static_cast<GLenum>(f));
         }
 
-        void faceTraversal(FaceTraversal fv) noexcept
+        static void faceTraversal(FaceTraversal fv) noexcept
         {
             glFrontFace(static_cast<GLenum>(fv));
         }
@@ -369,7 +368,7 @@ namespace WOGL
             } else {
                 glDisable(GL_FRAMEBUFFER_SRGB);
             }
-        } 
+        }
 
     private:
         PtrContext _context;

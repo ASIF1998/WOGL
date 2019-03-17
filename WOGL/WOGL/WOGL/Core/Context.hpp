@@ -98,6 +98,8 @@ namespace WOGL
         TRIANGLES_ADJACENCY = GL_TRIANGLES_ADJACENCY,
         PATCHES = GL_PATCHES
     };
+    
+    using ColorAttachment = GLenum;
 }
 
 #include "Context.inl"

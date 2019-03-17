@@ -89,6 +89,19 @@ namespace WOGL
             _indices{indices}
         {
         }
+
+        /**
+         * Конструктор.
+         * 
+         * @param vertexAttributs контейнер который хранит вершины
+         * @param indices контейнер который хранит индексы
+        */
+        template<template<typename, typename> typename Conteiner, typename A>
+        explicit Mesh(const Conteiner<Vertices, A>& vertexAttributs, const Conteiner<uint32_t, A>& indices) :
+            _vertices{vertexAttributs},
+            _indices{indices}
+        {
+        }
         
         /**
          * Конструктор.
@@ -100,6 +113,19 @@ namespace WOGL
         explicit Mesh(Conteiner<Vertices>&& vertexAttributs, Conteiner<uint32_t>&& indices) :
             _vertices{forward<Conteiner<Vertices>>(vertexAttributs)},
             _indices{forward<Conteiner<uint32_t>>(indices)}
+        {
+        }
+
+        /**
+         * Конструктор.
+         *
+         * @param vertexAttributs контейнер который хранит вершины
+         * @param indices контейнер который хранит индексы
+         */
+        template<template<typename, typename> typename Conteiner, typename A>
+        explicit Mesh(Conteiner<Vertices, A>&& vertexAttributs, Conteiner<uint32_t, A>&& indices) :
+            _vertices{forward<Conteiner<Vertices, A>>(vertexAttributs)},
+            _indices{forward<Conteiner<uint32_t, A>>(indices)}
         {
         }
 

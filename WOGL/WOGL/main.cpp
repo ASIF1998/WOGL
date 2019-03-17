@@ -1,63 +1,213 @@
 #include <iostream>
 
+#include <stdexcept>
+
 #include "WOGL/Core/WOGL.hpp"
-
-#include "WOGL/Render/Shader.hpp"
-#include "WOGL/Render/ShaderProgram.hpp"
-
-#include "WOGL/Render/Buffers/Buffers.hpp"
-#include "WOGL/Render/VertexArray.hpp"
-
-#include "WOGL/Data/Texture.hpp"
-#include "WOGL/Render/Texture/TextureRenderer.hpp"
-#include "WOGL/Render/Texture/CubeMapTextureRenderer.hpp"
-#include "WOGL/Render/Texture/SkyBox.hpp"
-#include "WOGL/Render/Texture/TextureMappingSetting.hpp"
-#include "WOGL/Render/Texture/TextureMappingSetting.hpp"
-
-#include "WOGL/Data/Model.hpp"
-#include "WOGL/Render/ModelRenderer.hpp"
-
-#include "WOGL/Data/Conteiners/ArrayView.hpp"
-#include "WOGL/Data/Conteiners/MatrixView.hpp"
-
-#include "WOGL/Render/Buffers/Framebuffer.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include "WOGL/Render/Buffers/Buffers.hpp"
+
+#include "WOGL/Render/ShaderProgram.hpp"
+
+#include "WOGL/Data/Model.hpp"
+
+#include <random>
+
+#include <vector>
+
+#include "WOGL/Data/Texture.hpp"
+#include "WOGL/Render/Texture/TextureRenderer.hpp"
+
 using namespace std;
 using namespace WOGL;
-using namespace glm;
 
-vec4 LightPosition (55.0f, 55.0f, 0.0f, 1.0f);
-vec3 ModelPosition (35.0f, 35.0f, 10.0f);
+struct LightInfo
+{
+    vec4 lightPosition;
+    vec3 lightColor;
+    float lightIntensive;
+    float f;
+};
 
-vec3 LightColor (1.0f, 1.0f, 1.0f);
-float LightIntensive = 1.0f;
-float F = 50.0f;
-vec3 Ka (0.5f);
-vec3 Kd (0.7f);
-vec3 Ks (0.8f);
+struct Material 
+{
+    vec3 ka;
+    vec3 kd;
+    vec3 ks;
+};
 
-mat4 PerspectiveProjectionMatrix = perspective(radians(90.0f), 800.0f /  600.0f, 0.01f, 100.0f);
-mat4 OrhoProjectionMatrix = ortho(-150.0f, 130.0f, -130.0f, 130.0f, -100.0f, 100.0f);
+struct CoordinateSystem
+{
+    CoordinateSystem() :
+        projectionMatrix(1.0),
+        viewMatrix(1.0),
+        modelMatrix(1.0),
+        normalMatrix(1.0)
+    {
+    }
 
-mat4 ViewModelMatrix = glm::lookAt(glm::vec3(35, 25, 4), glm::vec3(0, 0, 0), glm::vec3(0,1,0));
-mat4 ViewLightMatrix = glm::lookAt(glm::vec3(65, 15, -10), glm::vec3(0, 0, 0), glm::vec3(0,1,0));
+    void setPerspectiveProjection(float angle, const tuple<int32_t, int32_t>& windowSize, float zNear, float zFar)
+    {
+        float aspect = static_cast<float>(get<WINDOW_WIDTH>(windowSize)) / static_cast<float>(get<WINDOW_HEIGHT>(windowSize));
+        projectionMatrix = perspective(radians(angle), aspect, zNear, zFar);
+    }
 
-mat4 ModelMatrix(1.0f);
-mat3 NormalMatrix(1.0f);
+    void setView(const vec3& eye, const vec3& center, const vec3& up)
+    {
+        viewMatrix = lookAt(eye, center, up);
+    }
+
+    void translate(const vec3& t)
+    {
+        modelMatrix = glm::translate(modelMatrix, t);
+    }
+
+    void rotate(const vec3& axis, float angle)
+    {
+        modelMatrix = glm::rotate(modelMatrix, angle, axis);
+    }
+
+    void calculateNormalMatrix()
+    {
+        normalMatrix = mat3(glm::transpose(viewMatrix * modelMatrix));
+    }
+
+    auto mv() const
+    {
+        return viewMatrix * modelMatrix;
+    }
+
+    auto mvp() const 
+    {
+        return projectionMatrix * viewMatrix * modelMatrix;
+    }
+
+    mat4 projectionMatrix;
+    mat4 viewMatrix;
+    mat4 modelMatrix;
+    mat3 normalMatrix;
+};  
+
+uniform_real_distribution<float> rf(0.0f, 1.0f);
+default_random_engine gen;
+
+/**
+ * Функция осуществляющая инициализаюию моделей.
+*/
+auto getModel() 
+{
+    auto models {
+        Model<float, TexelType::RGB>::makeModels("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx")
+    };
+
+    models[0].setBaseColorTexture("/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Source/dragon/textures/Floor_C.jpg");
+    models[0].setNormalMap("/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Source/dragon/textures/Floor_N.jpg");
+    
+    models[1].setBaseColorTexture("/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Source/dragon/textures/Dragon_Bump_Col2.jpg");
+    models[1].setNormalMap("/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Source/dragon/textures/Dragon_Nor_mirror2.jpg");
+
+    return models;
+}
+
+/**
+ * Функция необходимая для формирования ядра выборки из 64 точек.
+*/
+auto ssaoKernalGen()
+{
+    vector<vec3> ssaoKernal;
+
+    ssaoKernal.resize(64);
+
+    for(uint32_t i{0}; i < 64; i++) {
+        ssaoKernal[i] = {
+            rf(gen) * 2.0f - 1.0f,
+            rf(gen) * 2.0f - 1.0f,
+            rf(gen)
+        };
+
+        ssaoKernal[i] = normalize(ssaoKernal[i]);
+        ssaoKernal[i] *= rf(gen);
+        float scale = (float) i / 64.0f;
+        ssaoKernal[i] *= mix(0.1f, 1.0f, scale * scale);
+    }
+
+    return ssaoKernal;
+}
+
+auto ssaoNoiseGen()
+{
+    Texture<float, TexelType::RGB> ssaoNoise(4, 4);
+
+    for (size_t i{0}; i < 4; i++) {
+        for (size_t j{0}; j < 4; j++) {
+            ssaoNoise.at<Canal::RED>(i, j) = rf(gen) * 2.0f - 1.0f;
+            ssaoNoise.at<Canal::GREEN>(i, j) = rf(gen) * 2.0f - 1.0f;
+            ssaoNoise.at<Canal::BLUE>(i, j) = 0.0f;
+        }
+    }
+    
+    return ssaoNoise;
+}
 
 int main()
 {
     try {
         init();
-        
-        Window window("Demo", 1000, 1000);
+
+        Window<> window("Dragon", 1000, 1000);
         Context context(window);
-        
+
+        Shader<ShaderTypes::VERTEX> gVertexShader {
+            "/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Shaders/gVertex.vs.glsl"
+        };
+
+        Shader<ShaderTypes::FRAGMENT> gFragmentShader {
+            "/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Shaders/gFragment.fs.glsl"
+        };
+
+        ShaderProgram gShaderProgram;
+
+        gShaderProgram.add(gVertexShader);
+        gShaderProgram.add(gFragmentShader);
+        gShaderProgram.link();
+
+        Shader<ShaderTypes::VERTEX> ssaoVertexShader {
+            "/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Shaders/ssaoVertex.vs.glsl"
+        };
+
+        Shader<ShaderTypes::FRAGMENT> ssaoFragmentShader {
+            "/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Shaders/ssaoVertex.fs.glsl"
+        };
+
+        ShaderProgram ssaoShaderProgram;
+
+        ssaoShaderProgram.add(ssaoVertexShader);
+        ssaoShaderProgram.add(ssaoFragmentShader);
+        ssaoShaderProgram.link();
+
+        Shader<ShaderTypes::VERTEX> lightingPassVertexShader {
+            "/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Shaders/lightingPass.vs.glsl"
+        };
+
+        Shader<ShaderTypes::FRAGMENT> lightingPassVertexFragment {
+            "/Users/asifmamedov/Desktop/WOGL/Example/Demo Scene/Shaders/lightingPass.fs.glsl"
+        };
+
+        ShaderProgram lightingPassShaderProgram;
+
+        lightingPassShaderProgram.add(lightingPassVertexShader);
+        lightingPassShaderProgram.add(lightingPassVertexFragment);
+        lightingPassShaderProgram.link();
+
+        auto models = getModel();
+
+        auto modelsRenderer {
+            ModelRenderer<TexelFormat::RGB16_F>::makeModelsRenderer(models, 0, 1, 2, 3)
+        };
+
         VertexBuffer<3> texturePosition {
             -1.0f, -1.0f, 0.0f,
             -1.0f, 1.0f, 0.0f,
@@ -75,223 +225,143 @@ int main()
         IndexBuffer textureIndexBuffer {
             0, 2, 1, 0, 2, 3
         };
-        
+
         VertexArray textureVAO;
         
         textureVAO.add(texturePosition, 0);
         textureVAO.add(textureCoord, 1);
-        
-        auto outputTextureVertexShader {
-            make_unique<Shader<ShaderTypes::VERTEX>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/outputTexture.vs.glsl")
-        };
-        
-        auto outputTextureFragmentShader {
-            make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/outputTexture.fs.glsl")
-        };
-        
-        auto createShadowMapVertexShader {
-            make_unique<Shader<ShaderTypes::VERTEX>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/createDepth.vs.glsl")
-        };
-        
-        auto createShadowMapFragmentShader {
-            make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/createDepth.fs.glsl")
-        };
-        
-        auto vertexShader {
-            make_unique<Shader<ShaderTypes::VERTEX>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/testing.vs.glsl")
-        };
-        
-        auto fragmentShader {
-            make_unique<Shader<ShaderTypes::FRAGMENT>>("/Users/asifmamedov/Desktop/WOGL/Example/Test/testing.fs.glsl")
-        };
-        
-        ShaderProgram outputTextureShaderProgram;
-        ShaderProgram createShadowMapShaderProgram;
-        ShaderProgram shaderProgram;
-        
-        outputTextureShaderProgram.add(outputTextureVertexShader);
-        outputTextureShaderProgram.add(outputTextureFragmentShader);
-        outputTextureShaderProgram.link();
-        outputTextureShaderProgram.use();
-        
-        outputTextureShaderProgram.setUniform("Texture", 3);
-        
-        createShadowMapShaderProgram.add(createShadowMapVertexShader);
-        createShadowMapShaderProgram.add(createShadowMapFragmentShader);
-        createShadowMapShaderProgram.link();
-        
-        shaderProgram.add(vertexShader);
-        shaderProgram.add(fragmentShader);
-        shaderProgram.link();
-        shaderProgram.use();
-        
-        ModelMatrix = translate(ModelMatrix, vec3(0, 0, 3));
-        ModelMatrix = glm::rotate(ModelMatrix, 280.7f, vec3(1.0f, 0.0f, 0.0f));
-        
-        shaderProgram.setUniform("LightColor", LightColor);
-        
-        shaderProgram.setUniform("Ka", Ka);
-        shaderProgram.setUniform("Kd", Kd);
-        shaderProgram.setUniform("Ks", Ks);
-        
-        shaderProgram.setUniform("F", F);
-        shaderProgram.setUniform("LightIntensive", LightIntensive);
-        shaderProgram.setUniform("LightPosition", LightPosition);
-        
-        shaderProgram.setUniform("ModelTexture", 0);
-        shaderProgram.setUniform("NormalMap", 1);
-        shaderProgram.setUniform("ShadowMap", 2);
-        
-        auto models {
-            Model<float, TexelType::RGB>::makeModels("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx")
-        };
-        
-        auto texture {
-            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Downloads/hw_mystic/mystic_lf.tga")
-        };
-        
-        models[0].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_C.jpg");
-        models[0].setNormalMap("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Floor_N.jpg");
-        
-        models[1].setBaseColorTexture("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Bump_Col2.jpg");
-        models[1].setNormalMap("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/textures/Dragon_Nor_mirror2.jpg");
-        
-        
-        auto modelsRenderer {
-            ModelRenderer<TexelFormat::RGB16_F>::makeModelsRenderer(models, 0, 1, 2, 3)
-        };
-        
-        context.clearColor(1, 1, 1, 1);
-        context.enable(Enable::MULTISAMPLE);
-        
-        int32_t t1 = SDL_GetTicks(), t2 = 0;
+
+        Framebuffer<TexelFormat::RGB16_F, WritePixels::RenderBuffer, WritePixels::NoWrite> gBuffer(window, 3);
+        Framebuffer<TexelFormat::RED16_F, WritePixels::RenderBuffer, WritePixels::NoWrite> ssaoFrameBuffer(window, 3);
+
+        Context::checkError();
+
         SDL_Event event;
-        bool stay = true, rotateFlag = true;
-        float speed = 0.02f;
-        float globalScale = 1.0f;
-        
-        glViewport(0, 0, 1000, 1000);
-        Framebuffer<TexelFormat::RGB16_F,WritePixels::RenderBuffer, WritePixels::NoWrite> resultFrameBuffer(1000, 1000, 2);
-        ShadowMapRenderer<32, 1000, 1000> depthFrameBuffer;
-        
-        depthFrameBuffer.bindDepthTexture(2);
-        
-        TextureRenderer<TexelFormat::RG16_F>::textureCompareMode(TextureCompareMode::COMPARE_REF_TO_TEXTURE);
-        TextureRenderer<TexelFormat::RG16_F>::textureCompareFunc(TextureCompareFunc::LESS);
-        
-//        glEnable(GL_POINT_SIZE);
+        bool stay = true;
+        float modelScale = 1.0f;
+
+        Material material {
+            vec3(0.4f),
+            vec3(0.9f),
+            vec3(0.7f)
+        };
+
+        LightInfo lightIndo {
+            vec4(55.0f, 55.0f, 0.0f, 1.0f),
+            vec3(1.0f),
+            1.0f,
+            6.0f
+        };
+
+        CoordinateSystem cs;
+
+        auto ssaoKernal = ssaoKernalGen();
+        TextureRenderer<TexelFormat::RGB16_F> ssaoNoiseRenderer(ssaoNoiseGen());
+
+        cs.setPerspectiveProjection(90.0f, window.size(), 0.01f, 500.0f);
+        cs.setView(vec3(35.0f, 25.0f, 4.0f), vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
+        cs.translate({0.0f, 0.0f, 3.0f});
+        cs.rotate(vec3(1.0f, 0.0f, 0.0f), radians(280.0f));
+        cs.calculateNormalMatrix();
+
+        gShaderProgram.use();
+        gShaderProgram.setUniform("BaseColorTexture", 0);
+        gShaderProgram.setUniform("NormalMap", 1);
+
+        ssaoShaderProgram.use();
+        ssaoShaderProgram.setUniform("GPosition", 0);
+        ssaoShaderProgram.setUniform("GNormal", 1);
+        ssaoShaderProgram.setUniform("BaseColor", 2);
+        ssaoShaderProgram.setUniform("Samples", ssaoKernal);
+        ssaoShaderProgram.setUniform("ProjectionMatrix", cs.projectionMatrix);
+
+        lightingPassShaderProgram.use();
+        lightingPassShaderProgram.setUniform("GPosition", 0);
+        lightingPassShaderProgram.setUniform("GNormal", 1);
+        lightingPassShaderProgram.setUniform("BaseColor", 2);
+        lightingPassShaderProgram.setUniform("LightPosition", lightIndo.lightPosition);
+        lightingPassShaderProgram.setUniform("LightColor", lightIndo.lightColor);
+        lightingPassShaderProgram.setUniform("LightIntensive", lightIndo.lightIntensive);
+        lightingPassShaderProgram.setUniform("F", lightIndo.f);
+        lightingPassShaderProgram.setUniform("Ka", material.ka);
+        lightingPassShaderProgram.setUniform("Kd", material.kd);
+        lightingPassShaderProgram.setUniform("Ks", material.ks);
+
+        ColorAttachment ca[] {
+            0, 1, 2
+        };
 
         while(stay) {
             while(SDL_PollEvent(&event)) {
-                switch(event.type) {
+                switch (event.type) {
                     case SDL_QUIT: {
-                        stay = false;
-                        break;
-                    }
-                        
-                    case SDL_KEYUP: {
-                        if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
-                            stay = false;
-                        }
-                        
+                        stay = !stay;
                         break;
                     }
                         
                     case SDL_KEYDOWN: {
-                        if (event.key.keysym.scancode == SDL_SCANCODE_EQUALS) {
-                            globalScale += 0.015f;
-                        } else if (event.key.keysym.scancode == SDL_SCANCODE_MINUS) {
-                            globalScale -= 0.015f;
-                        } else if (event.key.keysym.scancode == SDL_SCANCODE_0) {
-                            cout << globalScale << endl;
-                        } else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-                            rotateFlag = !rotateFlag;
+                        if (event.key.keysym.scancode == SDL_SCANCODE_1) {
+                            modelScale += 0.05f;
+                        } else if (event.key.keysym.scancode == SDL_SCANCODE_2) {
+                            modelScale -= 0.05f;
+                        } else if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                            stay = !stay;
                         }
-                        
+
                         break;
                     }
                 }
             }
             
-            if (rotateFlag) {
-                auto size = window.size();
-                
-                t2 = SDL_GetTicks();
-                
-                if (t2 - t1 > 50) {
-                    t1 = t2;
-                    
-                    // Включаем тест глубины
-                    context.enable(Enable::DEPTH_TEST);
-                    context.depth(DethFunc::LEQUAL);
-                    
-                    /**
-                     * Создаем карту теней.
-                     */
-                    depthFrameBuffer.bind();
-                    createShadowMapShaderProgram.use();
-                    
-                    context.clearDepthBuffer();
-                    
-                    PerspectiveProjectionMatrix = perspective(radians(65.0f), (float)get<WINDOW_WIDTH>(size) / (float)get<WINDOW_HEIGHT>(size), 0.01f, 500.0f);
-                    
-                    auto lightSpaceMatrix = OrhoProjectionMatrix * ViewLightMatrix * ModelMatrix;
-                    
-                    createShadowMapShaderProgram.setUniform("LightSpaceMatrix", lightSpaceMatrix);
-                    
-                    Context::draw(modelsRenderer, 0, 1);
-                    
-                    /*
-                     * Рисуем саму модель.
-                     */
-                    resultFrameBuffer.bind();
-                    shaderProgram.use();
-                    
-                    depthFrameBuffer.bindDepthTexture(2);
-                    
-                    ModelMatrix = rotate(ModelMatrix, speed, vec3(0.0f, 0.0f, 1.0f));
-                    auto MV = ViewModelMatrix * ModelMatrix;
-                    
-                    context.clearColorBuffer();
-                    context.clearDepthBuffer();
-                    context.clearStencilBuffer();
-                    
-                    shaderProgram.setUniform("M", ModelMatrix);
-                    shaderProgram.setUniform("MV", MV);
-                    shaderProgram.setUniform("MVP", PerspectiveProjectionMatrix * MV);
-                    shaderProgram.setUniform("NormalMatrix", mat3(transpose(MV)));
-                    shaderProgram.setUniform("LightSpaceMatrix", lightSpaceMatrix);
-                    
-                    shaderProgram.setUniform("ScaleX", globalScale);
-                    shaderProgram.setUniform("ScaleY", globalScale);
-                    shaderProgram.setUniform("ScaleZ", globalScale);
-                    
-                    Context::draw(modelsRenderer, 0, 1);
-                    
-                    resultFrameBuffer.unbind();
-                    
-                    // Выключаем тест глубины
-                    context.disable(Enable::DEPTH_TEST);
-                    
-                    context.clearColorBuffer();
-                    
-                    outputTextureShaderProgram.use();
-                    textureVAO.bind();
-                    textureIndexBuffer.bind();
-                    resultFrameBuffer.colorBuffer(0).bind(3);
-//                    depthFrameBuffer.bindDepthTexture(3);
-                    
-                    context.draw(DrawPrimitive::TRIANGLES, textureIndexBuffer);
-                    
-                    context.checkError();
-                    window.present();
-                }
-            }
+            Context::enable(Enable::DEPTH_TEST);
+            Context::depth(DethFunc::LEQUAL);
+
+            gShaderProgram.use();
+            gBuffer.bind();
+
+            Context::clearColorBuffer();
+            Context::clearDepthBuffer();
+            
+            cs.rotate(vec3(0.0f, 0.0f, 1.0f), 0.007f);
+            cs.calculateNormalMatrix();
+            
+            gShaderProgram.setUniform("MV", cs.mv());
+            gShaderProgram.setUniform("MVP", cs.mvp());
+            gShaderProgram.setUniform("NormalMatrix", cs.normalMatrix);
+            gShaderProgram.setUniform("Scale", modelScale);
+
+            Context::draw(modelsRenderer, ca, 0, 1);
+
+            Context::disable(Enable::DEPTH_TEST);
+            gBuffer.unbind();
+
+            textureVAO.bind();
+            textureIndexBuffer.bind();
+
+            gBuffer.colorBuffer(0).bind(0);
+            gBuffer.colorBuffer(1).bind(1);
+            gBuffer.colorBuffer(2).bind(2);
+
+            ssaoFrameBuffer.bind();
+            Context::clearColorBuffer();
+
+            ssaoShaderProgram.use();
+
+            context.draw(DrawPrimitive::TRIANGLES, textureIndexBuffer);
+            ssaoFrameBuffer.unbind();
+            
+            Context::clearColorBuffer();
+
+            lightingPassShaderProgram.use();
+
+            context.draw(DrawPrimitive::TRIANGLES, textureIndexBuffer);
+
+            window.present();
         }
-        
+
         quit();
-    } catch (const exception& ex) {
-        cerr << ex.what() << endl;
+    } catch(const exception& e) {
+        cerr << e.what() << endl;
     }
     
     return 0;
