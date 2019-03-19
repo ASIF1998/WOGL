@@ -79,10 +79,10 @@ namespace WOGL
 				throw runtime_error("Error create handle for framebuffer");
 			}
 
-			auto windowSize = window.size();
+			auto[windowWidth, windowHeight] = window.size();
 
 			for (int32_t i{0}; i < numColorBuffers; i++) {
-				_colorBuffer.push_back(TextureRenderer<Tf>{get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize)});
+				_colorBuffer.push_back(TextureRenderer<Tf>{windowWidth, windowHeight});
 			}
 
 			_colorBuffer.shrink_to_fit();
@@ -285,12 +285,12 @@ namespace WOGL
 				throw runtime_error("Error create descriptor for depth texture");
 			}
 
-			auto windowSize = window.size();
+			auto[windowWidth, windowHeight] = window.size();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthTextureHandle);
 
-			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize));
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, windowWidth, windowHeight);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTextureHandle, 0);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -382,12 +382,12 @@ namespace WOGL
 				throw runtime_error("Error create descriptor for depth buffer");
 			}
 
-			auto windowSize = window.size();
+			auto[windowWidth, windowHeight] = window.size();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindRenderbuffer(GL_RENDERBUFFER, _stencilBufferHandle);
 
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize));
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, windowWidth, windowHeight);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _stencilBufferHandle);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -483,12 +483,12 @@ namespace WOGL
 				throw runtime_error("Error create descriptor for depth and stencil texture");
 			}
 
-			auto windowSize = window.size();
+			auto[windowWidth, windowHeight] = window.size();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindTexture(GL_TEXTURE_2D, _depthAndStencilTextureHandle);
 
-			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize));
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, _depthAndStencilTextureHandle, 0);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -579,12 +579,12 @@ namespace WOGL
 				throw runtime_error("Error create descriptor for depth buffer");
 			}
 
-			auto windowSize = window.size();
+			auto[windowWidth, windowHeight] = window.size();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindRenderbuffer(GL_RENDERBUFFER, _depthBufferHandle);
 
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize));
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowWidth, windowHeight);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthBufferHandle);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -680,12 +680,12 @@ namespace WOGL
 				throw runtime_error("Error create descriptor for depth buffer");
 			}
 
-			auto windowSize = window.size();
+			auto[windowWidth, windowHeight] = window.size();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, BaseFramebuffer<Tf>::_framebufferHandle);
 			glBindRenderbuffer(GL_RENDERBUFFER, _depthAndStencilBufferHandle);
 
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, get<WINDOW_WIDTH>(windowSize), get<WINDOW_HEIGHT>(windowSize));
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth,windowHeight);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthAndStencilBufferHandle);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
