@@ -72,7 +72,7 @@ struct CoordinateSystem
 
     inline void calculateNormalMatrix()
     {
-        normalMatrix = mat3(glm::transpose(viewMatrix * modelMatrix));
+        normalMatrix = mat3(glm::transpose(inverse(viewMatrix * modelMatrix)));
     }
 
     inline auto mv() const
