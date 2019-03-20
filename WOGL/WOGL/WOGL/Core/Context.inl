@@ -61,7 +61,7 @@ namespace WOGL
          * @param b канал blue
          * @param a каал alpha
         */
-        void clearColor(float r, float g, float b, float a) noexcept
+        void inline clearColor(float r, float g, float b, float a) noexcept
         {
             glClearColor(r, g, b, a);
         }
@@ -71,7 +71,7 @@ namespace WOGL
          *
          * @param d значение котроым очищается буффер
         */
-        static void clearDepth(double d) noexcept
+        static inline void clearDepth(double d) noexcept
         {
             glClearDepth(d);
         }
@@ -81,23 +81,23 @@ namespace WOGL
          *
          * @param s значение котроым очищается буффер
         */
-        static void clearStencil(int32_t s) noexcept
+        static inline void clearStencil(int32_t s) noexcept
         {
             glClearStencil(s);
         }
 
         /*
-            * Метод, необходимый для очистки буффера цвета.
+         * Метод, необходимый для очистки буффера цвета.
         */
-        static void clearColorBuffer() noexcept
+        static inline void clearColorBuffer() noexcept
         {
             glClear(GL_COLOR_BUFFER_BIT);
         }
 
         /**
-         *  Метод, необходимый для очистки буффера глубины.
+         * Метод, необходимый для очистки буффера глубины.
         */
-        static void clearDepthBuffer() noexcept
+        static inline void clearDepthBuffer() noexcept
         {
             glClear(GL_DEPTH_BUFFER_BIT);
         }
@@ -105,7 +105,7 @@ namespace WOGL
         /**
          * Метод, необходимый для очистки буффера траффарета.
         */
-        static void clearStencilBuffer() noexcept
+        static inline void clearStencilBuffer() noexcept
         {
             glClear(GL_STENCIL_BUFFER_BIT);
         }
@@ -327,41 +327,55 @@ namespace WOGL
             }
         }
 
-        static void enable(Enable e) noexcept
+        static inline void enable(Enable e) noexcept
         {
             glEnable(static_cast<GLenum>(e));
         }
 
-        static void disable(Enable d) {
+        static inline void disable(Enable d) 
+        {
             glDisable(static_cast<GLenum>(d));
         }
 
-        static void stensil(StensilFunc s1, StensilFunc s2, StensilFunc s3) noexcept
+        static inline void stensil(StensilFunc s1, int32_t s2, uint32_t s3) noexcept
         {
-            glStencilFunc(static_cast<GLenum>(s1), static_cast<GLenum>(s2), static_cast<GLenum>(s3));
+            glStencilFunc(static_cast<GLenum>(s1), s2, s3);
         }
 
-        static void depth(DethFunc d) noexcept
+        /**
+         * Статический метод устанавливающий действие к передней или задней грани.
+         * 
+         * @param face устанавливает какая грань
+         * @param sfail действие применяемое когда тест трафарета провалился 
+         * @param zfail действие применяемое когда тест трафарета пройден но тест глубины нет 
+         * @param pass действие применяемое когда тест трафарета и глубины пройдены
+        */
+        static inline void stensilOperatorSeparate(Face face, StencilValueOperation sfail, StencilValueOperation zfail, StencilValueOperation pass) noexcept
+        {
+            glStencilOpSeparate(static_cast<GLenum>(face), static_cast<GLenum>(sfail), static_cast<GLenum>(zfail), static_cast<GLenum>(pass));
+        }
+
+        static inline void depth(DethFunc d) noexcept
         {
             glDepthFunc(static_cast<GLenum>(d));
         }
 
-        static void blend(BlendFunc b1, BlendFunc b2) noexcept
+        static inline void blend(BlendFunc b1, BlendFunc b2) noexcept
         {
             glBlendFunc(static_cast<GLenum>(b1), static_cast<GLenum>(b2));
         }
 
-        static void cullFace(Face f) noexcept
+        static inline void cullFace(Face f) noexcept
         {
             glCullFace(static_cast<GLenum>(f));
         }
 
-        static void faceTraversal(FaceTraversal fv) noexcept
+        static inline void faceTraversal(FaceTraversal fv) noexcept
         {
             glFrontFace(static_cast<GLenum>(fv));
         }
 
-        static void frameBufferSRGB(bool turnOn) noexcept
+        static inline void frameBufferSRGB(bool turnOn) noexcept
         {
             if (turnOn) {
                 glEnable(GL_FRAMEBUFFER_SRGB);

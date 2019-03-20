@@ -12,7 +12,7 @@
 namespace WOGL 
 {
     /*
-        * Определение типов шйдера.
+     * Определение типов шйдера.
     */
     enum class ShaderTypes: GLenum
     {

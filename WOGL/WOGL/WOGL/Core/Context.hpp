@@ -35,6 +35,28 @@ namespace WOGL
         ALWAYS = GL_ALWAYS
     };
 
+    /**
+     * @field KEEP - сохранить текущее значение 
+     * @field ZERO - присвоить значение 0
+     * @field REPLACE - устанавливает значение буфера трафарета в s2, как указано в статическом методе stensil
+     * @field INCR - увеличивает значение трафарета на 1. В случае достижения максимального значения обнуления не произойдёт
+     * @field INCR_WRAP - увеличивает значение трафарета на 1. В случае достижения максимального значения произойдёт обнуления
+     * @field DECR - уменьшает значение трафарета на 1. В случае достижения 0 значения не будет максимальным
+     * @field DECR_WRAP - меньшает значение трафарета на 1. В случае достижения 0 значения  будет максимальным
+     * @field INVERT - побитово инвертирует текущее значение буфера трафарета
+    */
+    enum class StencilValueOperation
+    {
+        KEEP = GL_KEEP,
+        ZERO = GL_ZERO,
+        REPLACE = GL_REPLACE,
+        INCR = GL_INCR,
+        INCR_WRAP = GL_INCR_WRAP,
+        DECR = GL_DECR,
+        DECR_WRAP = GL_DECR_WRAP,
+        INVERT = GL_INVERT
+    };
+
     enum class DethFunc: GLenum
     {
         NEVER = GL_NEVER,
