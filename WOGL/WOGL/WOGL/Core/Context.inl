@@ -360,9 +360,22 @@ namespace WOGL
             glDepthFunc(static_cast<GLenum>(d));
         }
 
+        static inline void depthMask(bool d) noexcept
+        {
+            glDepthMask(static_cast<GLenum>(d));
+        }
+
         static inline void blend(BlendFunc b1, BlendFunc b2) noexcept
         {
             glBlendFunc(static_cast<GLenum>(b1), static_cast<GLenum>(b2));
+        }
+
+        /**
+         * Метод предназначенный для включения и выключения записи компонентов цвета кадрового буфера.
+        */
+        static inline void colorMask(bool r, bool g, bool b, bool a) noexcept
+        {
+            glColorMask(static_cast<GLenum>(r), static_cast<GLenum>(g), static_cast<GLenum>(b), static_cast<GLenum>(a));
         }
 
         static inline void cullFace(Face f) noexcept
