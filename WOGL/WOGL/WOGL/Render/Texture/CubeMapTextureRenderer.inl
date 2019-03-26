@@ -51,7 +51,7 @@ namespace WOGL
 		template<typename DataType, TexelType Tx>
 		inline void _setTexture(GLenum target, const Texture<DataType, Tx>& texture)
 		{
-			auto dataType = InitializeTextureRenderer::_type<DataType>();
+			auto dataType = BaseTextureRenderer::_type<DataType>();
 			glTexSubImage2D(target, 0, 0, 0, _widthAndHeight, _widthAndHeight, static_cast<GLenum>(Tx), dataType, &texture._data[0]);
 		}
 

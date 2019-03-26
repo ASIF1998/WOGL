@@ -13,7 +13,7 @@ namespace WOGL
     template<TexelFormat>
     class BaseFramebuffer;
     
-    class InitializeTextureRenderer
+    class BaseTextureRenderer
     {
         friend class InitializeCubeMapTextureRenderer;
         
@@ -27,7 +27,7 @@ namespace WOGL
          * @param texelFormat тип текселя
         */
         template<typename TextureType>
-        explicit InitializeTextureRenderer(const TextureType& texture, TexelFormat texelFormat) :
+        explicit BaseTextureRenderer(const TextureType& texture, TexelFormat texelFormat) :
             _height{static_cast<int32_t>(texture._height)},
             _width{static_cast<int32_t>(texture._height)}
         {
@@ -49,8 +49,8 @@ namespace WOGL
          * @param texelFormat тип текселя
         */
         template<typename TextureType>
-        explicit InitializeTextureRenderer(const unique_ptr<TextureType>& texture, TexelFormat texelFormat) :
-            InitializeTextureRenderer(*texture, texelFormat)
+        explicit BaseTextureRenderer(const unique_ptr<TextureType>& texture, TexelFormat texelFormat) :
+            BaseTextureRenderer(*texture, texelFormat)
         {
         }
 
@@ -63,12 +63,12 @@ namespace WOGL
          * @param texelFormat тип текселя
         */
         template<typename TextureType, template<typename> typename PtrTexture>
-        explicit InitializeTextureRenderer(const PtrTexture<TextureType>& texture, TexelFormat texelFormat) :
-                InitializeTextureRenderer(*texture, texelFormat)
+        explicit BaseTextureRenderer(const PtrTexture<TextureType>& texture, TexelFormat texelFormat) :
+                BaseTextureRenderer(*texture, texelFormat)
         {
         }
 
-        explicit InitializeTextureRenderer(int32_t width, int32_t height, TexelFormat texelFormat) :
+        explicit BaseTextureRenderer(int32_t width, int32_t height, TexelFormat texelFormat) :
             _height{height},
             _width{width}
         {
@@ -83,7 +83,7 @@ namespace WOGL
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        InitializeTextureRenderer(InitializeTextureRenderer&& initTexRenderer) :
+        BaseTextureRenderer(BaseTextureRenderer&& initTexRenderer) :
             _height{initTexRenderer._height},
             _width{initTexRenderer._width},
             _textureRendererHandle{0}
@@ -91,11 +91,11 @@ namespace WOGL
             swap(_textureRendererHandle, initTexRenderer._textureRendererHandle);
         }
 
-        InitializeTextureRenderer(const InitializeTextureRenderer&) = delete;
-        InitializeTextureRenderer& operator=(const InitializeTextureRenderer&) = delete;
-        InitializeTextureRenderer& operator=(InitializeTextureRenderer&&) = delete;
+        BaseTextureRenderer(const BaseTextureRenderer&) = delete;
+        BaseTextureRenderer& operator=(const BaseTextureRenderer&) = delete;
+        BaseTextureRenderer& operator=(BaseTextureRenderer&&) = delete;
 
-        virtual ~InitializeTextureRenderer()
+        virtual ~BaseTextureRenderer()
         {
             if (_textureRendererHandle) {
                 glDeleteTextures(1, &_textureRendererHandle);
@@ -136,108 +136,7 @@ namespace WOGL
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
         }
 
-    protected:
-        inline void _createHandle()
-        {
-            glGenTextures(1, &_textureRendererHandle);
-
-            if (!_textureRendererHandle) {
-                throw runtime_error("Error create texture renderer handle");
-            }
-        }
-
-        template<typename T>
-        static GLenum _type() noexcept
-        {
-            GLenum type = GL_FLOAT;
-
-            if constexpr (is_same_v<T, int8_t>) {
-                type = GL_BYTE;
-            } else if constexpr (is_same_v<T, int16_t>) {
-                type = GL_SHORT;
-            } else if constexpr (is_same_v<T, int32_t>) {
-                type = GL_INT;
-            } else if constexpr (is_same_v<T, uint8_t>) {
-                type = GL_UNSIGNED_BYTE;
-            } else if constexpr (is_same_v<T, uint16_t>) {
-                type = GL_UNSIGNED_SHORT;
-            } else if constexpr (is_same_v<T, uint32_t>) {
-                type = GL_UNSIGNED_INT;
-            } 
-
-            return type;
-        }
-
-        uint32_t _textureRendererHandle;
-        int32_t _height;
-        int32_t _width;
-    };
-
-    template<TexelFormat Tf>
-    class TextureRenderer : 
-        public InitializeTextureRenderer
-    {
-        friend class BaseFramebuffer<Tf>;
-
-    public:
-        /**
-         * Конструктор.
-         *
-         * Выделеннуя в GPU память нельзя будет изменить !!!
-         *
-         * @param texture текстура
-        */
-        template<typename TextureType>
-        explicit TextureRenderer(const TextureType& texture) : 
-            InitializeTextureRenderer(texture, Tf)
-        {
-        }
-
-        explicit TextureRenderer(int32_t width, int32_t height) :
-            InitializeTextureRenderer(width, height, Tf)
-        {
-        }
-
-        TextureRenderer(TextureRenderer&& tr) :
-            InitializeTextureRenderer(forward<InitializeTextureRenderer>(tr))
-        {
-        }
-
-        /**
-         * Метод делающий текстуру текущей.
-        */
-        inline void bind(int32_t slot = 0) const noexcept 
-        {
-            if (slot >= 0) {
-                glActiveTexture(GL_TEXTURE0 + slot);
-                glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
-            }
-        }
-
-        /**
-         * Метод делающий текстуру не текущей. 
-         * По сути он деалет текущую цель привязки нулевой.
-        */
-        inline static void unbind() noexcept
-        {
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-
-        inline constexpr int32_t width() const noexcept
-        {
-            return _width;
-        }
-
-        inline constexpr int32_t height() const noexcept
-        {
-            return _height;
-        }
-
-        inline constexpr TexelFormat texelFormat() const noexcept
-        {
-            return Tf;
-        }
-        
+         
         /**
          * Метод необходимый для определения способа увелечения текстуры.
          *
@@ -292,6 +191,108 @@ namespace WOGL
         static inline void textureCompareFunc(const TextureCompareFunc cf) noexcept
         {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, static_cast<GLenum>(cf));
+        }
+
+        /**
+         * Метод делающий текстуру текущей.
+        */
+        inline void bind(int32_t slot = 0) const noexcept 
+        {
+            if (slot >= 0) {
+                glActiveTexture(GL_TEXTURE0 + slot);
+                glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
+            }
+        }
+
+        /**
+         * Метод делающий текстуру не текущей. 
+         * По сути он деалет текущую цель привязки нулевой.
+        */
+        inline static void unbind() noexcept
+        {
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        inline constexpr int32_t width() const noexcept
+        {
+            return _width;
+        }
+
+        inline constexpr int32_t height() const noexcept
+        {
+            return _height;
+        }
+
+    protected:
+        inline void _createHandle()
+        {
+            glGenTextures(1, &_textureRendererHandle);
+
+            if (!_textureRendererHandle) {
+                throw runtime_error("Error create texture renderer handle");
+            }
+        }
+
+        template<typename T>
+        static GLenum _type() noexcept
+        {
+            GLenum type = GL_FLOAT;
+
+            if constexpr (is_same_v<T, int8_t>) {
+                type = GL_BYTE;
+            } else if constexpr (is_same_v<T, int16_t>) {
+                type = GL_SHORT;
+            } else if constexpr (is_same_v<T, int32_t>) {
+                type = GL_INT;
+            } else if constexpr (is_same_v<T, uint8_t>) {
+                type = GL_UNSIGNED_BYTE;
+            } else if constexpr (is_same_v<T, uint16_t>) {
+                type = GL_UNSIGNED_SHORT;
+            } else if constexpr (is_same_v<T, uint32_t>) {
+                type = GL_UNSIGNED_INT;
+            } 
+
+            return type;
+        }
+
+        uint32_t _textureRendererHandle;
+        int32_t _height;
+        int32_t _width;
+    };
+
+    template<TexelFormat Tf>
+    class TextureRenderer : 
+        public BaseTextureRenderer
+    {
+        friend class BaseFramebuffer<Tf>;
+
+    public:
+        /**
+         * Конструктор.
+         *
+         * Выделеннуя в GPU память нельзя будет изменить !!!
+         *
+         * @param texture текстура
+        */
+        template<typename TextureType>
+        explicit TextureRenderer(const TextureType& texture) : 
+            BaseTextureRenderer(texture, Tf)
+        {
+        }
+
+        explicit TextureRenderer(int32_t width, int32_t height) :
+            BaseTextureRenderer(width, height, Tf)
+        {
+        }
+
+        TextureRenderer(TextureRenderer&& tr) :
+            BaseTextureRenderer(forward<BaseTextureRenderer>(tr))
+        {
+        }
+
+        inline constexpr TexelFormat texelFormat() const noexcept
+        {
+            return Tf;
         }
     };
 }

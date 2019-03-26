@@ -20,19 +20,19 @@ uniform vec3 Ks;
 
 /**
  * Функция предназначенная для размытия фонового затенения.
-*/
+ */
 float blurSSAO()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(SSAO, 0));
     float res = 0.0;
-
+    
     for (int x = -2; x < 2; x++) {
         for (int y = -2; y < 2; y++) {
             vec2 offset = vec2(float(x), float(y)) * texelSize;
             res += texture(SSAO, TextureCoord + offset).r;
         }
     }
-
+    
     return res / 16.0;
 }
 

@@ -61,7 +61,7 @@ namespace WOGL
          * @param b канал blue
          * @param a каал alpha
         */
-        void inline clearColor(float r, float g, float b, float a) noexcept
+        static void inline clearColor(float r, float g, float b, float a) noexcept
         {
             glClearColor(r, g, b, a);
         }
