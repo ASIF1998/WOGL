@@ -26,9 +26,9 @@ uniform float ScaleZ;
 mat3 scaling()
 {
     return mat3 (
-        ScaleX, 0.0, 0.0,
-        0.0, ScaleY, 0.0,
-        0.0, 0.0, ScaleZ
+     ScaleX, 0.0, 0.0,
+     0.0, ScaleY, 0.0,
+     0.0, 0.0, ScaleZ
     );
 }
 
@@ -43,7 +43,6 @@ void main()
     Normal = VertexNormal;
     PositionInLightSpace = LightSpaceMatrix * vec4(VertexPosition, 1.0);
     TBN = mat3(t, b, n);
-
+    
     gl_Position = MVP * vec4(scaling() * VertexPosition, 1.0);
 }
-
