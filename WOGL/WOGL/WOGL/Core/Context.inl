@@ -388,7 +388,7 @@ namespace WOGL
             glFrontFace(static_cast<GLenum>(fv));
         }
 
-        static inline void viewposrt(int32_t x, int32_t y, int32_t width, int32_t height) noexcept
+        static inline void viewport(int32_t x, int32_t y, int32_t width, int32_t height) noexcept
         {
             glViewport(x, y, width, height);
         }
