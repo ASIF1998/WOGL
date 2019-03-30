@@ -6,7 +6,7 @@
 //  Copyright © 2019 Asif Mamedov. All rights reserved.
 //
 
-#include "../../Data/Texture.hpp"
+#include "../../Data/Texture2D.hpp"
 
 namespace WOGL
 {
@@ -109,7 +109,7 @@ namespace WOGL
          * @param texture текстура котороя будет помещена в памя GPU
         */
         template<typename DataType, TexelType Tx>
-        void update(const Texture<DataType, Tx>& texture)
+        void update(const Texture2D<DataType, Tx>& texture)
         {
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture._data[0]);
         }
@@ -120,7 +120,7 @@ namespace WOGL
          * @param texture указатель на текстуру котороя будет помещена в памя GPU
         */
         template<typename DataType, TexelType Tx>
-        void update(const unique_ptr<Texture<DataType, Tx>>& texture)
+        void update(const unique_ptr<Texture2D<DataType, Tx>>& texture)
         {
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
         }
@@ -131,7 +131,7 @@ namespace WOGL
          * @param texture указатель на текстуру котороя будет помещена в памя GPU
         */
         template<typename DataType, TexelType Tx>
-        void update(const weak_ptr<Texture<DataType, Tx>>& texture)
+        void update(const weak_ptr<Texture2D<DataType, Tx>>& texture)
         {
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
         }

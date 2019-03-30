@@ -6,7 +6,7 @@
 //  Copyright © 2019 Asif Mamedov. All rights reserved.
 //
 
-#include "Texture.hpp"
+#include "Texture2D.hpp"
 #include "Mesh.hpp"
 
 #include <string_view>
@@ -140,7 +140,7 @@ namespace WOGL
     class Model :
         public InitializeModelMesh
     {
-        using TextureType = Texture<TextureDataType, Tx>;
+        using TextureType = Texture2D<TextureDataType, Tx>;
         using PtrTexture = unique_ptr<TextureType>;
         using Meshes = vector<Mesh>;
         using Models = vector<Model>;
@@ -235,46 +235,46 @@ namespace WOGL
             return *_normalMap.get();
         }
 
-        inline void setBaseColorTexture(const Texture<TextureDataType, Tx>& baseColorTexture)  noexcept
+        inline void setBaseColorTexture(const Texture2D<TextureDataType, Tx>& baseColorTexture)  noexcept
         {
-            _baseColorTexture.reset(new Texture<TextureDataType, Tx>(baseColorTexture));
+            _baseColorTexture.reset(new Texture2D<TextureDataType, Tx>(baseColorTexture));
         }
         
-        inline void setBaseColorTexture(Texture<TextureDataType, Tx>&& baseColorTexture) noexcept
+        inline void setBaseColorTexture(Texture2D<TextureDataType, Tx>&& baseColorTexture) noexcept
         {
-            _baseColorTexture.reset(new Texture<TextureDataType, Tx>(move(baseColorTexture)));
+            _baseColorTexture.reset(new Texture2D<TextureDataType, Tx>(move(baseColorTexture)));
         }
 
         template<template<typename> typename Ptr>
-        inline void setBaseColorTexture(const Ptr<Texture<TextureDataType, Tx>>& baseColorTexture)
+        inline void setBaseColorTexture(const Ptr<Texture2D<TextureDataType, Tx>>& baseColorTexture)
         {
-            _baseColorTexture.reset(new Texture<TextureDataType, Tx>(*baseColorTexture));
+            _baseColorTexture.reset(new Texture2D<TextureDataType, Tx>(*baseColorTexture));
         } 
 
         inline void setBaseColorTexture(const string_view path) 
         {
-            setBaseColorTexture(Texture<TextureDataType, Tx>::loadTexture(path));
+            setBaseColorTexture(Texture2D<TextureDataType, Tx>::loadTexture(path));
         }
 
-        inline void setNormalMap(const Texture<TextureDataType, Tx>& normalMap)  noexcept
+        inline void setNormalMap(const Texture2D<TextureDataType, Tx>& normalMap)  noexcept
         {
-            _normalMap.reset(new Texture<TextureDataType, Tx>(normalMap));
+            _normalMap.reset(new Texture2D<TextureDataType, Tx>(normalMap));
         }
         
-        inline void setNormalMap(Texture<TextureDataType, Tx>&& normalMap) noexcept
+        inline void setNormalMap(Texture2D<TextureDataType, Tx>&& normalMap) noexcept
         {
-            _normalMap.reset(new Texture<TextureDataType, Tx>(move(normalMap)));
+            _normalMap.reset(new Texture2D<TextureDataType, Tx>(move(normalMap)));
         }
 
         template<template<typename> typename Ptr>
-        inline void setNormalMap(const Ptr<Texture<TextureDataType, Tx>>& normalMap)
+        inline void setNormalMap(const Ptr<Texture2D<TextureDataType, Tx>>& normalMap)
         {
-            _normalMap.reset(new Texture<TextureDataType, Tx>(*normalMap));
+            _normalMap.reset(new Texture2D<TextureDataType, Tx>(*normalMap));
         }
 
         inline void setNormalMap(const string_view path) 
         {
-            setNormalMap(Texture<TextureDataType, Tx>::loadTexture(path));
+            setNormalMap(Texture2D<TextureDataType, Tx>::loadTexture(path));
         } 
 
         /**

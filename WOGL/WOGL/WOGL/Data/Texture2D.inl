@@ -1,5 +1,5 @@
 //
-//  Texture.inl
+//  Texture2D.inl
 //  WOGL
 //
 //  Created by Асиф Мамедов on 07/02/2019.
@@ -8,9 +8,13 @@
 
 #include "../../../SOIL2/SOIL2.h"
 
+#include "Texture.hpp"
+
 #include "Conteiners/ArrayView.hpp"
 #include "Conteiners/MatrixView.hpp"
 #include "Conteiners//GearMatrixView.hpp"
+
+#include <vector>
 
 using namespace std;
 
@@ -21,7 +25,7 @@ namespace WOGL
      * @template Tx тип текселя
     */
     template<typename DataType, TexelType Tx>
-    class Texture
+    class Texture2D
     {
         using Data = vector<DataType>;
 
@@ -36,7 +40,7 @@ namespace WOGL
          * @param width ширина текстуры
          * @param height высота текстуры
         */
-        explicit Texture(size_t width, size_t height) :
+        explicit Texture2D(size_t width, size_t height) :
             _height{height},
             _width{width}
         {
@@ -62,7 +66,7 @@ namespace WOGL
          * @param height высота текстуры
         */
         template<typename T>
-        explicit Texture(const T& data, size_t width, size_t height)
+        explicit Texture2D(const T& data, size_t width, size_t height)
         {
             if constexpr (Tx == TexelType::RED) {
                 _bpp = 1;
@@ -77,7 +81,7 @@ namespace WOGL
             set(data, width, height);
         }
 
-        Texture(const Texture& texture) :
+        Texture2D(const Texture2D& texture) :
             _data{texture._data},
             _height{texture._height},
             _width{texture._width},
@@ -85,23 +89,23 @@ namespace WOGL
         {
         }
 
-        Texture(Texture&& texture)  :
-            _data{move(texture._data)},
+        Texture2D(Texture2D&& texture)  :
+            _data{forward<Data>(texture._data)},
             _height{texture._height},
             _width{texture._width},
             _bpp{texture._bpp}
         {
         }
 
-        Texture& operator=(const Texture&) = delete;
-        Texture& operator=(Texture&&) = delete;
+        Texture2D& operator=(const Texture2D&) = delete;
+        Texture2D& operator=(Texture2D&&) = delete;
 
-        constexpr size_t width() const noexcept
+        size_t width() const noexcept
         {
             return _width;
         }
 
-        constexpr size_t height() const noexcept
+        size_t height() const noexcept
         {
             return _height;
         }
@@ -114,6 +118,19 @@ namespace WOGL
         /**
          * Метод предназначенный для обновления данных текстуры.
          * 
+         * @param texture 2d текстура
+        */
+        void set(const Texture2D& texture)
+        {
+            _width = texture._width;
+            _height = texture._height;
+            _data.resize(texture._data.size());
+            copy(begin(texture._data), end(texture._data), begin(_data));
+        }
+
+        /**
+         * Метод предназначенный для обновления данных текстуры.
+         * 
          * @param data контейнер или указателя с данными (например типа std::vector<float>)
          * @param width ширина текстуры 
          * @param height высота текстуры
@@ -121,27 +138,54 @@ namespace WOGL
         template<typename T>
         void set(const T& data, size_t width, size_t height)
         {
-            using VecData = vector<DataType>;
-            using UPtrData = unique_ptr<DataType[]>;
-            using SPtrData = shared_ptr<DataType[]>;
-            using WPtrData = weak_ptr<DataType[]>;
-
-            if constexpr (is_same_v<T, VecData>) {
-                if (data.size() != _data.size()) {
-                    _data.resize(data.size());
-                }
-
-                copy(begin(data), end(data), begin(_data));
-            } else if constexpr(is_same_v<T, UPtrData> || is_same_v<T, SPtrData> || is_same_v<T, WPtrData>) {
-                if (width * height * _bpp != _data.size()) {
-                    _data.reserve(width * height * _bpp);
-                }
-
-                copy(data.get(), data.get() + _data.size(), begin(_data));
+            if (width * height * _bpp != _data.size()) {
+                _data.reserve(width * height * _bpp);
             }
 
             _height = height;
             _width = width;
+
+            copy(data.get(), data.get() + _data.size(), begin(_data));
+        }
+
+        /**
+         * Метод предназначенный для обновления данных текстуры.
+         * 
+         * @param data контейнер с данными (например типа std::initializer_list<float>)
+         * @param width ширина текстуры 
+         * @param height высота текстуры
+        */
+        template<template<typename> typename Conteiner>
+        void set(const Conteiner<DataType>& data, size_t width, size_t height)
+        {
+            if (data.size() != _data.size()) {
+                _data.resize(data.size());
+            }
+
+            _width = width;
+            _height = height;
+
+            copy(begin(data), end(data), begin(_data));
+        }
+
+        /**
+         * Метод предназначенный для обновления данных текстуры.
+         * 
+         * @param data контейнер с данными (например типа std::vector<float>)
+         * @param width ширина текстуры 
+         * @param height высота текстуры
+        */
+        template<typename A, template<typename, typename> typename Container>
+        void set(const Container<DataType, A>& data, size_t width, size_t height)
+        {
+            if (data.size() != _data.size()) {
+                _data.resize(data.size());
+            }
+
+            _width = width;
+            _height = height;
+
+            copy(begin(data), end(data), begin(_data));
         }
 
         /**
@@ -152,18 +196,38 @@ namespace WOGL
          * @param y смещение по строке
          * @throw invalid_argument в случае если переданное смещение и размер текстуры не вписываеются в обновляемую текстуру
         */
-        void subSet(const Texture& texture, size_t x, size_t y)
+        void subSet(const Texture2D& texture, size_t x, size_t y)
         {
             auto& subTex = texture._data;
             size_t subTexHeight = texture._height;
             size_t subTexWidth = texture._width;
 
-            if ((y + subTexHeight) >= _height || (x + subTexWidth) >= _width) {
+            if (y + subTexHeight > _height || x + subTexWidth > _width) {
                 throw invalid_argument("The arguments passed do not fit in the original texture");
             }
 
             for (DataType* ptr {&_data[(y * _width * _bpp) + (x * _bpp)]}; y < subTexHeight; y++, ptr = &_data[(y * _width * _bpp) + (x * _bpp)]) {
                 copy(&subTex[y * subTexHeight * _bpp], &subTex[(y * subTexHeight * _bpp) + (x * _bpp)], ptr);
+            }
+        }
+
+        /**
+         * Метод предназначенный для обновления отдельных частей текстуры.
+         * 
+         * param data контейнер или указателя с данными (например типа std::vector<float>)
+         * @param x смещение по столбцу
+         * @param y смещение по строке
+         * @throw invalid_argument в случае если переданное смещение и размер текстуры не вписываеются в обновляемую текстуру
+        */
+        template<typename T>
+        void subSet(const T& data, size_t width, size_t height, size_t x, size_t y)
+        {
+            if ((y + height) > _height || (x + width) > _width) {
+                throw invalid_argument("The arguments passed do not fit in the original texture");
+            }
+
+            for (DataType* ptr {&_data[(y * _width * _bpp) + (x * _bpp)]}; y < height; y++, ptr = &_data[(y * _width * _bpp) + (x * _bpp)]) {
+                copy(&data[y * height * _bpp], &data[(y * height * _bpp) + (x * _bpp)], ptr);
             }
         }
 
@@ -256,7 +320,7 @@ namespace WOGL
                 throw invalid_argument("Failed to load the image at the specified path");
             }
 
-            Texture<DataType, Tx> tex (static_cast<size_t>(width), static_cast<size_t>(height));
+            Texture2D<DataType, Tx> tex (static_cast<size_t>(width), static_cast<size_t>(height));
             
             if constexpr (is_same_v<DataType, float> || is_same_v<DataType, double>) {
                 for (size_t i{0}; i < tex._data.size(); i++) {

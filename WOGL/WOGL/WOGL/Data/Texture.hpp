@@ -1,8 +1,8 @@
 //
-//  Texture.hpp
+//  Texture.cpp
 //  WOGL
 //
-//  Created by Асиф Мамедов on 07/02/2019.
+//  Created by Асиф Мамедов on 29/03/2019.
 //  Copyright © 2019 Asif Mamedov. All rights reserved.
 //
 
@@ -20,7 +20,7 @@ namespace WOGL
         RGB = GL_RGB,
         RGBA = GL_RGBA
     };
-
+    
     enum class Canal
     {
         RED,
@@ -29,7 +29,5 @@ namespace WOGL
         ALPHA
     };
 }
-
-#include "Texture.inl"
 
 #endif /* Texture_hpp */
