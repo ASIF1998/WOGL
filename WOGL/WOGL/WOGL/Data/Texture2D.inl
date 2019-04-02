@@ -192,22 +192,25 @@ namespace WOGL
          * Метод предназначенный для обновления отдельных частей текстуры.
          * 
          * param texture текстурв
-         * @param x смещение по столбцу
-         * @param y смещение по строке
+         * @param offY смещение по строке
+         * @param offX смещение по столбцу
          * @throw invalid_argument в случае если переданное смещение и размер текстуры не вписываеются в обновляемую текстуру
         */
-        void subSet(const Texture2D& texture, size_t x, size_t y)
+        void subSet(const Texture2D& texture, size_t offY, size_t offX)
         {
             auto& subTex = texture._data;
             size_t subTexHeight = texture._height;
             size_t subTexWidth = texture._width;
 
-            if (y + subTexHeight > _height || x + subTexWidth > _width) {
+            if (offY + subTexHeight > _height || offX + subTexWidth > _width) {
                 throw invalid_argument("The arguments passed do not fit in the original texture");
             }
 
-            for (DataType* ptr {&_data[(y * _width * _bpp) + (x * _bpp)]}; y < subTexHeight; y++, ptr = &_data[(y * _width * _bpp) + (x * _bpp)]) {
-                copy(&subTex[y * subTexHeight * _bpp], &subTex[(y * subTexHeight * _bpp) + (x * _bpp)], ptr);
+            DataType* ptr {nullptr};
+
+            for (size_t y{0}; y < subTexHeight; y++) {
+                ptr = &_data[(y + offY) * _width * _bpp + offX * _bpp];
+                copy(&subTex[y * subTexWidth * _bpp], &subTex[y * subTexWidth * _bpp + (subTexWidth - 1) * _bpp], ptr);
             }
         }
 
@@ -215,19 +218,22 @@ namespace WOGL
          * Метод предназначенный для обновления отдельных частей текстуры.
          * 
          * param data контейнер или указателя с данными (например типа std::vector<float>)
-         * @param x смещение по столбцу
-         * @param y смещение по строке
+         * @param offY смещение по строке
+         * @param offX смещение по столбцу
          * @throw invalid_argument в случае если переданное смещение и размер текстуры не вписываеются в обновляемую текстуру
         */
         template<typename T>
-        void subSet(const T& data, size_t width, size_t height, size_t x, size_t y)
+        void subSet(const T& data, size_t width, size_t height, size_t offY, size_t offX)
         {
-            if ((y + height) > _height || (x + width) > _width) {
+            if (offY + height > _height || offX + width > _width) {
                 throw invalid_argument("The arguments passed do not fit in the original texture");
             }
 
-            for (DataType* ptr {&_data[(y * _width * _bpp) + (x * _bpp)]}; y < height; y++, ptr = &_data[(y * _width * _bpp) + (x * _bpp)]) {
-                copy(&data[y * height * _bpp], &data[(y * height * _bpp) + (x * _bpp)], ptr);
+            DataType* ptr {nullptr};
+
+            for (size_t y{0}; y < height; y++) {
+                ptr = &_data[(y + offY) * _width * _bpp + offX * _bpp];
+                copy(&data[y * width * _bpp], &data[y * width * _bpp + (width - 1) * _bpp], ptr);
             }
         }
 
@@ -344,26 +350,26 @@ namespace WOGL
         auto line(size_t i)
         {
             if (i >= _height) {
-                throw invalid_argument("Out of range");
+                throw out_of_range("Out of range");
             }
 
-            return ArrayView<DataType>{&_data.at((i * _width * _bpp)), _width};
+            return ArrayView<DataType>{&_data.at((i * _width * _bpp)), _width * _bpp};
         }
         
         /**
          * Метод возвращающий строку у текстуры.
          * 
-         * @param i индекс строки
-         * @return ArrayView<DataType> обёртка над строкой
+         * @param i индекс строки§  §§1§
+         * @return const ArrayView<DataType> обёртка над строкой
          * @throw invalid_argument в случае если i больше количества строк 
         */
         const auto line(size_t i) const
         {
             if (i >= _height) {
-                throw invalid_argument("Out of range");
+                throw out_of_range("Out of range");
             }
 
-            return ArrayView<const DataType>{&_data.at((i * _width * _bpp)), _width};
+            return ArrayView<DataType>{&_data.at((i * _width * _bpp)), _width * _bpp};
         }
 
         /**
@@ -381,7 +387,7 @@ namespace WOGL
          * Метод возвращающий значения текстуры в обёрте MatrixView,
          * которая позволяет работать с текстурой как с 2-мерным массивом.
          * 
-         * @return  MatrixView<DataType> обёртка над массивом данных текстуры
+         * @return const MatrixView<DataType> обёртка над массивом данных текстуры
         */
         const auto textureMatrix() const 
         {
@@ -390,30 +396,30 @@ namespace WOGL
 
         /**
          * Метод позволяющий получить кусок текстуры от исходной текстуры.
-         * 
-         * @param offsetX смещение по столбцам
+         *
          * @param offsetY смещение по строкам
+         * @param offsetX смещение по столбцам
          * @param width ширина подтекстуры (так же ширина ещё зависит от Tx)
          * @param height высота подтекстуры 
          * @return GearMatrixView<DataType> обёртка над подтекстурой
         */
-        auto subTexture(size_t offsetX, size_t offsetY, size_t width, size_t height)
+        auto subTexture(size_t offsetY, size_t offsetX, size_t width, size_t height)
         {
             return GearMatrixView<DataType>{_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
         }
 
         /**
          * Метод позволяющий получить кусок текстуры от исходной текстуры.
-         * 
-         * @param offsetX смещение по столбцам
+         *
          * @param offsetY смещение по строкам
+         * @param offsetX смещение по столбцам
          * @param width ширина подтекстуры (так же ширина ещё зависит от Tx)
          * @param height высота подтекстуры 
-         * @return GearMatrixView<DataType> обёртка над подтекстурой
+         * @return const GearMatrixView<DataType> обёртка над подтекстурой
         */
-        const auto subTexture(size_t offsetX, size_t offsetY, size_t width, size_t height) const
+        const auto subTexture(size_t offsetY, size_t offsetX, size_t width, size_t height) const
         {
-            return GearMatrixView<const DataType>{_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
+            return GearMatrixView<DataType>{_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
         }
 
     private:

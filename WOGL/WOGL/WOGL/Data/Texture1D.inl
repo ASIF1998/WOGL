@@ -13,6 +13,8 @@
 
 #include <stdexcept>
 
+#include "Conteiners/ArrayView.hpp"
+
 using namespace std;
 
 namespace WOGL
@@ -22,7 +24,12 @@ namespace WOGL
     {
         using Data = vector<DataType>;
     public:
-        explicit Texture1D(size_t width) 
+        /**
+         * Конструктор.
+         * 
+         * @param size длинна одномерной текстуры
+        */
+        explicit Texture1D(size_t size) 
         {
             if constexpr (Tx == TexelType::RED) {
                 _bpp = 1;
@@ -34,13 +41,19 @@ namespace WOGL
                 _bpp = 4;
             }
 
-            _data.resize(width);
+            _data.resize(size);
         }
 
+        /**
+         * Конструктор.
+         * 
+         * @param data данные, которыми необходимо заполнить текстуру
+         * @param size длинна одномерной текстуры
+        */
         template<typename T>
-        explicit Texture1D(const T& data, size_t width)
+        explicit Texture1D(const T& data, size_t size)
         {
-            set(data, width);
+            set(data, size);
         }
 
         Texture1D(const Texture1D& texture) :
@@ -68,15 +81,22 @@ namespace WOGL
             return Tx;
         }
 
+        /**
+         * Метод предназначенный для обновления данных текстуры.
+         * 
+         * @param data данные, которыми необходимо заполнить текстуру
+         * @param size длинна одномерной текстуры
+         * @throw invalid_argument в случае если data равен nullptr
+        */
         template<typename T>
-        inline void set(const T& data, size_t width)
+        inline void set(const T& data, size_t size)
         {
             using UPtrData = unique_ptr<DataType[]>;
             using SPtrData = shared_ptr<DataType[]>;
             using WPtrData = weak_ptr<DataType[]>;
             using PtrData = DataType*;
 
-            _data.resize(width);
+            _data.resize(size);
 
             if (!data) {
                 throw invalid_argument("A null pointer is passed to the 'set' method of the Texture1D class");
@@ -89,12 +109,22 @@ namespace WOGL
             }
         }
 
+        /**
+         * Метод предназначенный для обновления данных текстуры.
+         * 
+         * @param texture одномерная текстура
+        */
         inline void set(const Texture1D& texture)
         {
             _data.resize(texture._data.size());
             copy(begin(texture._data), end(texture._data), begin(_data));
         }
 
+        /**
+         * Метод предназначенный для обновления данных текстуры.
+         * 
+         * @param data контейнер, в котром находятся данные, которыми необходимо заполнить текстуру
+        */
         template<template<typename> typename Container>
         inline void set(const Container<DataType>& data)
         {
@@ -102,6 +132,11 @@ namespace WOGL
             copy(begin(data), end(data), begin(_data));
         }
 
+        /**
+         * Метод предназначенный для обновления данных текстуры.
+         * 
+         * @param data контейнер, в котром находятся данные, которыми необходимо заполнить текстуру
+        */
         template<typename A, template<typename, typename> typename Container>
         inline void set(const Container<DataType, A>& data)
         {
@@ -109,6 +144,12 @@ namespace WOGL
             copy(begin(data), end(data), begin(_data));
         }
 
+        /**
+         * Метод предназначенный для обновления отдельных частей текстуры.
+         * 
+         * @param texture одномерная текстура
+         * @param x смещение
+        */
         inline void subSet(const Texture1D& texture, size_t x)
         {
             if (_data.size() - x < texture._data.size()) {
@@ -118,8 +159,15 @@ namespace WOGL
             copy(begin(texture._data), end(texture._data), begin(_data) + x);
         }
 
+        /**
+         * Метод предназначенный для обновления отдельных частей текстуры.
+         * 
+         * @param data данные, которыми необходимо заполнить текстуру
+         * @param size количество данных, на которые указывает data
+         * @param x смещение
+        */
         template<typename T>
-        inline void subSet(const T& data, size_t width, size_t x)
+        inline void subSet(const T& data, size_t size, size_t x)
         {
             using UPtrData = unique_ptr<DataType[]>;
             using SPtrData = shared_ptr<DataType[]>;
@@ -133,12 +181,18 @@ namespace WOGL
             }
 
             if constexpr(is_same_v<T, UPtrData> || is_same_v<T, SPtrData> || is_same_v<T, WPtrData>) {
-                copy(data.get(), data.get() + width, begin(_data) + x);
+                copy(data.get(), data.get() + size, begin(_data) + x);
             } else {
-                copy(data, data + width, begin(_data) + x);
+                copy(data, data + size, begin(_data) + x);
             }
         };
 
+        /**
+         * Метод предназначенный для обновления отдельных частей текстуры.
+         * 
+         * @param data контейнер, в котром находятся данные
+         * @param x смещение
+        */
         template<template<typename> typename Container>
         inline void subSet(const Container<DataType>& data, size_t x)
         {
@@ -149,6 +203,12 @@ namespace WOGL
             copy(begin(data), end(data), begin(_data) + x);
         }
 
+        /**
+         * Метод предназначенный для обновления отдельных частей текстуры.
+         * 
+         * @param data контейнер, в котром находятся данные
+         * @param x смещение
+        */
         template<typename A, template<typename, typename> typename Container>
         inline void subSet(const Container<DataType, A>& data, size_t x)
         {
@@ -218,6 +278,16 @@ namespace WOGL
             }
 
             return _data[indx];
+        }
+
+        auto line() 
+        {
+            return ArrayView<DataType>{&data.at(0), _data.size(0)};
+        }
+
+        const auto line() const
+        {
+            return ArrayView<DataType>{&data.at(0), _data.size(0)};
         }
 
     private:
