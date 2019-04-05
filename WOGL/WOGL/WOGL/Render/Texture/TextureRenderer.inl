@@ -36,7 +36,6 @@ namespace WOGL
             glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
             glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(texelFormat), _height, _width);
             update(texture);
-            glGenerateMipmap(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
@@ -221,6 +220,11 @@ namespace WOGL
         inline constexpr int32_t height() const noexcept
         {
             return _height;
+        }
+
+        void genMipMap()
+        {
+            glGenerateMipmap(GL_TEXTURE_2D);
         }
 
     protected:
