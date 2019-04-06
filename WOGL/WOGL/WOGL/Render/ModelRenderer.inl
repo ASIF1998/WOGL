@@ -7,7 +7,7 @@
 //
 
 #include "MeshRenderer.hpp"
-#include "Texture/TextureRenderer.hpp"
+#include "Texture/TextureRenderer2D.hpp"
 
 #include <optional>
 
@@ -45,7 +45,7 @@ namespace WOGL
     class ModelRenderer :
         public InitializeModelRenderer
     {
-        using PtrTexRenderer = unique_ptr<TextureRenderer<TextureTexelFormat>>;
+        using PtrTexRenderer = unique_ptr<TextureRenderer2D<TextureTexelFormat>>;
 
         friend class Context;
 
@@ -64,11 +64,11 @@ namespace WOGL
            InitializeModelRenderer(model, posAttibIndx, normalAttribIndx, texCoordAttribIndx, tangAttribIndx)
         {
             if (model.hasBaseColorTexture()) {
-                _textureRenderer.reset(new TextureRenderer<TextureTexelFormat>(model.texture()));
+                _textureRenderer.reset(new TextureRenderer2D<TextureTexelFormat>(model.texture()));
             }
 
             if (model.hasNormalMap()) {
-                _normalMapRenderer.reset(new TextureRenderer<TextureTexelFormat>(model.normalMap()));
+                _normalMapRenderer.reset(new TextureRenderer2D<TextureTexelFormat>(model.normalMap()));
             }
         }
 

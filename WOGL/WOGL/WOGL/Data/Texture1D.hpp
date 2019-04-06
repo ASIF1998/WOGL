@@ -9,6 +9,6 @@
 #ifndef Texture1D_hpp
 #define Texture1D_hpp
 
-#include "Texture1d.inl"
+#include "Texture1D.inl"
 
 #endif /* Texture1D_hpp */

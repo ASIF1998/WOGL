@@ -23,6 +23,8 @@ namespace WOGL
     class Texture1D
     {
         using Data = vector<DataType>;
+
+        friend class BaseTextureRenderer1D;
     public:
         /**
          * Конструктор.
@@ -174,7 +176,7 @@ namespace WOGL
             using WPtrData = weak_ptr<DataType[]>;
             using PtrData = DataType*;
 
-            if (_data.size() - x < width) {
+            if (_data.size() - x < size) {
                 throw invalid_argument("The 'data' argument passed is too large.");
             } else if (!data) {
                 throw invalid_argument("A null pointer is passed to the 'subSet' method of the Texture1D class");
@@ -282,12 +284,12 @@ namespace WOGL
 
         auto line() 
         {
-            return ArrayView<DataType>{&data.at(0), _data.size(0)};
+            return ArrayView<DataType>{&_data.at(0), _data.size(0)};
         }
 
         const auto line() const
         {
-            return ArrayView<DataType>{&data.at(0), _data.size(0)};
+            return ArrayView<DataType>{&_data.at(0), _data.size(0)};
         }
 
     private:

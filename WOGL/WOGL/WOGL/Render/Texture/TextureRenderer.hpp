@@ -2,14 +2,12 @@
 //  TextureRenderer.hpp
 //  WOGL
 //
-//  Created by Асиф Мамедов on 09/02/2019.
+//  Created by Асиф Мамедов on 05/04/2019.
 //  Copyright © 2019 Asif Mamedov. All rights reserved.
 //
 
 #ifndef TextureRenderer_hpp
 #define TextureRenderer_hpp
-
-#include <GL/glew.h>
 
 namespace WOGL
 {
@@ -55,9 +53,45 @@ namespace WOGL
         RED16_S = GL_R16I,
         RED8_S = GL_R8I
     };
+
+    /**
+     * Определение режимы сравнения текстур для текущих привязанных текстур глубины. Эти текстур используются в кадровых буферах
+     * (напрмер в ShadowMapRenderer или в Framebuffer<TexelFormat::RGB16_F,WritePixels::Texture, WritePixels::NoWrite>).
+     * 
+     * @field COMPARE_REF_TO_TEXTURE при использовании этого алгоритма, при обращении к текстуре возвращается результат
+     * хранения а не цвет.
+     * 
+     * @field NONE указывает, что красному каналу должено быть назначено соответствующее значение из текущей текстуры глубины.
+    */
+    enum class TextureCompareMode
+    {
+        COMPARE_REF_TO_TEXTURE = GL_COMPARE_REF_TO_TEXTURE,
+        NONE = GL_NONE
+    };
+
+    /**
+     * Определяет оператор сравнения, используемый, когда для TextureCompareMode установлено значение COMPARE_REF_TO_TEXTURE.
+     * 
+     * @field NEVER res[0.0, 0.0]
+     * @field LESS res[1.0, 0.0] r < Dt r >= Dt
+     * @field GREATER  res[1.0, 0.0] r > Dt r <= Dt
+     * @field GEQUAL res[1.0, 0.0] r >= Dt r < Dt
+     * @field EQUAL res[1.0, 0.0] r = Dt r ≠ Dt
+     * @field NOTEQUAL res[1.0, 0.0] r ≠ Dt r = Dt
+     * @field ALWAYS res[1.0, 1.0]
+    */
+    enum class TextureCompareFunc
+    {
+        NEVER = GL_NEVER,
+        LESS = GL_LESS,
+        GREATER = GL_GREATER,
+        GEQUAL = GL_GEQUAL,
+        EQUAL = GL_EQUAL,
+        NOTEQUAL = GL_NOTEQUAL,
+        ALWAYS = GL_ALWAYS
+    };
 }
 
-#include "TextureMappingSetting.hpp"
 #include "TextureRenderer.inl"
 
 #endif /* TextureRenderer_hpp */

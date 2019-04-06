@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include "../Texture/TextureRenderer.hpp"
+#include "../Texture/TextureRenderer2D.hpp"
 
 #include <memory>
 
@@ -27,7 +27,7 @@ namespace WOGL
 	class BaseFramebuffer :
 		public IFramebuffer
 	{
-		using TextureRenderers = vector<TextureRenderer<Tf>>;
+		using TextureRenderers = vector<TextureRenderer2D<Tf>>;
 
 		friend class Context;
 	public: 
@@ -48,7 +48,7 @@ namespace WOGL
 			}
 
 			for (int32_t i{0}; i < numColorBuffers; i++) {
-				_colorBuffer.push_back(TextureRenderer<Tf>{width, height});
+				_colorBuffer.push_back(TextureRenderer2D<Tf>{width, height});
 			}
 
 			_colorBuffer.shrink_to_fit();
@@ -82,7 +82,7 @@ namespace WOGL
 			auto[windowWidth, windowHeight] = window.size();
 
 			for (int32_t i{0}; i < numColorBuffers; i++) {
-				_colorBuffer.push_back(TextureRenderer<Tf>{windowWidth, windowHeight});
+				_colorBuffer.push_back(TextureRenderer2D<Tf>{windowWidth, windowHeight});
 			}
 
 			_colorBuffer.shrink_to_fit();
@@ -163,12 +163,12 @@ namespace WOGL
 			return data;
 		}
 
-		TextureRenderer<Tf>& colorBuffer(size_t i)
+		TextureRenderer2D<Tf>& colorBuffer(size_t i)
 		{
 			return _colorBuffer.at(i);
 		}
 
-		const TextureRenderer<Tf>& colorBuffer(size_t i) const 
+		const TextureRenderer2D<Tf>& colorBuffer(size_t i) const
 		{
 			return _colorBuffer.at(i);
 		}

@@ -29,7 +29,7 @@ namespace WOGL
     {
         using Data = vector<DataType>;
 
-        friend class BaseTextureRenderer;
+        friend class BaseTextureRenderer2D;
         friend class InitializeCubeMapTextureRenderer;
 
     public:

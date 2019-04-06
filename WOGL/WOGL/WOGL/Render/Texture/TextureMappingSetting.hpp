@@ -62,43 +62,6 @@ namespace WOGL
         CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
         CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER
     };
-
-    /**
-     * Определение режимы сравнения текстур для текущих привязанных текстур глубины. Эти текстур используются в кадровых буферах
-     * (напрмер в ShadowMapRenderer или в Framebuffer<TexelFormat::RGB16_F,WritePixels::Texture, WritePixels::NoWrite>).
-     * 
-     * @field COMPARE_REF_TO_TEXTURE при использовании этого алгоритма, при обращении к текстуре возвращается результат
-     * хранения а не цвет.
-     * 
-     * @field NONE указывает, что красному каналу должено быть назначено соответствующее значение из текущей текстуры глубины.
-    */
-    enum class TextureCompareMode
-    {
-        COMPARE_REF_TO_TEXTURE = GL_COMPARE_REF_TO_TEXTURE,
-        NONE = GL_NONE
-    };
-
-    /**
-     * Определяет оператор сравнения, используемый, когда для TextureCompareMode установлено значение COMPARE_REF_TO_TEXTURE.
-     * 
-     * @field NEVER res[0.0, 0.0]
-     * @field LESS res[1.0, 0.0] r < Dt r >= Dt
-     * @field GREATER  res[1.0, 0.0] r > Dt r <= Dt
-     * @field GEQUAL res[1.0, 0.0] r >= Dt r < Dt
-     * @field EQUAL res[1.0, 0.0] r = Dt r ≠ Dt
-     * @field NOTEQUAL res[1.0, 0.0] r ≠ Dt r = Dt
-     * @field ALWAYS res[1.0, 1.0]
-    */
-    enum class TextureCompareFunc
-    {
-        NEVER = GL_NEVER,
-        LESS = GL_LESS,
-        GREATER = GL_GREATER,
-        GEQUAL = GL_GEQUAL,
-        EQUAL = GL_EQUAL,
-        NOTEQUAL = GL_NOTEQUAL,
-        ALWAYS = GL_ALWAYS
-    };
 }
 
 #endif /* TextureMappingSetting_hpp */
