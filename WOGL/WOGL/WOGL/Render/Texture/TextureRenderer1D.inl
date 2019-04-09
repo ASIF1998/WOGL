@@ -92,9 +92,9 @@ namespace WOGL
         }
 
         BaseTextureRenderer1D(BaseTextureRenderer1D&& texture) :
-            BaseTextureRenderer{move(texture)}
+            BaseTextureRenderer{move(texture)},
+            _size{0}
         {
-            _size = 0;
             swap(_size, texture._size);
         }
 
@@ -143,7 +143,7 @@ namespace WOGL
         */
         static inline void magFilter(const TextureFilter mf) noexcept
         {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(mf));
+            glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(mf));
         }
         
         /**
@@ -188,7 +188,7 @@ namespace WOGL
         */
         inline static void unbind() noexcept
         {
-            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindTexture(GL_TEXTURE_1D, 0);
         }
 
         int32_t size() const noexcept
@@ -231,6 +231,10 @@ namespace WOGL
         {
         }
 
+        TextureRenderer1D(const TextureRenderer1D&) = delete;
+        TextureRenderer1D& operator=(const TextureRenderer1D&) = delete;
+        TextureRenderer1D& operator=(TextureRenderer1D&&) = delete;
+
         /**
          * Метод необходимый для генерации mipmap'а.
         */
@@ -257,7 +261,7 @@ namespace WOGL
          * 
          * @return формат текселя
         */
-         virtual inline TexelFormat texelFormat() const noexcept
+         virtual inline TexelFormat texelFormat() const noexcept override
          {
             return Tf;
          }

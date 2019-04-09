@@ -25,6 +25,8 @@ namespace WOGL
     {
         using Data = vector<DataType>;
 
+        friend class BaseTextureRenderer3D;
+
     public:
         /**
          * Конструктор.
