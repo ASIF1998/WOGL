@@ -18,7 +18,8 @@ namespace WOGL
     template<TexelFormat>
     class BaseFramebuffer;
     
-    class BaseTextureRenderer2D
+    class BaseTextureRenderer2D :
+        public BaseTextureRenderer
     {
         friend class InitializeCubeMapTextureRenderer;
         
@@ -29,17 +30,16 @@ namespace WOGL
          * Выделеннуя в GPU память нельзя будет изменить !!!
          *
          * @param texture текстура
-         * @param texelFormat тип текселя
+         * @param tf тип текселя
         */
         template<typename TextureType>
-        explicit BaseTextureRenderer2D(const TextureType& texture, TexelFormat texelFormat) :
+        explicit BaseTextureRenderer2D(const TextureType& texture, TexelFormat tf) :
+            BaseTextureRenderer(),
             _height{static_cast<int32_t>(texture._height)},
             _width{static_cast<int32_t>(texture._height)}
         {
-            _createHandle();
-
             glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
-            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(texelFormat), _height, _width);
+            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(tf), _height, _width);
             update(texture);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
@@ -50,12 +50,18 @@ namespace WOGL
          * Выделеннуя в GPU память нельзя будет изменить !!!
          *
          * @param texture указатель на текстуру
-         * @param texelFormat тип текселя
+         * @param tf тип текселя
         */
-        template<typename TextureType>
-        explicit BaseTextureRenderer2D(const unique_ptr<TextureType>& texture, TexelFormat texelFormat) :
-            BaseTextureRenderer2D(*texture, texelFormat)
+        template<typename TextureType, typename DelType, template<typename, typename> typename Ptr>
+        explicit BaseTextureRenderer2D(const Ptr<TextureType, DelType>& texture, TexelFormat tf) :
+            BaseTextureRenderer(),
+            _height{static_cast<int32_t>(texture->_height)},
+            _width{static_cast<int32_t>(texture->_height)}
         {
+            glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
+            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(tf), _height, _width);
+            update(texture);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
         /**
@@ -64,15 +70,22 @@ namespace WOGL
          * Выделеннуя в GPU память нельзя будет изменить !!!
          *
          * @param texture указатель на текстуру
-         * @param texelFormat тип текселя
+         * @param tf тип текселя
         */
-        template<typename TextureType, template<typename> typename PtrTexture>
-        explicit BaseTextureRenderer2D(const PtrTexture<TextureType>& texture, TexelFormat texelFormat) :
-                BaseTextureRenderer2D(*texture, texelFormat)
+        template<typename TextureType, template<typename> typename Ptr>
+        explicit BaseTextureRenderer2D(const Ptr<TextureType>& texture, TexelFormat tf) :
+            BaseTextureRenderer(),
+            _height{static_cast<int32_t>(texture->_height)},
+            _width{static_cast<int32_t>(texture->_height)}
         {
+            glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
+            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(tf), _height, _width);
+            update(texture);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        explicit BaseTextureRenderer2D(int32_t width, int32_t height, TexelFormat texelFormat) :
+        explicit BaseTextureRenderer2D(int32_t width, int32_t height, TexelFormat tf) :
+            BaseTextureRenderer(),
             _height{height},
             _width{width}
         {
@@ -80,19 +93,16 @@ namespace WOGL
                 throw invalid_argument("Transferred size is zero");
             }
 
-            _createHandle();
-
             glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
-            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(texelFormat), _height, _width);
+            glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(tf), _height, _width);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        BaseTextureRenderer2D(BaseTextureRenderer2D&& initTexRenderer) :
-            _height{initTexRenderer._height},
-            _width{initTexRenderer._width},
-            _textureRendererHandle{0}
+        BaseTextureRenderer2D(BaseTextureRenderer2D&& texture) :
+            BaseTextureRenderer{move(texture)},
+            _height{texture._height},
+            _width{texture._width}
         {
-            swap(_textureRendererHandle, initTexRenderer._textureRendererHandle);
         }
 
         BaseTextureRenderer2D(const BaseTextureRenderer2D&) = delete;
@@ -123,8 +133,8 @@ namespace WOGL
          *
          * @param texture указатель на текстуру котороя будет помещена в памя GPU
         */
-        template<typename DataType, TexelType Tx>
-        void update(const unique_ptr<Texture2D<DataType, Tx>>& texture)
+        template<typename DataType, TexelType Tx, typename DelType, template<typename, typename> typename Ptr>
+        void update(const Ptr<Texture2D<DataType, Tx>, DelType>& texture)
         {
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
         }
@@ -134,12 +144,11 @@ namespace WOGL
          *
          * @param texture указатель на текстуру котороя будет помещена в памя GPU
         */
-        template<typename DataType, TexelType Tx>
-        void update(const weak_ptr<Texture2D<DataType, Tx>>& texture)
+        template<typename DataType, TexelType Tx, template<typename> typename Ptr>
+        void update(const Ptr<Texture2D<DataType, Tx>>& texture)
         {
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _height, _width, static_cast<GLenum>(Tx), _type<DataType>(), &texture->_data[0]);
         }
-
         /**
          * Метод необходимый для определения способа увелечения текстуры.
          *
@@ -199,13 +208,13 @@ namespace WOGL
         /**
          * Метод делающий текстуру текущей.
         */
-        inline void bind(int32_t slot = 0) const noexcept 
-        {
-            if (slot >= 0) {
-                glActiveTexture(GL_TEXTURE0 + slot);
-                glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
-            }
-        }
+        // inline void bind(int32_t slot = 0) const noexcept 
+        // {
+        //     if (slot >= 0) {
+        //         glActiveTexture(GL_TEXTURE0 + slot);
+        //         glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
+        //     }
+        // }
 
         /**
          * Метод делающий текстуру не текущей.
@@ -226,44 +235,12 @@ namespace WOGL
             return _height;
         }
 
-        void genMipMap()
-        {
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
+        // void genMipMap()
+        // {
+        //     glGenerateMipmap(GL_TEXTURE_2D);
+        // }
 
     protected:
-        inline void _createHandle()
-        {
-            glGenTextures(1, &_textureRendererHandle);
-
-            if (!_textureRendererHandle) {
-                throw runtime_error("Error create texture renderer handle");
-            }
-        }
-
-        template<typename T>
-        static GLenum _type() noexcept
-        {
-            GLenum type = GL_FLOAT;
-
-            if constexpr (is_same_v<T, int8_t>) {
-                type = GL_BYTE;
-            } else if constexpr (is_same_v<T, int16_t>) {
-                type = GL_SHORT;
-            } else if constexpr (is_same_v<T, int32_t>) {
-                type = GL_INT;
-            } else if constexpr (is_same_v<T, uint8_t>) {
-                type = GL_UNSIGNED_BYTE;
-            } else if constexpr (is_same_v<T, uint16_t>) {
-                type = GL_UNSIGNED_SHORT;
-            } else if constexpr (is_same_v<T, uint32_t>) {
-                type = GL_UNSIGNED_INT;
-            } 
-
-            return type;
-        }
-
-        uint32_t _textureRendererHandle;
         int32_t _height;
         int32_t _width;
     };
@@ -298,10 +275,50 @@ namespace WOGL
         {
         }
 
-        inline constexpr TexelFormat texelFormat() const noexcept
-        {
+        TextureRenderer2D(const TextureRenderer2D&) = delete;
+        TextureRenderer2D& operator=(const TextureRenderer2D&) = delete;
+        TextureRenderer2D& operator=(TextureRenderer2D&&) = delete;
+
+        /**
+         * Метод необходимый для генерации mipmap'а.
+        */
+         virtual inline void genMipmap() const noexcept override
+         {
+            glGenerateMipmap(GL_TEXTURE_2D);
+         }
+
+        /**
+         * Метод делающий текстуру текущей.
+         * 
+         * @param slot текстурный слот
+        */
+         virtual inline void bind(int32_t slot) const noexcept override
+         {
+            if (slot >= 0) {
+                glActiveTexture(GL_TEXTURE0 + slot);
+                glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
+            }
+         }
+
+        /**
+         * Метод возвращающий формат текселя.
+         * 
+         * @return формат текселя
+        */
+         virtual inline TexelFormat texelFormat() const noexcept override
+         {
             return Tf;
-        }
+         }
+
+        /**
+         * Метод возвращающий формат текселя.
+         * 
+         * @return формат текселя
+        */
+         inline constexpr TexelFormat cTexelFormat() const noexcept
+         {
+            return Tf;
+         }
     };
 }
 

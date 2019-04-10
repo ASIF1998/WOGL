@@ -93,9 +93,8 @@ namespace WOGL
 
         BaseTextureRenderer1D(BaseTextureRenderer1D&& texture) :
             BaseTextureRenderer{move(texture)},
-            _size{0}
+            _size{texture._size}
         {
-            swap(_size, texture._size);
         }
 
         BaseTextureRenderer1D(const BaseTextureRenderer1D&) = delete;
@@ -257,7 +256,7 @@ namespace WOGL
          }
 
         /**
-         * Метод возвращаюй формат текселя.
+         * Метод возвращающий формат текселя.
          * 
          * @return формат текселя
         */
@@ -267,7 +266,7 @@ namespace WOGL
          }
 
         /**
-         * Метод возвращаюй формат текселя.
+         * Метод возвращающий формат текселя.
          * 
          * @return формат текселя
         */

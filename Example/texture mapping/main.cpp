@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "WOGL/WOGL.hpp"
+#include "WOGL/Core/WOGL.hpp"
 
 #include "WOGL/Render/Shader.hpp"
 #include "WOGL/Render/ShaderProgram.hpp"
@@ -8,8 +8,7 @@
 #include "WOGL/Render/Buffers/Buffers.hpp"
 #include "WOGL/Render/VertexArray.hpp"
 
-#include "WOGL/Data/Texture.hpp"
-#include "WOGL/Render/TextureRenderer.hpp"
+#include "WOGL/Render/Texture/TextureRenderer2D.hpp"
 
 using namespace std;
 using namespace WOGL;
@@ -31,10 +30,10 @@ int main()
         };
         
         auto texture {
-            Texture<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/texture mapping/Data/foto.jpg")
+            Texture2D<float, TexelType::RGB>::loadTexture("/Users/asifmamedov/Desktop/WOGL/WOGL/Example/texture mapping/Data/foto.jpg")
         };
         
-        TextureRenderer<TexelFormat::RGB16_F> textureRenderer {
+        TextureRenderer2D<TexelFormat::RGB16_F> textureRenderer {
             texture
         };
         
@@ -89,7 +88,7 @@ int main()
             context.clearColorBuffer();
             context.draw(DrawPrimitive::TRIANGLES, 6);
             window.present();
-            context.chechError();
+            Context::checkError();
         }
         
         quit();
