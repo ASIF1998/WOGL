@@ -81,11 +81,14 @@ namespace WOGL
          * 
          * @param size размер одномерной текстуры
          * @param tf тип текселя
+         * @throw в случае если size равен нулю
         */
         explicit BaseTextureRenderer1D(int32_t size, TexelFormat tf) :
             BaseTextureRenderer(),
             _size{size}
         {
+            assert(!(size == 0));
+
             glBindTexture(GL_TEXTURE_1D, _textureRendererHandle);
             glTexStorage1D(GL_TEXTURE_1D, 1, static_cast<GLenum>(tf), _size);
             glBindTexture(GL_TEXTURE_1D, 0);

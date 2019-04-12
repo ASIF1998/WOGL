@@ -87,6 +87,7 @@ namespace WOGL
          * @param height высота
          * @param depth глубина
          * @param tf формат текселя
+         * @throw в случае если width, height или depth равны нулю
         */
         explicit BaseTextureRenderer3D(int32_t width, int32_t height, int32_t depth, TexelFormat tf) :
             BaseTextureRenderer(),
@@ -94,6 +95,8 @@ namespace WOGL
             _height{height},
             _depth{depth}
         {
+            assert(!(width == 0 || height == 0 || depth == 0));
+
             glBindTexture(GL_TEXTURE_3D, _textureRendererHandle);
             glTexStorage3D(GL_TEXTURE_3D, 1, static_cast<GLenum>(tf), _width, _height, _depth);
             glBindTexture(GL_TEXTURE_3D, 0);

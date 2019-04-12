@@ -30,7 +30,7 @@ namespace WOGL
          * Выделеннуя в GPU память нельзя будет изменить !!!
          *
          * @param texture текстура
-         * @param tf тип текселя
+         * @param tf формат текселя
         */
         template<typename TextureType>
         explicit BaseTextureRenderer2D(const TextureType& texture, TexelFormat tf) :
@@ -50,7 +50,7 @@ namespace WOGL
          * Выделеннуя в GPU память нельзя будет изменить !!!
          *
          * @param texture указатель на текстуру
-         * @param tf тип текселя
+         * @param tf формат текселя
         */
         template<typename TextureType, typename DelType, template<typename, typename> typename Ptr>
         explicit BaseTextureRenderer2D(const Ptr<TextureType, DelType>& texture, TexelFormat tf) :
@@ -70,7 +70,7 @@ namespace WOGL
          * Выделеннуя в GPU память нельзя будет изменить !!!
          *
          * @param texture указатель на текстуру
-         * @param tf тип текселя
+         * @param tf формат текселя
         */
         template<typename TextureType, template<typename> typename Ptr>
         explicit BaseTextureRenderer2D(const Ptr<TextureType>& texture, TexelFormat tf) :
@@ -84,14 +84,20 @@ namespace WOGL
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
+        /**
+         * Конструктор.
+         * 
+         * @param width ширина 
+         * @param height высота
+         * @param tf формат текскля
+         * @throw в случае если width или height равны нулю
+        */
         explicit BaseTextureRenderer2D(int32_t width, int32_t height, TexelFormat tf) :
             BaseTextureRenderer(),
             _height{height},
             _width{width}
         {
-            if (_width == 0 || _height == 0) {
-                throw invalid_argument("Transferred size is zero");
-            }
+            assert(!(width == 0 || _height == 0));
 
             glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
             glTexStorage2D(GL_TEXTURE_2D, 1, static_cast<GLenum>(tf), _height, _width);
@@ -206,17 +212,6 @@ namespace WOGL
         }
 
         /**
-         * Метод делающий текстуру текущей.
-        */
-        // inline void bind(int32_t slot = 0) const noexcept 
-        // {
-        //     if (slot >= 0) {
-        //         glActiveTexture(GL_TEXTURE0 + slot);
-        //         glBindTexture(GL_TEXTURE_2D, _textureRendererHandle);
-        //     }
-        // }
-
-        /**
          * Метод делающий текстуру не текущей.
          * По сути он деалет текущую цель привязки нулевой.
         */
@@ -234,11 +229,6 @@ namespace WOGL
         {
             return _height;
         }
-
-        // void genMipMap()
-        // {
-        //     glGenerateMipmap(GL_TEXTURE_2D);
-        // }
 
     protected:
         int32_t _height;
@@ -265,6 +255,12 @@ namespace WOGL
         {
         }
 
+        /**
+         * Конструктор.
+         * 
+         * @param width ширина 
+         * @param height высота
+        */
         explicit TextureRenderer2D(int32_t width, int32_t height) :
             BaseTextureRenderer2D(width, height, Tf)
         {
@@ -273,8 +269,8 @@ namespace WOGL
         TextureRenderer2D(TextureRenderer2D&& tr) :
             BaseTextureRenderer2D(forward<BaseTextureRenderer2D>(tr))
         {
-        }
 
+        }
         TextureRenderer2D(const TextureRenderer2D&) = delete;
         TextureRenderer2D& operator=(const TextureRenderer2D&) = delete;
         TextureRenderer2D& operator=(TextureRenderer2D&&) = delete;
