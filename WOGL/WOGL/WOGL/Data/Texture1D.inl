@@ -282,12 +282,12 @@ namespace WOGL
             return _data[indx];
         }
 
-        auto line() 
+        inline auto line() 
         {
             return ArrayView<DataType>{&_data.at(0), _data.size(0)};
         }
 
-        const auto line() const
+        inline const auto line() const
         {
             return ArrayView<DataType>{&_data.at(0), _data.size(0)};
         }

@@ -337,7 +337,26 @@ namespace WOGL
             glDisable(static_cast<GLenum>(d));
         }
 
-        static inline void stensil(StensilFunc s1, int32_t s2, uint32_t s3) noexcept
+        /**
+         * Тест ножницами.
+         * Статический метод, определяющий прямоугольник в экранных координатах.
+         * 
+         * @param x определяет отчку левого нижнего прямоугольника по оси X
+         * @param y определяет отчку левого нижнего прямоугольника по оси Y
+         * @param width опредеяет ширину прямоугольника
+         * @param height опредеяет высоту прямоугольника
+        */
+        static inline void scitionTest(int32_t x, int32_t y, int32_t width, int32_t height)
+        {
+            glScissor(x, y, width, height);
+        }
+
+        static inline void alpthFunc(Func f, float res) noexcept
+        {
+            glAlphaFunc(static_cast<GLenum>(f), res);
+        }
+
+        static inline void stensil(Func s1, int32_t s2, uint32_t s3) noexcept
         {
             glStencilFunc(static_cast<GLenum>(s1), s2, s3);
         }
@@ -355,7 +374,7 @@ namespace WOGL
             glStencilOpSeparate(static_cast<GLenum>(face), static_cast<GLenum>(sfail), static_cast<GLenum>(zfail), static_cast<GLenum>(pass));
         }
 
-        static inline void depth(DethFunc d) noexcept
+        static inline void depth(Func d) noexcept
         {
             glDepthFunc(static_cast<GLenum>(d));
         }

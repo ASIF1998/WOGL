@@ -329,7 +329,7 @@ namespace WOGL
          * @param j индекс строки
          * @throw invalid_argument в случае если i больше количества строк 
         */
-        auto line(size_t i, size_t j)
+        inline auto line(size_t i, size_t j)
         {
             if (i >= _depth || j >= _width) {
                 throw out_of_range("Out of range");
@@ -345,7 +345,7 @@ namespace WOGL
          * @param j индекс строки
          * @throw invalid_argument в случае если i больше количества строк 
         */
-        const auto line(size_t i, size_t j) const
+        inline const auto line(size_t i, size_t j) const
         {
             if (i >= _depth || j >= _width) {
                 throw out_of_range("Out of range");
@@ -361,7 +361,7 @@ namespace WOGL
          * @param z глубина
          * @return  MatrixView<DataType> обёртка над массивом данных двухмерной текстуры
         */
-        auto texture2D(size_t z)
+        inline auto texture2D(size_t z)
         {
             return GearMatrixView<DataType>{&_data[z * _width * _height * _bpp], _width * _bpp, _height};
         }
@@ -373,7 +373,7 @@ namespace WOGL
          * @param z глубина
          * @return  MatrixView<DataType> обёртка над массивом данных двухмерной текстуры
         */
-        const auto texture2D(size_t z) const
+        inline const auto texture2D(size_t z) const
         {
             return GearMatrixView<DataType>{&_data[z * _width * _height * _bpp], _width * _bpp, _height};
         }
@@ -388,7 +388,7 @@ namespace WOGL
          * @param height высота подтекстуры 
          * @return GearMatrixView<DataType> обёртка над двухмерной подтекстурой
         */
-        auto subTexture2D(size_t z, size_t offsetY, size_t offsetX, size_t width, size_t height)
+        inline auto subTexture2D(size_t z, size_t offsetY, size_t offsetX, size_t width, size_t height)
         {
             return GearMatrixView<DataType>{&_data[z * _width * _height * _bpp], _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
         }
@@ -403,7 +403,7 @@ namespace WOGL
          * @param height высота подтекстуры 
          * @return const GearMatrixView<DataType> обёртка над двухмерной подтекстурой
         */
-        const auto subTexture2D(size_t z, size_t offsetY, size_t offsetX, size_t width, size_t height) const
+        inline const auto subTexture2D(size_t z, size_t offsetY, size_t offsetX, size_t width, size_t height) const
         {
             return GearMatrixView<DataType>{&_data[z * _width * _height * _bpp], _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
         }

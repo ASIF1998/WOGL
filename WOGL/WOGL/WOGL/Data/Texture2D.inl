@@ -12,7 +12,7 @@
 
 #include "Conteiners/ArrayView.hpp"
 #include "Conteiners/MatrixView.hpp"
-#include "Conteiners//GearMatrixView.hpp"
+#include "Conteiners/GearMatrixView.hpp"
 
 #include <vector>
 
@@ -35,7 +35,7 @@ namespace WOGL
     public:
         /**
          * Констуктор выделяющий память под текстуру размером width * height * bpp.
-         * bpp зависит от того, кого чему равняется tx.
+         * bpp зависит от того, чему равняется tx.
          *
          * @param width ширина текстуры
          * @param height высота текстуры
@@ -290,11 +290,11 @@ namespace WOGL
         {
             auto* ptr = &_data[(i * _width * _bpp) + (j * _bpp)];
 
-            if (canal == Canal::GREEN && _bpp > 1) {
+            if constexpr (canal == Canal::GREEN && _bpp > 1) {
                 ptr++;
-            } else if (canal == Canal::BLUE && _bpp > 2) {
+            } else if constexpr (canal == Canal::BLUE && _bpp > 2) {
                 ptr += 2;
-            } else if (canal == Canal::ALPHA && _bpp > 3) {
+            } else if constexpr (canal == Canal::ALPHA && _bpp > 3) {
                 ptr += 3;
             }
 
@@ -347,7 +347,7 @@ namespace WOGL
          * @param i индекс строки
          * @throw invalid_argument в случае если i больше количества строк 
         */
-        auto line(size_t i)
+        inline auto line(size_t i)
         {
             if (i >= _height) {
                 throw out_of_range("Out of range");
@@ -363,7 +363,7 @@ namespace WOGL
          * @return const ArrayView<DataType> обёртка над строкой
          * @throw invalid_argument в случае если i больше количества строк 
         */
-        const auto line(size_t i) const
+        inline const auto line(size_t i) const
         {
             if (i >= _height) {
                 throw out_of_range("Out of range");
@@ -378,7 +378,7 @@ namespace WOGL
          * 
          * @return  MatrixView<DataType> обёртка над массивом данных текстуры
         */
-        auto textureMatrix() 
+        inline auto textureMatrix() 
         {
             return MatrixView<DataType>{_data, _width * _bpp, _height};
         }
@@ -389,7 +389,7 @@ namespace WOGL
          * 
          * @return const MatrixView<DataType> обёртка над массивом данных текстуры
         */
-        const auto textureMatrix() const 
+        inline const auto textureMatrix() const 
         {
             return MatrixView<const DataType>{_data, _width * _bpp, _height};
         }
@@ -403,7 +403,7 @@ namespace WOGL
          * @param height высота подтекстуры 
          * @return GearMatrixView<DataType> обёртка над подтекстурой
         */
-        auto subTexture(size_t offsetY, size_t offsetX, size_t width, size_t height)
+        inline auto subTexture(size_t offsetY, size_t offsetX, size_t width, size_t height)
         {
             return GearMatrixView<DataType>{_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
         }
@@ -417,7 +417,7 @@ namespace WOGL
          * @param height высота подтекстуры 
          * @return const GearMatrixView<DataType> обёртка над подтекстурой
         */
-        const auto subTexture(size_t offsetY, size_t offsetX, size_t width, size_t height) const
+        inline const auto subTexture(size_t offsetY, size_t offsetX, size_t width, size_t height) const
         {
             return GearMatrixView<DataType>{_data, _width * _bpp, _height, offsetY, offsetX, width * _bpp, height};
         }

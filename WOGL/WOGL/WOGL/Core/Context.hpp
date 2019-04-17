@@ -24,17 +24,6 @@ namespace WOGL
         MULTISAMPLE = GL_MULTISAMPLE
     };
 
-    enum class StensilFunc: GLenum
-    {
-        NEVER = GL_NEVER,
-        LESS = GL_LESS,
-        GREATER = GL_GREATER,
-        GEQUAL = GL_GEQUAL,
-        EQUAL = GL_EQUAL,
-        NOTEQUAL = GL_NOTEQUAL,
-        ALWAYS = GL_ALWAYS
-    };
-
     /**
      * @field KEEP - сохранить текущее значение 
      * @field ZERO - присвоить значение 0
@@ -57,7 +46,8 @@ namespace WOGL
         INVERT = GL_INVERT
     };
 
-    enum class DethFunc: GLenum
+    enum class Func: 
+        GLenum
     {
         NEVER = GL_NEVER,
         LESS = GL_LESS,
