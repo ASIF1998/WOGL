@@ -383,9 +383,9 @@ namespace WOGL
          * 
          * @param name имя подпрограммы
         */
-        template<ShaderTypes ST>
+        template<ShaderTypes St>
         inline void setUniformSubroutine(string_view name) const noexcept{
-            if (auto location = subrotineIndex<ST>(); location) {
+            if (auto location = subrotineIndex<St>(); location) {
                 glUniformSubroutinesuiv(static_cast<GLenum>(ST), 1, &location);
             }
         }
