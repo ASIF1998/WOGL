@@ -84,12 +84,14 @@ namespace WOGL
             Vertex vertex;
             aiMesh* mesh;
             bool stayTexture;
-            vector<Vertex> vertices;
-            vector<uint32_t> indices;
+
+            _meshes.reserve(node->mNumMeshes);
 
             for (size_t i{0}; i < node->mNumMeshes; i++) {
                 mesh = scene->mMeshes[node->mMeshes[i]];
                 stayTexture = (mesh->mTextureCoords[0] ? true : false);
+
+                _meshes.push_back(Mesh(mesh->mNumVertices, mesh->mNumFaces * 3));
 
                 for (size_t j{0}; j < mesh->mNumVertices; j++) {
                     vertex.position = {
@@ -117,19 +119,14 @@ namespace WOGL
                         mesh->mTangents[j].z
                     };
 
-                    vertices.push_back(Vertex{vertex});
+                    _meshes[i]._vertices[j] = vertex;
                 }
 
-                vertices.shrink_to_fit();
-                indices.shrink_to_fit();
-
-                for (uint32_t j{0}; j < mesh->mNumFaces; j++) {
-                    indices.push_back(mesh->mFaces[j].mIndices[0]);
-                    indices.push_back(mesh->mFaces[j].mIndices[1]);
-                    indices.push_back(mesh->mFaces[j].mIndices[2]);
+                for (size_t j{0}, k{0}; j < mesh->mNumFaces; j++, k += 3) {
+                    _meshes[i]._indices[k] = mesh->mFaces[j].mIndices[0];
+                    _meshes[i]._indices[k + 1] = mesh->mFaces[j].mIndices[1];
+                    _meshes[i]._indices[k + 2] = mesh->mFaces[j].mIndices[2];
                 }
-
-                _meshes.push_back(Mesh(move(vertices), move(indices)));
             }
         }
 

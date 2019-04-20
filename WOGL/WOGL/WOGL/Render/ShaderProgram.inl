@@ -386,7 +386,7 @@ namespace WOGL
         template<ShaderTypes St>
         inline void setUniformSubroutine(string_view name) const noexcept{
             if (auto location = subrotineIndex<St>(); location) {
-                glUniformSubroutinesuiv(static_cast<GLenum>(ST), 1, &location);
+                glUniformSubroutinesuiv(static_cast<GLenum>(St), 1, &location);
             }
         }
 
