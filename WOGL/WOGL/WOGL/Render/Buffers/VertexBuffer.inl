@@ -201,6 +201,17 @@ namespace WOGL
             return NumComponent;
         }
 
+        /**
+         * Метод возвращающий дескриптор VBO.
+         * Данный метод не сделан константным так как пользователь сможет повлиять на VBO с помощью функций OpenGL.
+         *
+         * @return дескриптор VBO
+         */
+        uint32_t id() noexcept
+        {
+            return _vertexBufferHandle;
+        }
+
     private:
         inline void _createHandle() 
         {

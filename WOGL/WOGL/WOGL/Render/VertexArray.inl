@@ -37,6 +37,17 @@ namespace WOGL
             }
         }
 
+        /**
+         * Метод возвращающий дескриптор VAO.
+         * Данный метод не сделан константным так как пользователь сможет повлиять на VAO с помощью функций OpenGL.
+         *
+         * @return дескриптор VAO
+         */
+        uint32_t id() noexcept
+        {
+            return _vertexArrayHandle;
+        }
+
         inline void bind() const noexcept
         {
             glBindVertexArray(_vertexArrayHandle);

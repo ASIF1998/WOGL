@@ -144,9 +144,20 @@ namespace WOGL
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         }
 
-        constexpr int32_t size() const noexcept
+        int32_t size() const noexcept
         {
             return _size;
+        }
+
+        /**
+         * Метод возвращающий дескриптор EBO.
+         * Данный метод не сделан константным так как пользователь сможет повлиять на EBO с помощью функций OpenGL.
+         *
+         * @return дескриптор EBO
+         */
+        uint32_t id() noexcept
+        {
+            return _indexBufferHandle;
         }
 
     private:

@@ -64,7 +64,7 @@ namespace WOGL
 
 		/**
 		 * Конструктор.
-		 * Ширина и воста будут браться из объекта window.
+		 * Ширина и высота будут браться из объекта window.
 		 *
 		 * @param window окно 
 		 * @param numColorBuffers количество буфферов цвета 
@@ -178,6 +178,17 @@ namespace WOGL
 			return _colorBuffer.size();
 		}
 
+		/**
+         * Метод возвращающий дескриптор FBO.
+         * Данный метод не сделан константным так как пользователь сможет повлиять на FBO с помощью функций OpenGL.
+         * 
+         * @return дескриптор FBO
+        */
+		uint32_t id() noexcept
+		{
+			return _framebufferHandle;
+		}
+
 	protected:
 		GLenum _type() const noexcept
 		{
@@ -211,7 +222,7 @@ namespace WOGL
 
 		/**
 		 * Конструктор.
-		 * Ширина и воста будут браться из объекта window.
+		 * Ширина и высота будут браться из объекта window.
 		 *
 		 * @param window окно 
 		 * @param numColorBuffers количество буфферов цвета 
@@ -268,7 +279,7 @@ namespace WOGL
 
 		/**
 		 * Конструктор.
-		 * Ширина и воста будут браться из объекта window.
+		 * Ширина и высота будут браться из объекта window.
 		 *
 		 * @param window окно 
 		 * @param numColorBuffers количество буфферов цвета 
@@ -365,7 +376,7 @@ namespace WOGL
 
 		/**
 		 * Конструктор.
-		 * Ширина и воста будут браться из объекта window.
+		 * Ширина и высота будут браться из объекта window.
 		 *
 		 * @param window окно 
 		 * @param numColorBuffers количество буфферов цвета 
@@ -466,7 +477,7 @@ namespace WOGL
 
 		/**
 		 * Конструктор.
-		 * Ширина и воста будут браться из объекта window.
+		 * Ширина и высота будут браться из объекта window.
 		 *
 		 * @param window окно 
 		 * @param numColorBuffers количество буфферов цвета 
@@ -562,7 +573,7 @@ namespace WOGL
 
 		/**
 		 * Конструктор.
-		 * Ширина и воста будут браться из объекта window.
+		 * Ширина и высота будут браться из объекта window.
 		 *
 		 * @param window окно 
 		 * @param numColorBuffers количество буфферов цвета 
@@ -663,7 +674,7 @@ namespace WOGL
 
 		/**
 		 * Конструктор.
-		 * Ширина и воста будут браться из объекта window.
+		 * Ширина и высота будут браться из объекта window.
 		 *
 		 * @param window окно 
 		 * @param numColorBuffers количество буфферов цвета 

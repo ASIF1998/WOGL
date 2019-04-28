@@ -63,8 +63,8 @@ namespace WOGL
         explicit ModelRenderer(const Model& model, uint32_t posAttibIndx = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3) :
            InitializeModelRenderer(model, posAttibIndx, normalAttribIndx, texCoordAttribIndx, tangAttribIndx)
         {
-            if (model.hasBaseColorTexture()) {
-                _textureRenderer.reset(new TextureRenderer2D<TextureTexelFormat>(model.texture()));
+            if (model.hasAlbedo()) {
+                _albedoRenderer.reset(new TextureRenderer2D<TextureTexelFormat>(model.albedo()));
             }
 
             if (model.hasNormalMap()) {
@@ -93,7 +93,7 @@ namespace WOGL
         }
 
         /**
-         * Этот статический метод используется в случае, если на вход подаётся несколько моджелей.
+         * Этот статический метод используется в случае, если на вход подаётся несколько моделей.
          *
          * @param models некоторый контейнер с моделями
          * @param posAttibIndx индекс атрибута позиции
@@ -116,7 +116,7 @@ namespace WOGL
         }
 
     private:
-        PtrTexRenderer _textureRenderer;
+        PtrTexRenderer _albedoRenderer;
         PtrTexRenderer _normalMapRenderer;
     };
 }

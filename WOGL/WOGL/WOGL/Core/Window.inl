@@ -26,7 +26,7 @@ namespace WOGL
 
     /**
      * @template DepthSize количесвто бит в буфере глубины
-     * @template StensilSize  количесвто бит в буфере трафарета
+     * @template StensilSize количесвто бит в буфере трафарета
      * @template Multisamples количество семплеров(необходимо при включённом MSAA)
     */
     template<bool Resizable = false, int32_t DepthSize = 24, int32_t StensilSize = 8, int32_t Multisamples = 4>
@@ -41,7 +41,7 @@ namespace WOGL
          * Конструктор.
          *
          * @param title загаловок окна
-         * @throw runtime_error в случае если не удалось создать окна
+         * @throw runtime_error в случае если не удалось создать окно
         */
         explicit Window(const string_view title, int32_t width, int32_t height) :
             _window{nullptr, windowDeleter}

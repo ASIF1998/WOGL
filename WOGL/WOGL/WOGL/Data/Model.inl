@@ -154,14 +154,14 @@ namespace WOGL
         Model(const string_view path) :
             InitializeModelMesh(path)
         {
-            _baseColorTexture = nullptr;
+            _albedo = nullptr;
             _normalMap = nullptr;
         }
 
         Model(Model&& model) :
             InitializeModelMesh(move(model._meshes))
         {
-            swap(_baseColorTexture, model._baseColorTexture);
+            swap(_albedo, model._albedo);
             swap(_normalMap, model._normalMap);
         }
 
@@ -172,7 +172,7 @@ namespace WOGL
         Model(aiNode* node, const aiScene* scene) :
             InitializeModelMesh(node, scene)
         {
-            _baseColorTexture = nullptr;
+            _albedo = nullptr;
             _normalMap = nullptr;
         }
 
@@ -212,14 +212,14 @@ namespace WOGL
             return _meshes;
         }
 
-        TextureType& texture() noexcept
+        TextureType& albedo() noexcept
         {
-            return *_baseColorTexture.get();
+            return *_albedo.get();
         }
 
-        const TextureType& texture() const noexcept
+        const TextureType& albedo() const noexcept
         {
-            return *_baseColorTexture.get();
+            return *_albedo.get();
         }
 
         TextureType& normalMap() noexcept
@@ -232,25 +232,25 @@ namespace WOGL
             return *_normalMap.get();
         }
 
-        inline void setBaseColorTexture(const Texture2D<TextureDataType, Tx>& baseColorTexture)  noexcept
+        inline void setAlbedo(const Texture2D<TextureDataType, Tx>& baseColorTexture)  noexcept
         {
-            _baseColorTexture.reset(new Texture2D<TextureDataType, Tx>(baseColorTexture));
+            _albedo.reset(new Texture2D<TextureDataType, Tx>(baseColorTexture));
         }
         
-        inline void setBaseColorTexture(Texture2D<TextureDataType, Tx>&& baseColorTexture) noexcept
+        inline void setAlbedo(Texture2D<TextureDataType, Tx>&& baseColorTexture) noexcept
         {
-            _baseColorTexture.reset(new Texture2D<TextureDataType, Tx>(move(baseColorTexture)));
+            _albedo.reset(new Texture2D<TextureDataType, Tx>(move(baseColorTexture)));
         }
 
         template<template<typename> typename Ptr>
         inline void setBaseColorTexture(const Ptr<Texture2D<TextureDataType, Tx>>& baseColorTexture)
         {
-            _baseColorTexture.reset(new Texture2D<TextureDataType, Tx>(*baseColorTexture));
+            _albedo.reset(new Texture2D<TextureDataType, Tx>(*baseColorTexture));
         } 
 
-        inline void setBaseColorTexture(const string_view path) 
+        inline void setAlbedo(const string_view path) 
         {
-            setBaseColorTexture(Texture2D<TextureDataType, Tx>::loadTexture(path));
+            setAlbedo(Texture2D<TextureDataType, Tx>::loadTexture(path));
         }
 
         inline void setNormalMap(const Texture2D<TextureDataType, Tx>& normalMap)  noexcept
@@ -279,9 +279,9 @@ namespace WOGL
          * 
          * @return true в случае если имеется текстура, иначе false
         */
-        bool hasBaseColorTexture() const noexcept
+        bool hasAlbedo() const noexcept
         {
-            return static_cast<bool>(_baseColorTexture);
+            return static_cast<bool>(_albedo);
         }
 
         /**
@@ -339,7 +339,7 @@ namespace WOGL
         }
 
     private:
-        PtrTexture _baseColorTexture;
+        PtrTexture _albedo;
         PtrTexture _normalMap;
     };
 }

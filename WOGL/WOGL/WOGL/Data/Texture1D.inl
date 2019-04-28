@@ -125,7 +125,7 @@ namespace WOGL
         /**
          * Метод предназначенный для обновления данных текстуры.
          * 
-         * @param data контейнер, в котром находятся данные, которыми необходимо заполнить текстуру
+         * @param data контейнер, в котором находятся данные, которыми необходимо заполнить текстуру
         */
         template<template<typename> typename Container>
         inline void set(const Container<DataType>& data)
@@ -137,7 +137,7 @@ namespace WOGL
         /**
          * Метод предназначенный для обновления данных текстуры.
          * 
-         * @param data контейнер, в котром находятся данные, которыми необходимо заполнить текстуру
+         * @param data контейнер, в котором находятся данные, которыми необходимо заполнить текстуру
         */
         template<typename A, template<typename, typename> typename Container>
         inline void set(const Container<DataType, A>& data)
@@ -192,7 +192,7 @@ namespace WOGL
         /**
          * Метод предназначенный для обновления отдельных частей текстуры.
          * 
-         * @param data контейнер, в котром находятся данные
+         * @param data контейнер, в котором находятся данные
          * @param x смещение
         */
         template<template<typename> typename Container>
@@ -208,7 +208,7 @@ namespace WOGL
         /**
          * Метод предназначенный для обновления отдельных частей текстуры.
          * 
-         * @param data контейнер, в котром находятся данные
+         * @param data контейнер, в котором находятся данные
          * @param x смещение
         */
         template<typename A, template<typename, typename> typename Container>

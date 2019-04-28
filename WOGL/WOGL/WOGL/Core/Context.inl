@@ -69,7 +69,7 @@ namespace WOGL
         /**
          * Метод с помощью которой можно задать значения для очистки буфера глубины.
          *
-         * @param d значение котроым очищается буффер
+         * @param d значение котрым очищается буффер
         */
         static inline void clearDepth(double d) noexcept
         {
@@ -79,7 +79,7 @@ namespace WOGL
         /**
          * Метод с помощью которой можно задать значения для очистки буфера трафарета.
          *
-         * @param s значение котроым очищается буффер
+         * @param s значение котрым очищается буффер
         */
         static inline void clearStencil(int32_t s) noexcept
         {
@@ -87,7 +87,7 @@ namespace WOGL
         }
 
         /*
-         * Метод, необходимый для очистки буффера цвета.
+         * Метод, необходимый для очистки буфера цвета.
         */
         static inline void clearColorBuffer() noexcept
         {
@@ -95,7 +95,7 @@ namespace WOGL
         }
 
         /**
-         * Метод, необходимый для очистки буффера глубины.
+         * Метод, необходимый для очистки буфера глубины.
         */
         static inline void clearDepthBuffer() noexcept
         {
@@ -191,7 +191,7 @@ namespace WOGL
         static void draw(const T<Tf>& modelRenderer, int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
         {
             if (baseColorTextureSlot > -1) {
-                modelRenderer._textureRenderer->bind(baseColorTextureSlot);
+                modelRenderer._albedoRenderer->bind(baseColorTextureSlot);
             }
 
             if (normalMapTextureSlot > -1) {
@@ -236,7 +236,7 @@ namespace WOGL
         }
 
         /**
-         * Статичесикй метод необходимый для отрисовки сразу нескольких моделей столько раз, сколько будет находится,
+         * Статический метод необходимый для отрисовки сразу нескольких моделей столько раз, сколько будет находится,
          * в numberRepetitions.
          * 
          * @param modelsRenderer модели 
@@ -253,7 +253,7 @@ namespace WOGL
         }
 
         /**
-         * Статичесикй метод необходимый для отрисовки сразу нескольких моделей столько раз, сколько будет находится,
+         * Статический метод необходимый для отрисовки сразу нескольких моделей столько раз, сколько будет находится,
          * в numberRepetitions.
          * 
          * @param modelsRenderer модели 

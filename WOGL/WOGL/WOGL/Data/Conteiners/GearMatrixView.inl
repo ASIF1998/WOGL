@@ -16,8 +16,8 @@ class GearMatrixView;
 namespace WOGL
 {
     /**
-     * Данный класс является невладеющей обёрткой над сущностями
-     * ведущими себя как одномерный массив и позваляет работать с ними
+     * Данный класс является не владеющей обёрткой над сущностями
+     * ведущими себя как одномерный массив и позволяет работать с ними
      * как с 2-мерным массивом. 
      * 
      * Данный класс удобно использовать например при указании на какую то
@@ -34,14 +34,14 @@ namespace WOGL
         /**
          * Конструкор.
          *
-         * @param data указатель исходные данные
+         * @param data указатель на исходные данные
          * @param dataWidth количесиво столбцов в data
          * @param dataHeight количесиво сторк в data
          * @param offsetLine сдвиг по строке
-         * @param offsetCol сдви по столбцу
+         * @param offsetCol сдвиг по столбцу
          * @param width ширина срезки
          * @param height высота срезки
-         * @throw invalid_argument в случае координаты срезки будут больше размеров срезки или если размер срезки больше data
+         * @throw invalid_argument в случае, если координаты срезки будут больше размеров срезки или если размер срезки больше data
         */
         template<typename T>
         explicit GearMatrixView(const T& data, size_t dataWidth, size_t dataHeight, size_t offsetLine, size_t offsetCol, size_t width, size_t height) :
@@ -67,14 +67,14 @@ namespace WOGL
         /**
          * Конструкор.
          *
-         * @param data указатель исходные данные
+         * @param data указатель на исходные данные
          * @param dataWidth количесиво столбцов в data
          * @param dataHeight количесиво сторк в data
          * @param offsetLine сдвиг по строке
-         * @param offsetCol сдви по столбцу
+         * @param offsetCol сдвиг по столбцу
          * @param width ширина срезки
          * @param height высота срезки
-         * @throw invalid_argument в случае координаты срезки будут больше размеров срезки или если размер срезки больше data
+         * @throw invalid_argument в случае, если координаты срезки будут больше размеров срезки или если размер срезки больше data
         */
         template<typename T>
         explicit GearMatrixView(T& data, size_t dataWidth, size_t dataHeight, size_t offsetLine, size_t offsetCol, size_t width, size_t height) :
@@ -100,14 +100,14 @@ namespace WOGL
         /**
          * Конструкор.
          *
-         * @param data указатель исходные данные
+         * @param data указатель на исходные данные
          * @param dataWidth количесиво столбцов в data
          * @param dataHeight количесиво сторк в data
          * @param offsetLine сдвиг по строке
-         * @param offsetCol сдви по столбцу
+         * @param offsetCol сдвиг по столбцу
          * @param width ширина срезки
          * @param height высота срезки
-         * @throw invalid_argument в случае координаты срезки будут больше размеров срезки или если размер срезки больше data
+         * @throw invalid_argument в случае, если координаты срезки будут больше размеров срезки или если размер срезки больше data
         */
         explicit GearMatrixView(const unique_ptr<DataType>& data, size_t dataWidth, size_t dataHeight, size_t offsetLine, size_t offsetCol, size_t width, size_t height) :
             _view(width)
@@ -126,14 +126,14 @@ namespace WOGL
          /**
          * Конструкор.
          *
-         * @param data указатель исходные данные
+         * @param data указатель на исходные данные
          * @param dataWidth количесиво столбцов в data
          * @param dataHeight количесиво сторк в data
          * @param offsetLine сдвиг по строке
-         * @param offsetCol сдви по столбцу
+         * @param offsetCol сдвиг по столбцу
          * @param width ширина срезки
          * @param height высота срезки
-         * @throw invalid_argument в случае координаты срезки будут больше размеров срезки или если размер срезки больше data
+         * @throw invalid_argument в случае, если координаты срезки будут больше размеров срезки или если размер срезки больше data
         */
         explicit GearMatrixView(unique_ptr<DataType>& data, size_t dataWidth, size_t dataHeight, size_t offsetLine, size_t offsetCol, size_t width, size_t height) :
             _view(width)
@@ -152,14 +152,14 @@ namespace WOGL
         /**
          * Конструкор.
          *
-         * @param data указатель исходные данные
+         * @param data указатель на исходные данные
          * @param dataWidth количесиво столбцов в data
          * @param dataHeight количесиво сторк в data
          * @param offsetLine сдвиг по строке
-         * @param offsetCol сдви по столбцу
+         * @param offsetCol сдвиг по столбцу
          * @param width ширина срезки
          * @param height высота срезки
-         * @throw invalid_argument в случае координаты срезки будут больше размеров срезки или если размер срезки больше data
+         * @throw invalid_argument в случае, если координаты срезки будут больше размеров срезки или если размер срезки больше data
         */
         explicit GearMatrixView(const DataType* data, size_t dataWidth, size_t dataHeight, size_t offsetLine, size_t offsetCol, size_t width, size_t height) :
             _view(width)
@@ -178,14 +178,14 @@ namespace WOGL
         /**
          * Конструкор.
          *
-         * @param data указатель исходные данные
+         * @param data указатель на исходные данные
          * @param dataWidth количесиво столбцов в data
          * @param dataHeight количесиво сторк в data
          * @param offsetLine сдвиг по строке
-         * @param offsetCol сдви по столбцу
+         * @param offsetCol сдвиг по столбцу
          * @param width ширина срезки
          * @param height высота срезки
-         * @throw invalid_argument в случае координаты срезки будут больше размеров срезки или если размер срезки больше data
+         * @throw invalid_argument в случае, если координаты срезки будут больше размеров срезки или если размер срезки больше data
         */
         explicit GearMatrixView(DataType* data, size_t dataWidth, size_t dataHeight, size_t offsetLine, size_t offsetCol, size_t width, size_t height) :
             _view(width)
@@ -226,7 +226,7 @@ namespace WOGL
         }
 
         /**
-         * Методы с помощью котроых можно итерироваться.
+         * Методы с помощью которых можно итерироваться.
         */
 
         DataType& at(size_t i, size_t j) 

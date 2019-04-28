@@ -52,7 +52,7 @@ namespace WOGL
         }
 
         /**
-         * Метод необходимый для присоеденения шейлера к шейдерной программе.
+         * Метод необходимый для присоединения шейдера к шейдерной программе.
          *
          * @param shader шейдер
         */
@@ -63,7 +63,7 @@ namespace WOGL
         }
 
         /**
-         * Метод необходимый для присоеденения шейлера к шейдерной программе.
+         * Метод необходимый для присоединения шейдера к шейдерной программе.
          *
          * @param shaderPtr указатель на шейдер
         */
@@ -74,7 +74,7 @@ namespace WOGL
         }
 
         /**к
-         * Метод необходимый для оинковки шейдерной программы.
+         * Метод необходимый для присоединения шейдера к шейдерной программе.
          *
          * @throw runtime_error в случае если во время линковки произошла ошибка
         */
@@ -203,133 +203,133 @@ namespace WOGL
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<int32_t>& v) const noexcept
         {
-            glUniform1iv(location, v.size(), &v[0]);
+            glUniform1iv(location, static_cast<GLsizei>(v.size()), &v[0]);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<float>& v) const noexcept
         {
-            glUniform1fv(location, v.size(), &v[0]);
+            glUniform1fv(location, static_cast<GLsizei>(v.size()), &v[0]);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<vec2>& v) const noexcept
         {
-            glUniform2fv(location, v.size(), &v[0].x);
+            glUniform2fv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<ivec2>& v) const noexcept
         {
-            glUniform2iv(location, v.size(), &v[0].x);
+            glUniform2iv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<vec3>& v) const noexcept
         {
-            glUniform3fv(location, v.size(), &v[0].x);
+            glUniform3fv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<ivec3>& v) const noexcept
         {
-            glUniform3iv(location, v.size(), &v[0].x);
+            glUniform3iv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<vec4>& v) const noexcept
         {
-            glUniform4fv(location, v.size(), &v[0].x);
+            glUniform4fv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<ivec4>& v) const noexcept
         {
-            glUniform4iv(location, v.size(), &v[0].x);
+            glUniform4iv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<mat2>& v) const noexcept
         {
-            glUniformMatrix2fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+            glUniformMatrix2fv(location, static_cast<GLsizei>(v.size()), GL_FALSE, &v[0][0][0]);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<mat3>& v) const noexcept
         {
-            glUniformMatrix3fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+            glUniformMatrix3fv(location, static_cast<GLsizei>(v.size()), GL_FALSE, &v[0][0][0]);
         }
 
         template<template<typename> typename Conteiner>
         inline void setUniform(int32_t location, const Conteiner<mat4>& v) const noexcept
         {
-            glUniformMatrix4fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+            glUniformMatrix4fv(location, static_cast<GLsizei>(v.size()), GL_FALSE, &v[0][0][0]);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<int32_t, T>& v) const noexcept
         {
-            glUniform1iv(location, v.size(), &v[0]);
+            glUniform1iv(location, static_cast<GLsizei>(v.size()), &v[0]);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<float, T>& v) const noexcept
         {
-            glUniform1fv(location, v.size(), &v[0]);
+            glUniform1fv(location, static_cast<GLsizei>(v.size()), &v[0]);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<vec2, T>& v) const noexcept
         {
-            glUniform2fv(location, v.size(), &v[0].x);
+            glUniform2fv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<ivec2, T>& v) const noexcept
         {
-            glUniform2iv(location, v.size(), &v[0].x);
+            glUniform2iv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<vec3, T>& v) const noexcept
         {
-            glUniform3fv(location, v.size(), &v[0].x);
+            glUniform3fv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<ivec3, T>& v) const noexcept
         {
-            glUniform3iv(location, v.size(), &v[0].x);
+            glUniform3iv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<vec4, T>& v) const noexcept
         {
-            glUniform4fv(location, v.size(), &v[0].x);
+            glUniform4fv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<ivec4, T>& v) const noexcept
         {
-            glUniform4iv(location, v.size(), &v[0].x);
+            glUniform4iv(location, static_cast<GLsizei>(v.size()), &v[0].x);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<mat2, T>& v) const noexcept
         {
-            glUniformMatrix2fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+            glUniformMatrix2fv(location, static_cast<GLsizei>(v.size()), GL_FALSE, &v[0][0][0]);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<mat3, T>& v) const noexcept
         {
-            glUniformMatrix3fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+            glUniformMatrix3fv(location, static_cast<GLsizei>(v.size()), GL_FALSE, &v[0][0][0]);
         }
 
         template<template<typename, typename> typename Conteiner, typename T>
         inline void setUniform(int32_t location, const Conteiner<mat4, T>& v) const noexcept
         {
-            glUniformMatrix4fv(location, v.size(), GL_FALSE, &v[0][0][0]);
+            glUniformMatrix4fv(location, static_cast<GLsizei>(v.size()), GL_FALSE, &v[0][0][0]);
         }
 
         /**
@@ -352,7 +352,8 @@ namespace WOGL
          * @param location индекс требуемой подпрограммы
         */
         template<ShaderTypes St>
-        inline void setUniformSubroutine(uint32_t location) const noexcept {
+        inline void setUniformSubroutine(uint32_t location) const noexcept
+        {
             glUniformSubroutinesuiv(static_cast<GLenum>(St), 1, &location);
         }
 
@@ -384,7 +385,8 @@ namespace WOGL
          * @param name имя подпрограммы
         */
         template<ShaderTypes St>
-        inline void setUniformSubroutine(string_view name) const noexcept{
+        inline void setUniformSubroutine(string_view name) const noexcept
+        {
             if (auto location = subrotineIndex<St>(); location) {
                 glUniformSubroutinesuiv(static_cast<GLenum>(St), 1, &location);
             }

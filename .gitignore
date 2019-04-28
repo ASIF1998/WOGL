@@ -36,5 +36,6 @@ SOIL2/
 Users/
 .vscode/
 WOGL.xcodeproj/
+Test/
 
 *..xcodeproj
