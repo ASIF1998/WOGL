@@ -183,19 +183,13 @@ namespace WOGL
          * в numberRepetitions.
          * 
          * @param modelRenderer модель 
-         * @param baseColorTextureSlot текстурный слот для тексуры с базовыми цветами
-         * @param normalMapTextureSlot текстуный слот для карты нормалей
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
         template<TexelFormat Tf, template<TexelFormat> typename T>
-        static void draw(const T<Tf>& modelRenderer, int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
+        static void draw(const T<Tf>& modelRenderer, int32_t numberRepetitions = 1)
         {
-            if (baseColorTextureSlot > -1) {
-                modelRenderer._albedoRenderer->bind(baseColorTextureSlot);
-            }
-
-            if (normalMapTextureSlot > -1) {
-                modelRenderer._normalMapRenderer->bind(normalMapTextureSlot);
+            for (size_t i{0}, size{modelRenderer._texturersRenderer.size()}; i < size; i++) {
+                modelRenderer._texturersRenderer[i].first.bind(modelRenderer._texturersRenderer[i].second);
             }
 
             for (size_t i{0}; i < modelRenderer._meshRenderers.size(); i++) {
@@ -209,19 +203,13 @@ namespace WOGL
          * 
          * @param modelRenderer модель 
          * @param colorAttachments массив текстурных прикреплений (например вот таких: ColorAttachment ca[] = {0, 1, 4})
-         * @param baseColorTextureSlot текстурный слот для тексуры с базовыми цветами
-         * @param normalMapTextureSlot текстуный слот для карты нормалей
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
         template<TexelFormat Tf, template<TexelFormat> typename T, int32_t N>
-        static void draw(const T<Tf>& modelRenderer, ColorAttachment(&colorAttachments)[N], int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
+        static void draw(const T<Tf>& modelRenderer, ColorAttachment(&colorAttachments)[N], int32_t numberRepetitions = 1)
         {
-            if (baseColorTextureSlot > -1) {
-                modelRenderer._textureRenderer->bind(baseColorTextureSlot);
-            }
-
-            if (normalMapTextureSlot > -1) {
-                modelRenderer._normalMapRenderer->bind(normalMapTextureSlot);
+            for (size_t i{0}, size{modelRenderer._texturersRenderer.size()}; i < size; i++) {
+                modelRenderer._texturersRenderer[i].first.bind(modelRenderer._texturersRenderer[i].second);
             }
 
             for (size_t i{0}; i < N; i++) {
@@ -239,16 +227,14 @@ namespace WOGL
          * Статический метод необходимый для отрисовки сразу нескольких моделей столько раз, сколько будет находится,
          * в numberRepetitions.
          * 
-         * @param modelsRenderer модели 
-         * @param baseColorTextureSlot текстурный слот для тексуры с базовыми цветами
-         * @param normalMapTextureSlot текстурный слот для карты нормалей
+         * @param modelsRenderer модели
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
         template<typename ContainerWithModelsRenderer>
-        static void draw(const ContainerWithModelsRenderer& modelsRenderer, int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
+        static void draw(const ContainerWithModelsRenderer& modelsRenderer, int32_t numberRepetitions = 1)
         {
             for (size_t i{0}; i < modelsRenderer.size(); i++) {
-                draw(modelsRenderer[i], baseColorTextureSlot, normalMapTextureSlot, numberRepetitions);
+                draw(modelsRenderer[i], numberRepetitions);
             }
         }
 
@@ -258,12 +244,10 @@ namespace WOGL
          * 
          * @param modelsRenderer модели 
          * @param colorAttachments массив текстурных прикреплений (например вот таких: ColorAttachment ca[] = {0, 1, 4})
-         * @param baseColorTextureSlot текстурный слот для тексуры с базовыми цветами
-         * @param normalMapTextureSlot текстурный слот для карты нормалей
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
         template<typename ContainerWithModelsRenderer, int32_t N>
-        static void draw(const ContainerWithModelsRenderer& modelsRenderer, ColorAttachment(&colorAttachments)[N], int32_t baseColorTextureSlot = -1, int32_t normalMapTextureSlot = -1, int32_t numberRepetitions = 1)
+        static void draw(const ContainerWithModelsRenderer& modelsRenderer, ColorAttachment(&colorAttachments)[N], int32_t numberRepetitions = 1)
         {
             for (size_t i{0}; i < N; i++) {
                 colorAttachments[i] = GL_COLOR_ATTACHMENT0 + colorAttachments[i];
@@ -272,7 +256,7 @@ namespace WOGL
             glDrawBuffers(N, colorAttachments);
 
             for (size_t i{0}; i < modelsRenderer.size(); i++) {
-                draw(modelsRenderer[i], baseColorTextureSlot, normalMapTextureSlot, numberRepetitions);
+                draw(modelsRenderer[i], numberRepetitions);
             }
         }
 

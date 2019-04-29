@@ -46,6 +46,7 @@ namespace WOGL
         public InitializeModelRenderer
     {
         using PtrTexRenderer = unique_ptr<TextureRenderer2D<TextureTexelFormat>>;
+        using TextureRendererAndSlot = pair<TextureRenderer2D<TextureTexelFormat>, int32_t>;
 
         friend class Context;
 
@@ -63,13 +64,14 @@ namespace WOGL
         explicit ModelRenderer(const Model& model, uint32_t posAttibIndx = 0, uint32_t normalAttribIndx = 1, uint32_t texCoordAttribIndx = 2, uint32_t tangAttribIndx = 3) :
            InitializeModelRenderer(model, posAttibIndx, normalAttribIndx, texCoordAttribIndx, tangAttribIndx)
         {
-            if (model.hasAlbedo()) {
-                _albedoRenderer.reset(new TextureRenderer2D<TextureTexelFormat>(model.albedo()));
-            }
+            const auto& textures = model.texturesAndTexturesSlot();
+            size_t size = textures.size();
 
-            if (model.hasNormalMap()) {
-                _normalMapRenderer.reset(new TextureRenderer2D<TextureTexelFormat>(model.normalMap()));
-            }
+            _texturersRenderer.reserve(size);
+
+            for (size_t i{0}; i < size; i++) {
+                _texturersRenderer.push_back(TextureRendererAndSlot(TextureRenderer2D<TextureTexelFormat>(textures[i].first), textures[i].second));
+            }   
         }
 
         const MeshRenderer& at(size_t i) const 
@@ -116,7 +118,6 @@ namespace WOGL
         }
 
     private:
-        PtrTexRenderer _albedoRenderer;
-        PtrTexRenderer _normalMapRenderer;
+        vector<TextureRendererAndSlot> _texturersRenderer;
     };
 }

@@ -141,6 +141,7 @@ namespace WOGL
         using PtrTexture = unique_ptr<TextureType>;
         using Meshes = vector<Mesh>;
         using Models = vector<Model>;
+        using TextureAndTextureSlot = pair<TextureType, int32_t>;
 
         friend class InitializeModelRenderer;
 
@@ -149,20 +150,19 @@ namespace WOGL
          * Конструктор который загружает меши модели, располагающегося по пути path.
          * 
          * @param path путь к загруженной модели
+         * @param numTextures количество текстур в модели
          * @throw invalid_argument в случае если не удалось загрузить модель из файла
         */
-        Model(const string_view path) :
+        Model(const string_view path, size_t numTextures = 1) :
             InitializeModelMesh(path)
         {
-            _albedo = nullptr;
-            _normalMap = nullptr;
+            _textures.reserve(numTextures);
         }
 
         Model(Model&& model) :
-            InitializeModelMesh(move(model._meshes))
+            InitializeModelMesh(move(model._meshes)),
+            _textures{move(model._textures)}
         {
-            swap(_albedo, model._albedo);
-            swap(_normalMap, model._normalMap);
         }
 
         Model(const Model&) = delete;
@@ -172,8 +172,6 @@ namespace WOGL
         Model(aiNode* node, const aiScene* scene) :
             InitializeModelMesh(node, scene)
         {
-            _albedo = nullptr;
-            _normalMap = nullptr;
         }
 
     public:
@@ -212,86 +210,132 @@ namespace WOGL
             return _meshes;
         }
 
-        TextureType& albedo() noexcept
-        {
-            return *_albedo.get();
-        }
-
-        const TextureType& albedo() const noexcept
-        {
-            return *_albedo.get();
-        }
-
-        TextureType& normalMap() noexcept
-        {
-            return *_normalMap.get();
-        }
-
-        const TextureType& normalMap() const noexcept
-        {
-            return *_normalMap.get();
-        }
-
-        inline void setAlbedo(const Texture2D<TextureDataType, Tx>& baseColorTexture)  noexcept
-        {
-            _albedo.reset(new Texture2D<TextureDataType, Tx>(baseColorTexture));
-        }
-        
-        inline void setAlbedo(Texture2D<TextureDataType, Tx>&& baseColorTexture) noexcept
-        {
-            _albedo.reset(new Texture2D<TextureDataType, Tx>(move(baseColorTexture)));
-        }
-
-        template<template<typename> typename Ptr>
-        inline void setBaseColorTexture(const Ptr<Texture2D<TextureDataType, Tx>>& baseColorTexture)
-        {
-            _albedo.reset(new Texture2D<TextureDataType, Tx>(*baseColorTexture));
-        } 
-
-        inline void setAlbedo(const string_view path) 
-        {
-            setAlbedo(Texture2D<TextureDataType, Tx>::loadTexture(path));
-        }
-
-        inline void setNormalMap(const Texture2D<TextureDataType, Tx>& normalMap)  noexcept
-        {
-            _normalMap.reset(new Texture2D<TextureDataType, Tx>(normalMap));
-        }
-        
-        inline void setNormalMap(Texture2D<TextureDataType, Tx>&& normalMap) noexcept
-        {
-            _normalMap.reset(new Texture2D<TextureDataType, Tx>(move(normalMap)));
-        }
-
-        template<template<typename> typename Ptr>
-        inline void setNormalMap(const Ptr<Texture2D<TextureDataType, Tx>>& normalMap)
-        {
-            _normalMap.reset(new Texture2D<TextureDataType, Tx>(*normalMap));
-        }
-
-        inline void setNormalMap(const string_view path) 
-        {
-            setNormalMap(Texture2D<TextureDataType, Tx>::loadTexture(path));
-        } 
-
         /**
-         * Метод сообщающий о наличии текстуры с базовыми цветами.
+         * Метод, необходимый для добавления текстуры.
          * 
-         * @return true в случае если имеется текстура, иначе false
+         * При добавление текстуры так же заранее необходимо предусмотреть, к какому текстурному слоту
+         * будет привязана текстура во время рендеринга.
+         * 
+         * @param path путь до 2d текстуры
+         * @param slot текстурный слот
         */
-        bool hasAlbedo() const noexcept
+        inline void pushTexture(const string_view path, int32_t slot)
         {
-            return static_cast<bool>(_albedo);
+            _textures.push_back(TextureAndTextureSlot(Texture2D<TextureDataType, Tx>::loadTexture(path), slot));
         }
 
         /**
-         * Метод сообщающий о наличии карты нормалей.
+         * Метод, необходимый для добавления текстуры.
          * 
-         * @return true в случае если имеется карта нормалей, иначе false
+         * При добавление текстуры так же заранее необходимо предусмотреть, к какому текстурному слоту
+         * будет привязана текстура во время рендеринга.
+         * 
+         * @param ptrTexture указатель на 2d текстуру
+         * @param slot текстурный слот
         */
-        bool hasNormalMap() const noexcept
+        template<template<typename> typename Ptr>
+        inline void pushTexture(const Ptr<Texture2D<TextureDataType, Tx>>& ptrTexture, int32_t slot)
         {
-            return static_cast<bool>(_normalMap);
+            _textures.push_back(TextureAndTextureSlot(*ptrTexture), slot);
+        }
+
+        /**
+         * Метод, необходимый для добавления текстуры.
+         * 
+         * При добавление текстуры так же заранее необходимо предусмотреть, к какому текстурному слоту
+         * будет привязана текстура во время рендеринга.
+         * 
+         * @param texture 2d текстура
+         * @param slot текстурный слот
+        */
+        inline void pushTexture(Texture2D<TextureDataType, Tx>&& texture, int32_t slot)
+        {
+            _textures.push_back(TextureAndTextureSlot(texture), slot);
+        }
+
+        /**
+         * Метод, необходимый для добавления текстуры.
+         * 
+         * При добавление текстуры так же заранее необходимо предусмотреть, к какому текстурному слоту
+         * будет привязана текстура во время рендеринга.
+         * 
+         * @param texture 2d текстура
+         * @param slot текстурный слот
+        */
+        inline void pushTexture(const Texture2D<TextureDataType, Tx>& texture, int32_t slot)
+        {
+            _textures.push_back(TextureAndTextureSlot(texture), slot);
+        }
+
+        /**
+         * Метод удаляющий последнюю добавленную 2d текстуру.
+        */
+        inline void popTexture()
+        {
+            _textures.pop_back();
+        }
+
+        /**
+         * @return true - если нет 2d текстур, иначе false
+        */
+        bool hasTextures() const noexcept
+        {
+            return _textures.empty();
+        }
+
+        /**
+         * Метод возвращающий вектор текстур с текстурными слотами.
+         * Каждый объект этого вектора имеет тип pair<...>. В first хранится сама текстура, а в second - текстурный слот.
+         * 
+         * @return вектор текстур с текстурными слотами
+        */
+        auto& texturesAndTexturesSlot() noexcept
+        {
+            return _textures;
+        }
+
+        /**
+         * Метод возвращающий вектор текстур с текстурными слотами.
+         * Каждый объект этого вектора имеет тип pair<...>. В first хранится сама текстура, а в second - текстурный слот.
+         * 
+         * @return константный вектор текстур с текстурными слотами
+        */
+        const auto& texturesAndTexturesSlot() const noexcept
+        {
+            return _textures;
+        }
+
+        /**
+         * Метод возвращающий i'ю 2d текстуру.
+         * 
+         * @param i порядковый индекс текстуры 
+         * @return i'ая 2d текстура
+        */
+        auto& texture(size_t i) 
+        {
+            return _textures.at(i).first;
+        }
+
+        /**
+         * Метод возвращающий i'ю 2d текстуру.
+         * 
+         * @param i порядковый индекс текстуры 
+         * @return константная i'ая 2d текстура
+        */
+        const auto& texture(size_t i) const
+        {
+            return _textures.at(i).first;
+        }
+
+        /**
+         * Метод возвращающий i'ый текстурный слот.
+         * 
+         * @param i порядковый индекс текстурного слота 
+         * @return i'ый текстурный слот.
+        */
+        int32_t slot(size_t i) const 
+        {
+            return _textures.at(i).second;
         }
 
         /**
@@ -339,7 +383,6 @@ namespace WOGL
         }
 
     private:
-        PtrTexture _albedo;
-        PtrTexture _normalMap;
+        vector<TextureAndTextureSlot> _textures;
     };
 }

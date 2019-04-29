@@ -103,11 +103,11 @@ auto getModel()
         Model<float, TexelType::RGB>::makeModels("/Users/asifmamedov/Downloads/black-dragon-with-idle-animation/source/ef2da8ba53194e35a4be77969cff3949.fbx.fbx")
     };
     
-    models[0].setBaseColorTexture("/Users/asifmamedov/Desktop/WOGL/Example/Deferred rendering and SSAO/Source/dragon/textures/Floor_C.jpg");
-    models[0].setNormalMap("/Users/asifmamedov/Desktop/WOGL/Example/Deferred rendering and SSAO/Source/dragon/textures/Floor_N.jpg");
+    models[0].pushTexture("/Users/asifmamedov/Desktop/WOGL/Example/Deferred rendering and SSAO/Source/dragon/textures/Floor_C.jpg", 0);
+    models[0].pushTexture("/Users/asifmamedov/Desktop/WOGL/Example/Deferred rendering and SSAO/Source/dragon/textures/Floor_N.jpg", 1);
     
-    models[1].setBaseColorTexture("/Users/asifmamedov/Desktop/WOGL/Example/Deferred rendering and SSAO/Source/dragon/textures/Dragon_Bump_Col2.jpg");
-    models[1].setNormalMap("/Users/asifmamedov/Desktop/WOGL/Example/Deferred rendering and SSAO/Source/dragon/textures/Dragon_Nor_mirror2.jpg");
+    models[1].pushTexture("/Users/asifmamedov/Desktop/WOGL/Example/Deferred rendering and SSAO/Source/dragon/textures/Dragon_Bump_Col2.jpg", 0);
+    models[1].pushTexture("/Users/asifmamedov/Desktop/WOGL/Example/Deferred rendering and SSAO/Source/dragon/textures/Dragon_Nor_mirror2.jpg", 1);
     
     return models;
 }
@@ -316,7 +316,7 @@ int main()
             }
             
             Context::enable(Enable::DEPTH_TEST);
-            Context::depth(DethFunc::LEQUAL);
+            Context::depth(Func::LEQUAL);
             
             gShaderProgram.use();
             gBuffer.bind();
@@ -332,7 +332,7 @@ int main()
             gShaderProgram.setUniform("NormalMatrix", cs.normalMatrix);
             gShaderProgram.setUniform("Scale", modelScale);
             
-            Context::draw(modelsRenderer, ca, 0, 1);
+            Context::draw(modelsRenderer, ca);
             
             Context::disable(Enable::DEPTH_TEST);
             gBuffer.unbind();
