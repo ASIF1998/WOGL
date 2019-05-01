@@ -88,7 +88,7 @@ namespace WOGL
             }
         }
 
-        constexpr uint32_t handle() const noexcept
+        constexpr uint32_t handle() noexcept
         {
             return _shaderHandle;
         }

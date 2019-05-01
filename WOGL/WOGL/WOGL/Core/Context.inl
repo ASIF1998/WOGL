@@ -405,6 +405,16 @@ namespace WOGL
             }
         }
 
+        /**
+         * Метод, задерживающий программу на указанное количество миллисекунд.
+         *
+         * @param ms милисекунды
+        */
+        static inline void delay(uint32_t ms) noexcept
+        {
+            SDL_Delay(ms);
+        }
+
     private:
         PtrContext _context;
     };

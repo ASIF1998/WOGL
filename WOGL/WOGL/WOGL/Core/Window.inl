@@ -21,7 +21,9 @@ namespace WOGL
 {
     auto windowDeleter = [](SDL_Window* window)
     {
-        SDL_DestroyWindow(window);
+        if (window) {
+            SDL_DestroyWindow(window);
+        }
     };
 
     /**
@@ -68,8 +70,13 @@ namespace WOGL
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, Multisamples);
         }
 
+        Window(Window&& window) :
+            _window{window._window}
+        {
+            window._window = nullptr;
+        }
+
         Window(const Window&) = delete;
-        Window(Window&&) = delete;
         Window& operator=(const Window&) = delete;
         Window& operator=(Window&&) = delete;
 

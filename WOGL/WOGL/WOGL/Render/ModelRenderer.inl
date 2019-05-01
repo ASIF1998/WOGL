@@ -94,6 +94,21 @@ namespace WOGL
             return _meshRenderers[i];
         }
 
+        auto& textureRenderer(size_t i) noexcept
+        {
+            return _texturersRenderer.at(i).first;
+        }
+
+        const auto& textureRenderer(size_t i) const noexcept 
+        {
+            return _texturersRenderer.at(i).first;
+        }
+
+        int32_t textureRendererSlot(size_t i)  noexcept
+        {
+            return _texturersRenderer.at(i).second;
+        }
+
         /**
          * Этот статический метод используется в случае, если на вход подаётся несколько моделей.
          *

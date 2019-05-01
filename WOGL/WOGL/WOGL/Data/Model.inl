@@ -137,10 +137,9 @@ namespace WOGL
     class Model :
         public InitializeModelMesh
     {
-        using TextureType = Texture2D<TextureDataType, Tx>;
-        using PtrTexture = unique_ptr<TextureType>;
         using Meshes = vector<Mesh>;
         using Models = vector<Model>;
+        using TextureType = Texture2D<TextureDataType, Tx>;
         using TextureAndTextureSlot = pair<TextureType, int32_t>;
 
         friend class InitializeModelRenderer;
@@ -245,6 +244,21 @@ namespace WOGL
          * При добавление текстуры так же заранее необходимо предусмотреть, к какому текстурному слоту
          * будет привязана текстура во время рендеринга.
          * 
+         * @param ptrTexture указатель на 2d текстуру
+         * @param slot текстурный слот
+        */
+        template<typename DelType, template<typename, typename> typename Ptr>
+        inline void pushTexture(const Ptr<Texture2D<TextureDataType, Tx>, DelType>& ptrTexture, int32_t slot)
+        {
+            _textures.push_back(TextureAndTextureSlot(*ptrTexture), slot);
+        }
+
+        /**
+         * Метод, необходимый для добавления текстуры.
+         * 
+         * При добавление текстуры так же заранее необходимо предусмотреть, к какому текстурному слоту
+         * будет привязана текстура во время рендеринга.
+         * 
          * @param texture 2d текстура
          * @param slot текстурный слот
         */
@@ -264,7 +278,7 @@ namespace WOGL
         */
         inline void pushTexture(const Texture2D<TextureDataType, Tx>& texture, int32_t slot)
         {
-            _textures.push_back(TextureAndTextureSlot(texture), slot);
+            _textures.push_back(TextureAndTextureSlot(texture, slot));
         }
 
         /**
