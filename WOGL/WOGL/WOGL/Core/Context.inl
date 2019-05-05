@@ -19,10 +19,39 @@
 
 #include <initializer_list>
 
-using namespace std;
-
 namespace WOGL
 {
+    class ColorAttachments
+    {
+    public:
+        ColorAttachments(const initializer_list<uint32_t>& l) :
+            _ca(l.size())
+        {
+            auto* ptr_l = begin(l);
+            
+            for (size_t i{0}; i < l.size(); i++) {
+                _ca[i] = GL_COLOR_ATTACHMENT0 + ptr_l[i];
+            }
+        }
+
+        vector<GLenum>& colorAttachments() noexcept
+        {
+            return _ca;
+        }
+
+        const vector<GLenum>& colorAttachments() const noexcept
+        {
+            return _ca;
+        }
+
+        size_t size() const noexcept
+        {
+            return _ca.size();
+        }
+        
+    private:
+        vector<GLenum> _ca;
+    };
 
     auto contextDeleter = [](SDL_GLContext* context)
     {
@@ -129,18 +158,14 @@ namespace WOGL
          *
          * @param primitive тип рисуемого примитива
          * @param size количество визуализируемых вершин
-         * @param colorAttachments массив текстурных прикреплений (например вот таких: ColorAttachment ca[] = {0, 1, 4})
+         * @param ca объект с текстурными прикреплениями (например вот таких: ColorAttachments ca {0, 1, 4})
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
-        template<int32_t N>
-        static inline void draw(DrawPrimitive primitive, int32_t size, ColorAttachment(&colorAttachments)[N], int32_t numberRepetitions = 1) noexcept
+        static inline void draw(DrawPrimitive primitive, int32_t size, const ColorAttachments& ca, int32_t numberRepetitions = 1) noexcept
         {
-            for (size_t i{0}; i < N; i++) {
-                colorAttachments[i] = GL_COLOR_ATTACHMENT0 + colorAttachments[i];
-            }
-
-            glDrawBuffers(N, colorAttachments);
+            glDrawBuffers(static_cast<int32_t>(ca.size()), &ca.colorAttachments()[0]);
             glDrawElementsInstanced(static_cast<GLenum>(primitive), size, GL_UNSIGNED_INT, nullptr, numberRepetitions);
+            
         }
 
         /**
@@ -163,18 +188,13 @@ namespace WOGL
          *
          * @param primitive тип рисуемого примитива
          * @param indexBuffer буффер индексов
-         * @param colorAttachments массив текстурных прикреплений (например вот таких: ColorAttachment ca[] = {0, 1, 4})
+         * @param ca объект с текстурными прикреплениями (например вот таких: ColorAttachments ca {0, 1, 4})
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
-        template<typename IndexBuffer, int32_t N>
-        static void draw(DrawPrimitive primitive, const IndexBuffer& indexBuffer, ColorAttachment(&colorAttachments)[N], int32_t numberRepetitions = 1) noexcept
+        template<typename IndexBuffer>
+        static inline void draw(DrawPrimitive primitive, const IndexBuffer& indexBuffer, const ColorAttachments& ca, int32_t numberRepetitions = 1) noexcept
         {
-            for (size_t i{0}; i < N; i++) {
-                colorAttachments[i] = GL_COLOR_ATTACHMENT0 + colorAttachments[i];
-            }
-
-            glDrawBuffers(N, colorAttachments);
-
+            glDrawBuffers(static_cast<int32_t>(ca.size()), &ca.colorAttachments()[0]);
             glDrawElementsInstanced(static_cast<GLenum>(primitive), indexBuffer._size, GL_UNSIGNED_INT, nullptr, numberRepetitions);
         }
 
@@ -200,27 +220,24 @@ namespace WOGL
         /**
          * Статический метод необходимый для отрисовки элемента столько раз, сколько будет находится
          * в numberRepetitions.
-         * 
-         * @param modelRenderer модель 
-         * @param colorAttachments массив текстурных прикреплений (например вот таких: ColorAttachment ca[] = {0, 1, 4})
+         *
+         * @param modelRenderer модель
+         * @param ca объект с текстурными прикреплениями (например вот таких: ColorAttachments ca {0, 1, 4})
          * @param numberRepetitions хранит информацию о количестве проходов рендера
         */
-        template<TexelFormat Tf, template<TexelFormat> typename T, int32_t N>
-        static void draw(const T<Tf>& modelRenderer, ColorAttachment(&colorAttachments)[N], int32_t numberRepetitions = 1)
+        template<TexelFormat Tf, template<TexelFormat> typename T>
+        static void draw(const T<Tf>& modelRenderer, const ColorAttachments& ca, int32_t numberRepetitions = 1)
         {
             for (size_t i{0}, size{modelRenderer._texturersRenderer.size()}; i < size; i++) {
                 modelRenderer._texturersRenderer[i].first.bind(modelRenderer._texturersRenderer[i].second);
             }
 
-            for (size_t i{0}; i < N; i++) {
-                colorAttachments[i] = GL_COLOR_ATTACHMENT0 + colorAttachments[i];
-            }
+            glDrawBuffers(static_cast<int32_t>(ca.size()), &ca.colorAttachments()[0]);
 
-            glDrawBuffers(N, colorAttachments);
-            
             for (size_t i{0}; i < modelRenderer._meshRenderers.size(); i++) {
                 modelRenderer._meshRenderers[i].draw(numberRepetitions);
             }
+
         }
 
         /**
@@ -241,19 +258,15 @@ namespace WOGL
         /**
          * Статический метод необходимый для отрисовки сразу нескольких моделей столько раз, сколько будет находится,
          * в numberRepetitions.
-         * 
-         * @param modelsRenderer модели 
-         * @param colorAttachments массив текстурных прикреплений (например вот таких: ColorAttachment ca[] = {0, 1, 4})
+         *
+         * @param modelsRenderer модели
+         * @param ca объект с текстурными прикреплениями (например вот таких: ColorAttachments ca {0, 1, 4})
          * @param numberRepetitions хранит информацию о количестве проходов рендера
-        */
-        template<typename ContainerWithModelsRenderer, int32_t N>
-        static void draw(const ContainerWithModelsRenderer& modelsRenderer, ColorAttachment(&colorAttachments)[N], int32_t numberRepetitions = 1)
+         */
+        template<typename ContainerWithModelsRenderer>
+        static void draw(const ContainerWithModelsRenderer& modelsRenderer, const ColorAttachments& ca, int32_t numberRepetitions = 1)
         {
-            for (size_t i{0}; i < N; i++) {
-                colorAttachments[i] = GL_COLOR_ATTACHMENT0 + colorAttachments[i];
-            }
-
-            glDrawBuffers(N, colorAttachments);
+            glDrawBuffers(static_cast<int32_t>(ca.size()), &ca.colorAttachments()[0]);
 
             for (size_t i{0}; i < modelsRenderer.size(); i++) {
                 draw(modelsRenderer[i], numberRepetitions);

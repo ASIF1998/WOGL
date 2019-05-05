@@ -232,7 +232,7 @@ int main()
         textureVAO.add(textureCoord, 1);
         
         Framebuffer<TexelFormat::RGB16_F, WritePixels::RenderBuffer, WritePixels::NoWrite> gBuffer(window, 3);
-        Framebuffer<TexelFormat::RED16_F, WritePixels::RenderBuffer, WritePixels::NoWrite> ssaoFrameBuffer(window, 3);
+        Framebuffer<TexelFormat::RED16_F, WritePixels::RenderBuffer, WritePixels::NoWrite> ssaoFrameBuffer(window, 1);
         
         SDL_Event event;
         bool stay = true;
@@ -286,7 +286,7 @@ int main()
         lightingPassShaderProgram.setUniform("Kd", material.kd);
         lightingPassShaderProgram.setUniform("Ks", material.ks);
         
-        ColorAttachment ca[] {
+        ColorAttachments ca {
             0, 1, 2
         };
         

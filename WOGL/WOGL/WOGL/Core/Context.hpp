@@ -111,7 +111,7 @@ namespace WOGL
         PATCHES = GL_PATCHES
     };
     
-    using ColorAttachment = GLenum;
+    /// using ColorAttachment = GLenum;
 }
 
 #include "Context.inl"

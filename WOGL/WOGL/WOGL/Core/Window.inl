@@ -7,6 +7,7 @@
 //
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mouse.h>
 
 #include <memory>
 
@@ -109,6 +110,22 @@ namespace WOGL
             SDL_SetWindowTitle(_window.get(), text.data());
         }
 
+        /**
+         * Метод необходимый для отключения или включения отображения курсора.
+         * 
+         * @param e(true - включить отображение, в противном случает отключить)
+         * @return true - курсор отображается, иначе не отображается 
+        */
+        static bool showCursor(bool e) noexcept
+        {
+            return SDL_ShowCursor(e);
+        }
+
+        static inline void captureMouse(bool e) noexcept
+        {
+            SDL_CaptureMouse(SDL_FALSE);
+        }
+
         void present() const noexcept
         {
             SDL_GL_SwapWindow(_window.get());
@@ -117,5 +134,4 @@ namespace WOGL
     private:
         PtrWindow _window;
     };
-
 }
